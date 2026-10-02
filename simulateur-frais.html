@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur avec frais</title>
+<style>
+  :root{
+    --paper:     #fbf7ec;
+    --paperDeep: #f0e8d2;
+    --ink:       #234e48;   /* teal profond */
+    --inkSoft:   #3f6f68;
+    --accent:    #caa97a;   /* ambre / doré */
+    --accentSoft:#ece0c5;
+
+    /* rôles thématiques (mode clair par défaut) */
+    --bg: var(--paper);
+    --card: var(--paperDeep);
+    --text: var(--ink);
+    --textSoft: var(--inkSoft);
+    --line: rgba(35,78,72,.16);
+    --field: #ffffff;
+    --shadow: 0 1px 2px rgba(35,78,72,.06), 0 6px 24px rgba(35,78,72,.05);
+
+    /* couleurs des graphes */
+    --gInvest: var(--ink);
+    --gInvestSoft: var(--inkSoft);
+    --gInterest: var(--accent);
+    --gInterestSoft: var(--accentSoft);
+    /* frais : tons sable neutres, volontairement pas d'alerte rouge */
+    --gFeeEntry: #b9ae98;
+    --gFeeMgmt:  #8f8672;
+  }
+
+  html[data-theme="dark"]{
+    --bg: var(--ink);
+    --card: var(--inkSoft);
+    --text: var(--paper);
+    --textSoft: var(--accentSoft);
+    --line: rgba(251,247,236,.16);
+    --field: #2b5b54;
+    --shadow: 0 1px 2px rgba(0,0,0,.18), 0 10px 30px rgba(0,0,0,.22);
+
+    --gInvest: #93b7af;      /* mint clair, lisible sur fond teal */
+    --gInvestSoft: #6f9a92;
+    --gInterest: var(--accent);
+    --gInterestSoft: #b8926a;
+    --gFeeEntry: #e3dccb;
+    --gFeeMgmt:  #b4ab96;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{ margin:0; padding:0; }
+
+  body{
+    font-family: Calibri, "Segoe UI", Candara, "Trebuchet MS", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
+    transition: background .35s ease, color .35s ease;
+  }
+
+  .wrap{
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 34px 40px 56px;
+  }
+
+  header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 24px;
+    margin-bottom: 26px;
+  }
+  .brand .eyebrow{
+    font-size: 12px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--textSoft);
+    margin-bottom: 6px;
+  }
+  .brand h1{
+    font-size: 30px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -.01em;
+  }
+  .brand p{
+    margin: 6px 0 0;
+    color: var(--textSoft);
+    font-size: 15px;
+    max-width: 60ch;
+  }
+
+  /* Toggle thème */
+  .toggle{
+    flex: 0 0 auto;
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 14px 7px 16px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: .04em;
+    box-shadow: var(--shadow);
+    transition: background .35s ease, color .35s ease, border-color .35s ease;
+  }
+  .toggle:hover{ border-color: var(--accent); }
+  .toggle .dot{
+    width: 34px; height: 18px;
+    border-radius: 999px;
+    background: var(--line);
+    position: relative;
+    transition: background .3s ease;
+  }
+  .toggle .dot::after{
+    content:"";
+    position:absolute; top:2px; left:2px;
+    width:14px; height:14px; border-radius:50%;
+    background: var(--accent);
+    transition: transform .3s ease;
+  }
+  html[data-theme="dark"] .toggle .dot::after{ transform: translateX(16px); }
+
+  /* Onglets */
+  .tabs{
+    display:inline-flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    margin-bottom: 26px;
+  }
+  .tab{
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: .03em;
+    color: var(--textSoft);
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: background .25s ease, color .25s ease;
+  }
+  .tab:hover{ color: var(--text); }
+  .tab[aria-selected="true"]{
+    background: var(--accent);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .panel[hidden]{ display:none; }
+
+  .layout{
+    display:grid;
+    grid-template-columns: 360px 1fr;
+    gap: 26px;
+    align-items:start;
+  }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 26px 26px 28px;
+    transition: background .35s ease, border-color .35s ease;
+  }
+
+  .card h2{
+    font-size: 13px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--textSoft);
+    font-weight: 600;
+    margin: 0 0 20px;
+  }
+  .card h3{
+    font-size: 12px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--textSoft);
+    font-weight: 600;
+    margin: 26px 0 18px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Champs de saisie */
+  .param{ margin-bottom: 22px; }
+  .param:last-child{ margin-bottom: 4px; }
+  .param .row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom: 9px;
+  }
+  .param label{ font-size: 15px; color: var(--text); }
+  .param .hint{ display:block; font-size: 12px; color: var(--textSoft); margin-top: 2px; }
+  .param .valuebox{
+    display:inline-flex;
+    align-items:baseline;
+    gap: 4px;
+  }
+  .param input[type="number"]{
+    width: 108px;
+    text-align: right;
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--field);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 9px;
+    transition: border-color .2s ease, background .35s ease, color .35s ease;
+  }
+  .param input[type="number"]:focus{
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(202,169,122,.18);
+  }
+  .param .unit{ color: var(--textSoft); font-size: 14px; }
+
+  /* Slider */
+  input[type="range"]{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--line);
+    outline: none;
+    margin: 4px 0 0;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--card);
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    cursor: pointer;
+    transition: transform .15s ease;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover{ transform: scale(1.12); }
+  input[type="range"]::-moz-range-thumb{
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--card);
+    cursor: pointer;
+  }
+
+  /* Colonne de droite */
+  .right{ display:flex; flex-direction:column; gap: 26px; min-width: 0; }
+
+  /* Résultats */
+  .synthese{
+    font-size: 26px;
+    line-height: 1.35;
+    margin: 2px 0 26px;
+    color: var(--text);
+    font-weight: 400;
+    letter-spacing: -.005em;
+  }
+  .synthese--sm{ font-size: 21px; }
+  .synthese strong{
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .synthese .amount{
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 1.15em;
+    letter-spacing: .01em;
+    white-space: nowrap;
+  }
+  .synthese-line{
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 0 0 20px;
+  }
+
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .stats--2x2{ grid-template-columns: repeat(2, 1fr); }
+  .stat{
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: var(--field);
+    transition: background .35s ease, border-color .35s ease;
+  }
+  .stat .k{
+    font-size: 12.5px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--textSoft);
+    display:flex; align-items:center; gap:7px;
+    margin-bottom: 8px;
+  }
+  .stat .k .swatch{
+    width: 10px; height: 10px; border-radius: 3px; flex:0 0 auto;
+  }
+  .stat .v{
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -.01em;
+  }
+  .stat .sub{
+    font-size: 12.5px;
+    color: var(--textSoft);
+    margin-top: 4px;
+  }
+
+  .note{
+    margin: 20px 0 0;
+    padding: 14px 16px;
+    border-left: 3px solid var(--accent);
+    background: var(--field);
+    border-radius: 0 10px 10px 0;
+    font-size: 14px;
+    color: var(--textSoft);
+  }
+  .note strong{ color: var(--text); font-weight: 600; white-space: nowrap; }
+
+  /* Graphiques */
+  .charts{
+    display:grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 26px;
+    align-items:stretch;
+  }
+  .chart-title{
+    font-size: 13px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--textSoft);
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+  svg{ display:block; width:100%; height:auto; overflow:visible; }
+  svg text{ font-family: inherit; font-variant-numeric: tabular-nums; }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 14px 20px;
+    margin-top: 18px;
+  }
+  .legend .item{
+    display:inline-flex; align-items:center; gap: 8px;
+    font-size: 13.5px; color: var(--textSoft);
+  }
+  .legend .swatch{ width: 12px; height: 12px; border-radius: 4px; flex:0 0 auto; }
+  .legend .swatch--line{ height: 3px; border-radius: 2px; width: 16px; }
+  .legend--col{ flex-direction: column; gap: 11px; }
+  .legend--col .item{ width: 100%; }
+  .legend .pct{
+    margin-left: auto;
+    color: var(--text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .donut-center-k{ fill: var(--textSoft); }
+  .donut-center-v{ fill: var(--text); }
+
+  /* Tableau annuel */
+  .table-scroll{
+    max-height: 420px;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--field);
+  }
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th, td{
+    padding: 9px 14px;
+    text-align: right;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--line);
+  }
+  th:first-child, td:first-child{ text-align: left; }
+  thead th{
+    position: sticky; top: 0;
+    background: var(--field);
+    font-size: 11.5px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--textSoft);
+    font-weight: 600;
+  }
+  tbody tr:last-child td{ border-bottom: none; }
+  tbody tr:hover td{ background: rgba(202,169,122,.08); }
+  td.pos{ color: var(--accent); font-weight: 600; }
+
+  footer{
+    margin-top: 34px;
+    font-size: 12.5px;
+    color: var(--textSoft);
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 980px){
+    .layout{ grid-template-columns: 1fr; }
+    .charts{ grid-template-columns: 1fr; }
+    .wrap{ padding: 26px 16px 44px; }
+    header{ flex-direction: column; }
+    .synthese{ font-size: 21px; }
+    .synthese--sm{ font-size: 18px; }
+    .stats--2x2{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="eyebrow">Gestion de patrimoine</div>
+      <h1>Simulateur d'intérêts composés &amp; frais de contrat</h1>
+      <p>Projection d'un capital placé avec versements mensuels, en tenant compte des frais sur versements et des frais de gestion de l'enveloppe.</p>
+    </div>
+    <button class="toggle" id="themeToggle" aria-label="Basculer le thème">
+      <span id="themeLabel">Mode sombre</span>
+      <span class="dot" aria-hidden="true"></span>
+    </button>
+  </header>
+
+  <div class="layout">
+
+    <!-- Panneau de saisie -->
+    <section class="card" aria-label="Hypothèses">
+      <h2>Hypothèses</h2>
+
+      <div class="param">
+        <div class="row">
+          <label for="p0">Capital initial</label>
+          <span class="valuebox">
+            <input type="number" id="p0" min="0" max="1000000" step="500" value="10000">
+            <span class="unit">€</span>
+          </span>
+        </div>
+        <input type="range" id="p0r" min="0" max="200000" step="500" value="10000">
+      </div>
+
+      <div class="param">
+        <div class="row">
+          <label for="pm">Versement mensuel</label>
+          <span class="valuebox">
+            <input type="number" id="pm" min="0" max="50000" step="50" value="300">
+            <span class="unit">€</span>
+          </span>
+        </div>
+        <input type="range" id="pmr" min="0" max="5000" step="50" value="300">
+      </div>
+
+      <div class="param">
+        <div class="row">
+          <label for="yr">Durée</label>
+          <span class="valuebox">
+            <input type="number" id="yr" min="1" max="60" step="1" value="20">
+            <span class="unit">ans</span>
+          </span>
+        </div>
+        <input type="range" id="yrr" min="1" max="50" step="1" value="20">
+      </div>
+
+      <div class="param">
+        <div class="row">
+          <label for="rt">Rendement annuel brut</label>
+          <span class="valuebox">
+            <input type="number" id="rt" min="0" max="20" step="0.1" value="5">
+            <span class="unit">%</span>
+          </span>
+        </div>
+        <input type="range" id="rtr" min="0" max="15" step="0.1" value="5">
+      </div>
+
+      <h3>Frais du contrat</h3>
+
+      <div class="param">
+        <div class="row">
+          <label for="fe">Frais sur versements
+            <span class="hint">prélevés sur chaque versement</span>
+          </label>
+          <span class="valuebox">
+            <input type="number" id="fe" min="0" max="10" step="0.1" value="1">
+            <span class="unit">%</span>
+          </span>
+        </div>
+        <input type="range" id="fer" min="0" max="5" step="0.1" value="1">
+      </div>
+
+      <div class="param">
+        <div class="row">
+          <label for="fg">Frais de gestion annuels
+            <span class="hint">prélevés sur l'encours de l'enveloppe</span>
+          </label>
+          <span class="valuebox">
+            <input type="number" id="fg" min="0" max="5" step="0.05" value="0.6">
+            <span class="unit">%</span>
+          </span>
+        </div>
+        <input type="range" id="fgr" min="0" max="3" step="0.05" value="0.6">
+      </div>
+    </section>
+
+    <!-- Colonne résultats + onglets -->
+    <div class="right">
+
+      <div>
+        <div class="tabs" role="tablist" aria-label="Vues">
+          <button class="tab" role="tab" id="tabProj" aria-controls="panelProj" aria-selected="true">Projection</button>
+          <button class="tab" role="tab" id="tabFees" aria-controls="panelFees" aria-selected="false" tabindex="-1">Frais &amp; transparence</button>
+        </div>
+
+        <!-- ===================== ONGLET 1 : PROJECTION ===================== -->
+        <div class="panel right" id="panelProj" role="tabpanel" aria-labelledby="tabProj">
+
+          <section class="card" aria-label="Résultats">
+            <p class="synthese" id="synthese"></p>
+            <hr class="synthese-line">
+
+            <div class="stats">
+              <div class="stat">
+                <div class="k"><span class="swatch" style="background:var(--gInvest)"></span>Total versé</div>
+                <div class="v" id="sInvest">—</div>
+              </div>
+              <div class="stat">
+                <div class="k"><span class="swatch" style="background:var(--gInterest)"></span>Intérêts nets</div>
+                <div class="v" id="sInterest">—</div>
+              </div>
+              <div class="stat">
+                <div class="k"><span class="swatch" style="background:var(--accent)"></span>Capital final net</div>
+                <div class="v" id="sFinal">—</div>
+              </div>
+            </div>
+          </section>
+
+          <div class="charts">
+            <section class="card" aria-label="Évolution annuelle">
+              <p class="chart-title">Évolution année par année</p>
+              <svg id="barChart" viewBox="0 0 640 400" role="img" aria-label="Graphique en barres empilées"></svg>
+              <div class="legend">
+                <span class="item"><span class="swatch" style="background:var(--gInvest)"></span>Capital investi</span>
+                <span class="item"><span class="swatch" style="background:var(--gInterest)"></span>Intérêts nets</span>
+              </div>
+            </section>
+
+            <section class="card" aria-label="Répartition finale">
+              <p class="chart-title">Répartition finale</p>
+              <svg id="donut" viewBox="0 0 300 300" role="img" aria-label="Répartition en anneau"></svg>
+              <div class="legend legend--col">
+                <span class="item"><span class="swatch" style="background:var(--gInvest)"></span>Capital initial<span class="pct" id="pctInit">—</span></span>
+                <span class="item"><span class="swatch" style="background:var(--gInvestSoft)"></span>Versements<span class="pct" id="pctDep">—</span></span>
+                <span class="item"><span class="swatch" style="background:var(--gInterest)"></span>Intérêts nets<span class="pct" id="pctInt">—</span></span>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ===================== ONGLET 2 : FRAIS ===================== -->
+        <div class="panel right" id="panelFees" role="tabpanel" aria-labelledby="tabFees" hidden>
+
+          <section class="card" aria-label="Synthèse des frais">
+            <p class="synthese synthese--sm" id="syntheseFees"></p>
+            <hr class="synthese-line">
+
+            <div class="stats stats--2x2">
+              <div class="stat">
+                <div class="k"><span class="swatch" style="background:var(--gFeeEntry)"></span>Frais sur versements</div>
+                <div class="v" id="fEntry">—</div>
+                <div class="sub" id="fEntrySub"></div>
+              </div>
+              <div class="stat">
+                <div class="k"><span class="swatch" style="background:var(--gFeeMgmt)"></span>Frais de gestion</div>
+                <div class="v" id="fMgmt">—</div>
+                <div class="sub" id="fMgmtSub"></div>
+              </div>
+              <div class="stat">
+                <div class="k"><span class="swatch" style="background:var(--gInterest)"></span>Rendement net annuel</div>
+                <div class="v" id="fNetRate">—</div>
+                <div class="sub" id="fNetRateSub"></div>
+              </div>
+              <div class="stat">
+                <div class="k"><span class="swatch" style="background:var(--accent)"></span>Intérêts nets / 1 € de frais</div>
+                <div class="v" id="fRatio">—</div>
+                <div class="sub">effet de levier du placement</div>
+              </div>
+            </div>
+
+            <p class="note" id="feeNote"></p>
+          </section>
+
+          <div class="charts">
+            <section class="card" aria-label="Frais et intérêts par année">
+              <p class="chart-title">Frais de l'année vs intérêts nets de l'année</p>
+              <svg id="feeChart" viewBox="0 0 640 400" role="img" aria-label="Frais annuels et intérêts nets annuels"></svg>
+              <div class="legend">
+                <span class="item"><span class="swatch" style="background:var(--gFeeEntry)"></span>Frais sur versements</span>
+                <span class="item"><span class="swatch" style="background:var(--gFeeMgmt)"></span>Frais de gestion</span>
+                <span class="item"><span class="swatch swatch--line" style="background:var(--gInterest)"></span>Intérêts nets de l'année</span>
+              </div>
+            </section>
+
+            <section class="card" aria-label="Où va chaque euro">
+              <p class="chart-title">Où va chaque euro</p>
+              <svg id="feeDonut" viewBox="0 0 300 300" role="img" aria-label="Répartition versements, intérêts et frais"></svg>
+              <div class="legend legend--col">
+                <span class="item"><span class="swatch" style="background:var(--gInvest)"></span>Capital investi<span class="pct" id="ePctInv">—</span></span>
+                <span class="item"><span class="swatch" style="background:var(--gInterest)"></span>Intérêts nets<span class="pct" id="ePctInt">—</span></span>
+                <span class="item"><span class="swatch" style="background:var(--gFeeEntry)"></span>Frais sur versements<span class="pct" id="ePctEntry">—</span></span>
+                <span class="item"><span class="swatch" style="background:var(--gFeeMgmt)"></span>Frais de gestion<span class="pct" id="ePctMgmt">—</span></span>
+              </div>
+            </section>
+          </div>
+
+          <section class="card" aria-label="Détail annuel des frais">
+            <p class="chart-title">Évolution des frais année par année</p>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Année</th>
+                    <th>Encours fin d'année</th>
+                    <th>Frais versements</th>
+                    <th>Frais gestion</th>
+                    <th>Frais cumulés</th>
+                    <th>Frais / encours</th>
+                    <th>Intérêts nets de l'année</th>
+                  </tr>
+                </thead>
+                <tbody id="feeTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    Capitalisation mensuelle sur la base du taux annuel effectif. Versements effectués en début de mois, frais sur versements
+    appliqués aussi au capital initial. Frais de gestion prélevés chaque mois au prorata (taux annuel / 12) sur l'encours.
+    Hors fiscalité et prélèvements sociaux. Simulation à titre indicatif&nbsp;: elle ne constitue ni un conseil en investissement
+    ni une garantie de rendement.
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   FORMATAGE — euros à la française
+   ============================================================ */
+const eur = new Intl.NumberFormat('fr-FR', {
+  style: 'currency', currency: 'EUR',
+  minimumFractionDigits: 2, maximumFractionDigits: 2
+});
+const eur0 = new Intl.NumberFormat('fr-FR', {
+  style: 'currency', currency: 'EUR',
+  minimumFractionDigits: 0, maximumFractionDigits: 0
+});
+const fmt  = v => eur.format(v);
+const fmt0 = v => eur0.format(v);
+const pct  = (v, d = 2) => (v * 100).toLocaleString('fr-FR', {minimumFractionDigits:d, maximumFractionDigits:d}) + ' %';
+
+/* ============================================================
+   MOTEUR DE CALCUL — intérêts composés avec frais
+   ============================================================
+   Entrées :
+     P0      = capital initial (placé à t = 0)
+     D       = versement mensuel (DÉBUT de chaque mois)
+     years   = durée en années
+     annual  = rendement ANNUEL brut des supports
+     e       = frais sur versements (ex : 0.01 pour 1 %)
+     g       = frais de gestion ANNUELS sur encours (ex : 0.006)
+
+   Taux mensuel effectif : i = (1 + annual)^(1/12) - 1
+   Frais de gestion mensuels : gm = g / 12
+
+   Simulation mois par mois (k = 1..N) :
+     1. versement : encours += D * (1 - e)   ; fraisVersement += D * e
+     2. performance du mois : gain = encours * i ; encours += gain
+     3. frais de gestion : f = encours * gm ; encours -= f
+
+   Le capital initial subit aussi les frais sur versements à t = 0.
+
+   Identités utiles :
+     capital investi net = total versé - frais sur versements
+     intérêts nets       = performance brute cumulée - frais de gestion
+     capital final       = capital investi net + intérêts nets
+
+   Un scénario de référence sans aucun frais est calculé en
+   parallèle, uniquement comme repère.
+   ============================================================ */
+function simulate(P0, D, years, annualPct, entryPct, mgmtPct){
+  const i  = Math.pow(1 + annualPct / 100, 1/12) - 1;
+  const e  = entryPct / 100;
+  const gm = mgmtPct / 100 / 12;
+  const N  = years * 12;
+
+  let value    = P0 * (1 - e);
+  let ref      = P0;               // scénario sans frais
+  let deposits = P0;
+  let entry    = P0 * e;
+  let mgmt     = 0;
+  let gross    = 0;                // performance brute cumulée
+
+  // accumulateurs de l'année en cours
+  let yEntry = P0 * e, yMgmt = 0, yNet = 0;
+
+  const series = [{
+    year: 0, deposits, value, investedNet: deposits - entry, interestNet: 0,
+    entryCum: entry, mgmtCum: 0, yEntry: 0, yMgmt: 0, yNet: 0, ref
+  }];
+
+  for (let m = 1; m <= N; m++){
+    // 1. versement du mois (début de mois)
+    value    += D * (1 - e);
+    entry    += D * e;
+    yEntry   += D * e;
+    deposits += D;
+    ref      += D;
+
+    // 2. performance
+    const gain = value * i;
+    value += gain;
+    gross += gain;
+    ref   *= (1 + i);
+
+    // 3. frais de gestion
+    const f = value * gm;
+    value -= f;
+    mgmt  += f;
+    yMgmt += f;
+    yNet  += gain - f;
+
+    if (m % 12 === 0){
+      series.push({
+        year: m / 12,
+        deposits, value,
+        investedNet: deposits - entry,
+        interestNet: gross - mgmt,
+        entryCum: entry, mgmtCum: mgmt,
+        yEntry, yMgmt, yNet, ref
+      });
+      yEntry = 0; yMgmt = 0; yNet = 0;
+    }
+  }
+
+  return {
+    i, N, years,
+    deposits,
+    finalValue: value,
+    investedNet: deposits - entry,
+    interestNet: gross - mgmt,
+    grossPerf: gross,
+    entryFees: entry,
+    mgmtFees: mgmt,
+    totalFees: entry + mgmt,
+    initialNet: P0 * (1 - e),
+    depositsNet: D * N * (1 - e),
+    netRate: Math.pow((1 + i) * (1 - gm), 12) - 1,
+    refValue: ref,
+    series
+  };
+}
+
+/* ============================================================
+   Lecture des entrées + synchronisation champ <-> slider
+   ============================================================ */
+const pairs = [
+  ['p0','p0r'], ['pm','pmr'], ['yr','yrr'], ['rt','rtr'], ['fe','fer'], ['fg','fgr']
+];
+pairs.forEach(([num, rng]) => {
+  const n = document.getElementById(num);
+  const r = document.getElementById(rng);
+  r.addEventListener('input', () => { n.value = r.value; render(); });
+  n.addEventListener('input', () => {
+    const v = parseFloat(n.value);
+    if (!isNaN(v)) r.value = Math.min(Math.max(v, +r.min), +r.max);
+    render();
+  });
+});
+
+function readInputs(){
+  const val = id => parseFloat(document.getElementById(id).value);
+  const P0 = Math.max(0, val('p0') || 0);
+  const D  = Math.max(0, val('pm') || 0);
+  const yr = Math.max(1, Math.min(60, Math.round(val('yr') || 1)));
+  const rt = Math.max(0, val('rt') || 0);
+  const fe = Math.min(100, Math.max(0, val('fe') || 0));
+  const fg = Math.min(100, Math.max(0, val('fg') || 0));
+  return { P0, D, yr, rt, fe, fg };
+}
+
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+/* ============================================================
+   Utilitaires d'échelle / libellés courts d'axe
+   ============================================================ */
+function niceCeil(v){
+  if (v <= 0) return 1;
+  const pow = Math.pow(10, Math.floor(Math.log10(v)));
+  const n = v / pow;
+  let nice;
+  if (n <= 1) nice = 1;
+  else if (n <= 2) nice = 2;
+  else if (n <= 2.5) nice = 2.5;
+  else if (n <= 5) nice = 5;
+  else nice = 10;
+  return nice * pow;
+}
+function shortEur(v){
+  if (v >= 1e6) return (v/1e6).toFixed(v % 1e6 === 0 ? 0 : 1).replace('.', ',') + ' M€';
+  if (v >= 1e4) return Math.round(v/1e3) + ' k€';
+  if (v >= 1e3) return (v/1e3).toFixed(1).replace('.', ',').replace(',0', '') + ' k€';
+  return Math.round(v) + ' €';
+}
+
+/* Grille Y + axe X communs aux deux graphes en barres */
+function axes(o, niceMax, data, step){
+  const { W, padL, padR, padT, plotH, plotW, cLine, cText } = o;
+  const y = v => padT + plotH - (v / niceMax) * plotH;
+  let s = '';
+  for (let t = 0; t <= 4; t++){
+    const val = niceMax * t / 4;
+    const yy = y(val);
+    s += `<line x1="${padL}" y1="${yy.toFixed(1)}" x2="${W-padR}" y2="${yy.toFixed(1)}" stroke="${cLine}" stroke-width="1"/>`;
+    s += `<text x="${padL-10}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="13" fill="${cText}">${shortEur(val)}</text>`;
+  }
+  const n = data.length;
+  const labelEvery = Math.ceil(n / 12);
+  data.forEach((d, idx) => {
+    if (idx === n-1 || idx % labelEvery === 0){
+      const cx = padL + idx * step + step/2;
+      s += `<text x="${cx.toFixed(1)}" y="${padT+plotH+18}" text-anchor="middle" font-size="13" fill="${cText}">${d.year}</text>`;
+    }
+  });
+  s += `<line x1="${padL}" y1="${padT+plotH}" x2="${W-padR}" y2="${padT+plotH}" stroke="${cLine}" stroke-width="1"/>`;
+  s += `<text x="${padL + plotW/2}" y="${padT+plotH+40}" text-anchor="middle" font-size="10" letter-spacing=".14em" fill="${cText}" opacity=".75">ANNÉES</text>`;
+  return { s, y };
+}
+
+function chartFrame(){
+  const W = 640, H = 400, padL = 62, padR = 12, padT = 14, padB = 52;
+  return {
+    W, H, padL, padR, padT, padB,
+    plotW: W - padL - padR, plotH: H - padT - padB,
+    cLine: cssVar('--line'), cText: cssVar('--textSoft')
+  };
+}
+
+/* ============================================================
+   GRAPHIQUE 1 — barres empilées capital investi / intérêts nets
+   ============================================================ */
+function drawBars(res){
+  const svg = document.getElementById('barChart');
+  const o = chartFrame();
+  const cInvest = cssVar('--gInvest'), cInterest = cssVar('--gInterest');
+
+  const data = res.series.slice(1);
+  const n = data.length;
+  const niceMax = niceCeil(Math.max(...data.map(d => Math.max(d.value, d.investedNet)), 1));
+  const step = o.plotW / n;
+  const bw = step * (1 - (n > 30 ? 0.18 : 0.32));
+
+  let { s, y } = axes(o, niceMax, data, step);
+  const base = o.padT + o.plotH;
+
+  data.forEach((d, idx) => {
+    const x = padX(o, idx, step, bw);
+    // si les frais dépassent la performance, la barre s'arrête à l'encours réel
+    const invTop = Math.min(d.investedNet, d.value);
+    const yInv = y(invTop), yTot = y(d.value);
+    s += `<rect x="${x}" y="${yInv.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, base - yInv).toFixed(1)}" fill="${cInvest}" rx="1.5"><title>Année ${d.year} — Capital investi ${fmt(d.investedNet)}</title></rect>`;
+    s += `<rect x="${x}" y="${yTot.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, yInv - yTot).toFixed(1)}" fill="${cInterest}" rx="1.5"><title>Année ${d.year} — Intérêts nets ${fmt(d.interestNet)}</title></rect>`;
+  });
+
+  svg.innerHTML = s;
+}
+function padX(o, idx, step, bw){
+  return (o.padL + idx * step + (step - bw) / 2).toFixed(1);
+}
+
+/* ============================================================
+   GRAPHIQUE 2 — donut de répartition finale
+   ============================================================ */
+function drawDonut(res){
+  const total = res.finalValue || 1;
+  const parts = [
+    { value: res.initialNet,  color: cssVar('--gInvest') },
+    { value: res.depositsNet, color: cssVar('--gInvestSoft') },
+    { value: res.interestNet, color: cssVar('--gInterest') }
+  ];
+  donut('donut', parts, total, 'CAPITAL FINAL', fmt(res.finalValue));
+
+  const pc = v => pct(Math.max(0, v) / total, 1);
+  document.getElementById('pctInit').textContent = pc(res.initialNet);
+  document.getElementById('pctDep').textContent  = pc(res.depositsNet);
+  document.getElementById('pctInt').textContent  = pc(res.interestNet);
+}
+
+function donut(id, parts, total, label, value){
+  const cx = 150, cy = 150, R = 118, r = 74;
+  let a0 = -Math.PI/2, s = '';
+  parts.forEach(p => {
+    const frac = Math.max(0, p.value) / total;
+    if (frac <= 0) return;
+    let a1 = a0 + frac * Math.PI * 2;
+    if (frac > 0.99999) a1 = a0 + Math.PI * 1.9999;
+    s += annulusPath(cx, cy, R, r, a0, a1, p.color);
+    a0 = a1;
+  });
+  s += `<text class="donut-center-k" x="${cx}" y="${cy-6}" text-anchor="middle" font-size="11" letter-spacing=".12em">${label}</text>`;
+  s += `<text class="donut-center-v" x="${cx}" y="${cy+20}" text-anchor="middle" font-size="21" font-weight="600">${value}</text>`;
+  document.getElementById(id).innerHTML = s;
+}
+
+function annulusPath(cx, cy, R, r, a0, a1, color){
+  const large = (a1 - a0) > Math.PI ? 1 : 0;
+  const x0o = cx + R*Math.cos(a0), y0o = cy + R*Math.sin(a0);
+  const x1o = cx + R*Math.cos(a1), y1o = cy + R*Math.sin(a1);
+  const x1i = cx + r*Math.cos(a1), y1i = cy + r*Math.sin(a1);
+  const x0i = cx + r*Math.cos(a0), y0i = cy + r*Math.sin(a0);
+  const d = [
+    `M ${x0o.toFixed(2)} ${y0o.toFixed(2)}`,
+    `A ${R} ${R} 0 ${large} 1 ${x1o.toFixed(2)} ${y1o.toFixed(2)}`,
+    `L ${x1i.toFixed(2)} ${y1i.toFixed(2)}`,
+    `A ${r} ${r} 0 ${large} 0 ${x0i.toFixed(2)} ${y0i.toFixed(2)}`,
+    'Z'
+  ].join(' ');
+  return `<path d="${d}" fill="${color}"/>`;
+}
+
+/* ============================================================
+   ONGLET FRAIS — graphe barres frais annuels + courbe intérêts
+   ============================================================ */
+function drawFeeChart(res){
+  const svg = document.getElementById('feeChart');
+  const o = chartFrame();
+  const cEntry = cssVar('--gFeeEntry'), cMgmt = cssVar('--gFeeMgmt'), cInt = cssVar('--gInterest');
+  const cCard = cssVar('--card');
+
+  const data = res.series.slice(1);
+  const n = data.length;
+  const maxV = Math.max(...data.map(d => Math.max(d.yEntry + d.yMgmt, d.yNet)), 1);
+  const niceMax = niceCeil(maxV);
+  const step = o.plotW / n;
+  const bw = step * (1 - (n > 30 ? 0.18 : 0.32));
+
+  let { s, y } = axes(o, niceMax, data, step);
+  const base = o.padT + o.plotH;
+
+  data.forEach((d, idx) => {
+    const x = padX(o, idx, step, bw);
+    const yE = y(d.yEntry), yT = y(d.yEntry + d.yMgmt);
+    s += `<rect x="${x}" y="${yE.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, base - yE).toFixed(1)}" fill="${cEntry}" rx="1.5"><title>Année ${d.year} — Frais sur versements ${fmt(d.yEntry)}</title></rect>`;
+    s += `<rect x="${x}" y="${yT.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, yE - yT).toFixed(1)}" fill="${cMgmt}" rx="1.5"><title>Année ${d.year} — Frais de gestion ${fmt(d.yMgmt)}</title></rect>`;
+  });
+
+  // courbe des intérêts nets de l'année
+  const pts = data.map((d, idx) => {
+    const cx = o.padL + idx * step + step/2;
+    return [cx, y(Math.max(0, d.yNet)), d];
+  });
+  s += `<polyline points="${pts.map(p => p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="none" stroke="${cInt}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  if (n <= 30){
+    pts.forEach(([cx, cy, d]) => {
+      s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.5" fill="${cInt}" stroke="${cCard}" stroke-width="1.5"><title>Année ${d.year} — Intérêts nets ${fmt(d.yNet)}</title></circle>`;
+    });
+  }
+
+  svg.innerHTML = s;
+}
+
+function drawFeeDonut(res){
+  // Tout ce qui est entré dans le contrat : versements + performance brute
+  const total = (res.deposits + res.grossPerf) || 1;
+  const parts = [
+    { value: res.investedNet, color: cssVar('--gInvest') },
+    { value: res.interestNet, color: cssVar('--gInterest') },
+    { value: res.entryFees,   color: cssVar('--gFeeEntry') },
+    { value: res.mgmtFees,    color: cssVar('--gFeeMgmt') }
+  ];
+  const kept = Math.max(0, res.finalValue) / total;
+  donut('feeDonut', parts, total, 'VOUS RESTE', pct(kept, 1));
+
+  const pc = v => pct(Math.max(0, v) / total, 1);
+  document.getElementById('ePctInv').textContent   = pc(res.investedNet);
+  document.getElementById('ePctInt').textContent   = pc(res.interestNet);
+  document.getElementById('ePctEntry').textContent = pc(res.entryFees);
+  document.getElementById('ePctMgmt').textContent  = pc(res.mgmtFees);
+}
+
+function fillFeeTable(res){
+  const rows = res.series.slice(1).map(d => {
+    const yFees = d.yEntry + d.yMgmt;
+    const ratio = d.value > 0 ? yFees / d.value : 0;
+    return `<tr>
+      <td>${d.year}</td>
+      <td>${fmt0(d.value)}</td>
+      <td>${fmt0(d.yEntry)}</td>
+      <td>${fmt0(d.yMgmt)}</td>
+      <td>${fmt0(d.entryCum + d.mgmtCum)}</td>
+      <td>${pct(ratio, 2)}</td>
+      <td class="${d.yNet > yFees ? 'pos' : ''}">${fmt0(d.yNet)}</td>
+    </tr>`;
+  });
+  document.getElementById('feeTable').innerHTML = rows.join('');
+}
+
+function renderFees(res, inp){
+  const months = res.N;
+  const perMonth = res.totalFees / months;
+  const yLabel = `${inp.yr} ${inp.yr > 1 ? 'ans' : 'an'}`;
+
+  document.getElementById('fEntry').textContent = fmt(res.entryFees);
+  document.getElementById('fEntrySub').textContent = `${pct(inp.fe/100, 1)} de chaque versement`;
+  document.getElementById('fMgmt').textContent = fmt(res.mgmtFees);
+  document.getElementById('fMgmtSub').textContent = `≈ ${fmt(res.mgmtFees / months)} / mois en moyenne`;
+  document.getElementById('fNetRate').textContent = pct(res.netRate, 2);
+  document.getElementById('fNetRateSub').textContent = `pour ${pct(inp.rt/100, 1)} brut sur les supports`;
+
+  const ratio = res.totalFees > 0 ? res.interestNet / res.totalFees : null;
+  document.getElementById('fRatio').textContent =
+    ratio === null ? '—' : ratio.toLocaleString('fr-FR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' €';
+
+  const syn = document.getElementById('syntheseFees');
+  if (res.totalFees <= 0){
+    syn.innerHTML = `Aucun frais renseigné&nbsp;: l'intégralité de la performance vous revient, soit ` +
+      `<span class="amount">${fmt(res.interestNet)}</span> d'intérêts sur ${yLabel}.`;
+  } else if (res.interestNet > 0){
+    syn.innerHTML = `Sur <strong>${yLabel}</strong>, le service de votre enveloppe représente en moyenne ` +
+      `<strong>${fmt(perMonth)} par mois</strong>. Dans le même temps, vos placements génèrent ` +
+      `<span class="amount">${fmt(res.interestNet)}</span> d'intérêts nets.`;
+  } else {
+    syn.innerHTML = `Sur <strong>${yLabel}</strong>, le service de votre enveloppe représente en moyenne ` +
+      `<strong>${fmt(perMonth)} par mois</strong>. Avec ce rendement, la performance ne couvre pas encore les frais&nbsp;: ` +
+      `un horizon plus long ou des supports plus dynamiques changent la donne.`;
+  }
+
+  // Repère factuel : même placement sans aucun frais
+  const gap = res.refValue - res.finalValue;
+  document.getElementById('feeNote').innerHTML = res.totalFees <= 0
+    ? `Vous êtes ici sur un scénario sans frais&nbsp;: il sert de point de repère pour comparer différents contrats.`
+    : `<strong>Repère&nbsp;:</strong> un placement théorique sans aucun frais atteindrait <strong>${fmt(res.refValue)}</strong>, ` +
+      `soit ${fmt(gap)} de plus. Cet écart correspond aux frais versés et à la performance qu'ils auraient eux-mêmes générée. ` +
+      `C'est la contrepartie de la gestion, de l'accès aux supports et des avantages de l'enveloppe&nbsp;; ` +
+      `un bon outil pour comparer deux contrats à hypothèses égales.`;
+
+  drawFeeChart(res);
+  drawFeeDonut(res);
+  fillFeeTable(res);
+}
+
+/* ============================================================
+   RENDU GLOBAL
+   ============================================================ */
+function render(){
+  const inp = readInputs();
+  const res = simulate(inp.P0, inp.D, inp.yr, inp.rt, inp.fe, inp.fg);
+
+  document.getElementById('sInvest').textContent   = fmt(res.deposits);
+  document.getElementById('sInterest').textContent = fmt(res.interestNet);
+  document.getElementById('sFinal').textContent    = fmt(res.finalValue);
+
+  document.getElementById('synthese').innerHTML =
+    `Après <strong>${inp.yr} ${inp.yr > 1 ? 'ans' : 'an'}</strong>, vous disposerez d'un capital net de frais de ` +
+    `<span class="amount">${fmt(res.finalValue)}</span>.`;
+
+  drawBars(res);
+  drawDonut(res);
+  renderFees(res, inp);
+}
+
+/* ============================================================
+   Onglets
+   ============================================================ */
+const tabs = [
+  [document.getElementById('tabProj'), document.getElementById('panelProj')],
+  [document.getElementById('tabFees'), document.getElementById('panelFees')]
+];
+function selectTab(idx){
+  tabs.forEach(([t, p], k) => {
+    const on = k === idx;
+    t.setAttribute('aria-selected', on);
+    t.tabIndex = on ? 0 : -1;
+    p.hidden = !on;
+  });
+}
+tabs.forEach(([t], k) => {
+  t.addEventListener('click', () => selectTab(k));
+  t.addEventListener('keydown', ev => {
+    if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft'){
+      const next = (k + (ev.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      selectTab(next);
+      tabs[next][0].focus();
+    }
+  });
+});
+
+/* ============================================================
+   Bascule thème clair / dark
+   ============================================================ */
+const root = document.documentElement;
+const toggle = document.getElementById('themeToggle');
+const themeLabel = document.getElementById('themeLabel');
+toggle.addEventListener('click', () => {
+  const dark = root.getAttribute('data-theme') === 'dark';
+  root.setAttribute('data-theme', dark ? 'light' : 'dark');
+  themeLabel.textContent = dark ? 'Mode clair' : 'Mode sombre';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
