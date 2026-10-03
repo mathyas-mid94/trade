@@ -2,116 +2,166 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tunnel Fin de Carrière</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tunnel de Fin de Carrière</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap">
 <style>
+/* Charte MIC — papier crème, encre sarcelle, accent or. Colonne de saisie à gauche, lecture du dossier à droite. */
 :root{
-  --bg:#f6f7f9; --card:#ffffff; --ink:#1b2430; --muted:#5d6878; --line:#dfe3ea;
-  --accent:#2457d6; --accent-soft:#e8eefc;
-  --ok:#1f8a4c; --ok-soft:#e5f5ec; --warn:#b26a00; --warn-soft:#fff3e0; --bad:#c62828; --bad-soft:#fdecea;
-  --c-work:#4f7bd9; --c-car:#e0a31f; --c-are:#1aa39a; --c-per:#8a5cd6; --c-ret:#3a9b53;
+  --paper:#fbf7ec; --paper-deep:#f0e8d2; --ink:#234e48; --ink-soft:#3f6f68; --accent:#caa97a; --accent-soft:#ece0c5;
+  --bg:var(--paper); --card:#fffdf7; --fg:#1f3a36; --muted:#5f7a75; --line:#e3d9bf; --field:#fbf7ec;
+  --ok:#2f7a52; --ok-soft:#e3f0e6; --warn:#9a6a1f; --warn-soft:#f6ead2; --bad:#a83a32; --bad-soft:#f6e1dd; --info-soft:#e6eeeb;
+  --c-work:#a9bfb9; --c-car:#caa97a; --c-are:#3f6f68; --c-per:#9c733c; --c-ret:#234e48;
+  --t-work:#1f3a36; --t-car:#1f3a36;
+  --f-display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --f-body:"Jost", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#11151b; --card:#1a2029; --ink:#e7ebf1; --muted:#9aa5b5; --line:#2d3643;
-    --accent:#7aa2ff; --accent-soft:#1e2a44;
-    --ok:#4cc27e; --ok-soft:#14301f; --warn:#f0a43a; --warn-soft:#352612; --bad:#ff6b6b; --bad-soft:#3a1717;
+    --bg:#13201e; --card:#1a2b28; --fg:#efe7d4; --muted:#a3b5b0; --line:#2f4440; --field:#13201e;
+    --ink:#cfe0db; --ink-soft:#8fb3ab; --accent:#d4b688; --accent-soft:#2c2a1f; --paper-deep:#22332f;
+    --ok:#6cc391; --ok-soft:#183126; --warn:#e2b05e; --warn-soft:#33281a; --bad:#ec8378; --bad-soft:#3a1f1c; --info-soft:#1f322e;
+    --c-work:#5d7a74; --c-are:#5e968c; --c-per:#b98d50; --c-ret:#2f6b62; --t-work:#f3ecda; --t-car:#1f2a28;
+    color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#11151b; --card:#1a2029; --ink:#e7ebf1; --muted:#9aa5b5; --line:#2d3643;
-  --accent:#7aa2ff; --accent-soft:#1e2a44;
-  --ok:#4cc27e; --ok-soft:#14301f; --warn:#f0a43a; --warn-soft:#352612; --bad:#ff6b6b; --bad-soft:#3a1717;
+  --bg:#13201e; --card:#1a2b28; --fg:#efe7d4; --muted:#a3b5b0; --line:#2f4440; --field:#13201e;
+  --ink:#cfe0db; --ink-soft:#8fb3ab; --accent:#d4b688; --accent-soft:#2c2a1f; --paper-deep:#22332f;
+  --ok:#6cc391; --ok-soft:#183126; --warn:#e2b05e; --warn-soft:#33281a; --bad:#ec8378; --bad-soft:#3a1f1c; --info-soft:#1f322e;
+  --c-work:#5d7a74; --c-are:#5e968c; --c-per:#b98d50; --c-ret:#2f6b62; --t-work:#f3ecda; --t-car:#1f2a28;
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-header{padding:18px 16px 8px;max-width:1400px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
-header h1{margin:0;font-size:22px}
-header p{margin:2px 0 0;color:var(--muted)}
-.toolbar{display:flex;flex-wrap:wrap;gap:6px}
-button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer}
-button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-button:hover{filter:brightness(1.05)}
-main{max-width:1400px;margin:0 auto;padding:8px 16px 40px;display:grid;grid-template-columns:400px 1fr;gap:16px;align-items:start}
-@media (max-width:980px){main{grid-template-columns:minmax(0,1fr)}}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--fg);font:15px/1.5 var(--f-body);padding-inline:16px}
+.wrap{max-width:1380px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;padding-block:20px 12px;border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:14px;align-items:center}
+.brand svg{width:58px;height:58px;flex:none}
+.brand h1{margin:0;font:600 30px/1.05 var(--f-display);color:var(--ink);text-wrap:balance}
+.brand p{margin:3px 0 0;color:var(--muted);font-size:13px;letter-spacing:.02em}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px}
+button,.btn{font:500 13px var(--f-body);border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+button.primary{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+:root[data-theme="dark"] button.primary{color:#13201e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.primary{color:#13201e}}
+button:hover,.btn:hover{border-color:var(--accent)}
+button:focus-visible,.btn:focus-within,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{display:grid;grid-template-columns:390px minmax(0,1fr);gap:22px;align-items:start;padding-block:18px 40px}
 main>section{min-width:0}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
-.card h2{margin:0 0 10px;font-size:16px}
-.card h3{margin:14px 0 6px;font-size:14px}
-details.card>summary{cursor:pointer;font-weight:600;font-size:15px;list-style:none}
-details.card>summary::before{content:"▸ ";color:var(--muted)}
-details.card[open]>summary::before{content:"▾ "}
-details.card[open]>summary{margin-bottom:10px}
-.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 10px}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px}
-label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
+@media (max-width:980px){main{grid-template-columns:minmax(0,1fr)}}
+.eyebrow{font:500 11px var(--f-body);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+#inputs{display:flex;flex-direction:column;gap:14px}
+#results{display:flex;flex-direction:column;gap:18px}
+.panel h2{margin:0;font:600 21px/1.15 var(--f-display);color:var(--ink)}
+.panel h3{margin:4px 0 0;font:600 17px var(--f-display);color:var(--ink)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
 label.full{grid-column:1/-1}
-label.check{flex-direction:row;align-items:center;gap:6px;color:var(--ink)}
-input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:6px 8px;width:100%;min-width:0}
-input[type=checkbox]{width:auto}
-input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
-.hint{font-size:11px;color:var(--muted)}
-.calc{font-size:12px;color:var(--ink);background:var(--accent-soft);border-radius:6px;padding:4px 8px}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-@media (max-width:700px){.kpis{grid-template-columns:1fr 1fr}}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.kpi .l{font-size:12px;color:var(--muted)}
-.kpi .v{font-size:20px;font-weight:700;margin-top:2px}
-.kpi .s{font-size:12px;color:var(--muted)}
-.kpi.hl{border-color:var(--accent);background:var(--accent-soft)}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-th{font-size:12px;color:var(--muted);font-weight:600}
+label.check{flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:13px}
+.src{font-size:11px;color:var(--ink-soft);font-style:italic}
+input,select{font:inherit;font-size:14px;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:100%;min-width:0;font-variant-numeric:tabular-nums}
+input[type=checkbox],input[type=radio]{width:auto;accent-color:var(--ink-soft)}
+input[type=range]{padding:0;accent-color:var(--ink-soft)}
+input:disabled{opacity:.6}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:999px;padding:3px;gap:3px}
+.seg label{flex-direction:row;justify-content:center;align-items:center;padding:6px 8px;border-radius:999px;cursor:pointer;color:var(--fg);font-size:13px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label:has(input:checked){background:var(--ink);color:var(--paper)}
+:root[data-theme="dark"] .seg label:has(input:checked){color:#13201e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg label:has(input:checked){color:#13201e}}
+.calc{font-size:12.5px;color:var(--fg);background:var(--accent-soft);border-radius:8px;padding:7px 10px;line-height:1.55}
+.calc b{font-weight:600}
+.calc.est{background:var(--warn-soft)}
+details.panel>summary{cursor:pointer;list-style:none;font:600 17px var(--f-display);color:var(--ink)}
+details.panel>summary::-webkit-details-marker{display:none}
+details.panel>summary::after{content:"＋";float:right;color:var(--accent)}
+details.panel[open]>summary::after{content:"－"}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.kpi .l{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.kpi .v{font:600 30px/1.1 var(--f-display);color:var(--ink);font-variant-numeric:lining-nums}
+.kpi .s{font-size:12.5px;color:var(--muted)}
+.kpi.hl{background:#234e48;border-color:#234e48}
+.kpi.hl .l,.kpi.hl .s{color:#ece0c5}
+.kpi.hl .v{color:#fbf7ec}
+.kpi.gold{border-color:var(--accent);background:var(--accent-soft)}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:8px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-tr.total td{font-weight:700;border-top:2px solid var(--line)}
+tr.total td{font-weight:600;border-top:1.5px solid var(--ink-soft);border-bottom:none}
+.hint{font-size:12px;color:var(--muted)}
 .pos{color:var(--ok);font-weight:600}
 .neg{color:var(--bad);font-weight:600}
-.alerts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.alerts li{padding:8px 10px;border-radius:8px;font-size:13px}
-.alerts li.bad{background:var(--bad-soft);border-left:4px solid var(--bad)}
-.alerts li.warn{background:var(--warn-soft);border-left:4px solid var(--warn)}
-.alerts li.ok{background:var(--ok-soft);border-left:4px solid var(--ok)}
-.alerts li.info{background:var(--accent-soft);border-left:4px solid var(--accent)}
-.verdict{padding:12px 14px;border-radius:10px;font-size:14px}
-.verdict.ok{background:var(--ok-soft);border:1px solid var(--ok)}
-.verdict.bad{background:var(--bad-soft);border:1px solid var(--bad)}
-.verdict.warn{background:var(--warn-soft);border:1px solid var(--warn)}
-.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:6px}
-.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;background:var(--c)}
-svg text{fill:var(--ink);font-family:inherit}
-.scroll{overflow-x:auto}
+.alerts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.alerts li{padding:9px 12px;border-radius:9px;font-size:13.5px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
+.alerts li::before{content:"";width:8px;height:8px;border-radius:50%;margin-top:7px;background:var(--dot)}
+.alerts li.bad{background:var(--bad-soft);--dot:var(--bad)}
+.alerts li.warn{background:var(--warn-soft);--dot:var(--warn)}
+.alerts li.ok{background:var(--ok-soft);--dot:var(--ok)}
+.alerts li.info{background:var(--info-soft);--dot:var(--ink-soft)}
+.verdict{padding:13px 15px;border-radius:10px;font-size:14.5px;border:1px solid}
+.verdict.ok{background:var(--ok-soft);border-color:var(--ok)}
+.verdict.bad{background:var(--bad-soft);border-color:var(--bad)}
+.verdict.warn{background:var(--warn-soft);border-color:var(--warn)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;background:var(--c);vertical-align:-1px}
+svg text{fill:var(--fg);font-family:var(--f-body)}
+ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.foot{font-size:11.5px;color:var(--muted);max-width:90ch}
 .print-only{display:none}
-.foot{font-size:11px;color:var(--muted)}
+.online-note{font-size:12px;color:var(--muted)}
 @media print{
-  body{background:#fff;color:#000;font-size:11px}
-  header .toolbar, #inputs, .no-print{display:none!important}
+  html,body{background:#fff}
+  body{color:#000;font-size:11px;padding:0}
+  .toolbar,#inputs,.no-print{display:none!important}
   main{display:block;padding:0}
-  .card,.kpi{break-inside:avoid;border-color:#ccc}
+  .panel,.kpi{break-inside:avoid}
+  #results{gap:10px}
   .print-only{display:block}
-  header{padding:0 0 8px}
 }
 </style>
 </head>
 <body>
-<header>
-  <div>
-    <h1>Tunnel de Fin de Carrière <span class="hint">— PER × fin de droits chômage</span></h1>
-    <p>Outil interne de conseil · calcul local dans le navigateur, aucune donnée envoyée.</p>
-    <p class="print-only" id="printHead"></p>
+<div class="wrap">
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 120 120" role="img" aria-label="MIC">
+      <circle cx="60" cy="60" r="57" fill="#fbf7ec" stroke="#234e48" stroke-width="2.4"/>
+      <circle cx="60" cy="60" r="51" fill="none" stroke="#3f6f68" stroke-width=".8"/>
+      <text x="60" y="68" text-anchor="middle" style="font:600 33px 'Cormorant Garamond',Georgia,serif;fill:#234e48;letter-spacing:-.5px">MIC</text>
+      <line x1="32" y1="80" x2="88" y2="80" stroke="#3f6f68" stroke-width=".9"/>
+    </svg>
+    <div>
+      <h1>Tunnel de Fin de Carrière</h1>
+      <p>PER &amp; fin de droits chômage · outil interne de conseil</p>
+      <p class="print-only" id="printHead"></p>
+    </div>
   </div>
   <div class="toolbar">
-    <button class="primary" onclick="window.print()">🖨️ Imprimer / PDF client</button>
-    <button onclick="exportJSON()">💾 Enregistrer le dossier</button>
-    <label class="btn" style="flex-direction:row;color:var(--ink);font-size:14px">📂 Ouvrir un dossier<input type="file" accept=".json" onchange="importJSON(this)" hidden></label>
-    <button onclick="resetAll()">↺ Réinitialiser</button>
+    <button class="primary local-only" id="btnPrint" type="button">Imprimer la synthèse</button>
+    <button class="local-only" id="btnSave" type="button">Enregistrer le dossier</button>
+    <label class="btn" for="fileOpen">Ouvrir un dossier<input id="fileOpen" type="file" accept=".json" hidden></label>
+    <button id="btnReset" type="button">Réinitialiser</button>
   </div>
 </header>
+<p class="online-note" id="onlineNote" hidden>Version en ligne : l'impression et l'enregistrement des dossiers se font depuis le fichier <b>index.html</b> ouvert sur votre ordinateur.</p>
 
 <main>
-<!-- ================= BLOC 1 : SAISIE ================= -->
-<section id="inputs">
-  <div class="card">
-    <h2>👤 Client</h2>
+<!-- ============ SAISIE ============ -->
+<section id="inputs" aria-label="Saisie du dossier">
+  <div class="panel">
+    <span class="eyebrow">Client</span>
     <div class="grid2">
       <label class="full">Nom du client<input id="nom" type="text"></label>
       <label>Date de naissance<input id="naissance" type="date"></label>
@@ -119,186 +169,216 @@ svg text{fill:var(--ink);font-family:inherit}
     </div>
   </div>
 
-  <div class="card">
-    <h2>🧓 Situation retraite</h2>
-    <div class="grid2">
-      <label>Trimestres validés au 31/12 de l'an dernier<input id="q0" type="number" step="1"></label>
-      <label>Trimestres requis (génération)<input id="qRequis" type="number" step="1"></label>
-      <label>Âge légal – années<input id="ageLegalA" type="number" step="1"></label>
-      <label>Âge légal – mois<input id="ageLegalM" type="number" step="1" min="0" max="11"></label>
-      <label class="check full"><input id="autoReg" type="checkbox"> Remplir âge légal / trimestres d'après la génération</label>
-      <label class="check full"><input id="cot20" type="checkbox"> ≥ 20 ans de cotisations (ouvre jusqu'à 20 trimestres de chômage non indemnisé)</label>
-      <label class="full">Pension nette mensuelle estimée (taux plein)<input id="pension" type="number" step="50"></label>
+  <div class="panel">
+    <span class="eyebrow">Retraite</span>
+    <div class="seg" role="radiogroup" aria-label="Trimestres">
+      <label><input type="radio" name="qMode" id="qModeConnu" value="connu">Trimestres connus</label>
+      <label><input type="radio" name="qMode" id="qModeEstime" value="estime">À estimer</label>
     </div>
-    <p class="hint">Barème suspendu par la LFSS 2026 : vérifier systématiquement sur le relevé info-retraite.fr. Carrières longues non gérées.</p>
+    <div class="grid2">
+      <label class="full" id="wrapQ0">Trimestres validés au 31/12 de l'an dernier<input id="q0" type="number" step="1"><span class="src">info-retraite.fr › Mon relevé de carrière</span></label>
+      <label class="full" id="wrapDebut" hidden>Année du premier emploi<input id="anneeDebut" type="number" step="1"><span class="src">Estimation : 4 trimestres par an, carrière continue</span></label>
+      <label class="full">Pension nette mensuelle estimée<input id="pension" type="number" step="50"><span class="src">info-retraite.fr › Mon estimation retraite</span></label>
+    </div>
+    <div class="calc" id="calcRetraite"></div>
   </div>
 
-  <div class="card">
-    <h2>💼 Situation professionnelle</h2>
+  <div class="panel">
+    <span class="eyebrow">Emploi &amp; rupture</span>
     <div class="grid2">
-      <label>Salaire brut annuel (primes incl.)<input id="brut" type="number" step="1000"></label>
-      <label>Ratio net / brut<input id="netRatio" type="number" step="0.01"></label>
-      <label>Date d'entrée dans l'entreprise<input id="dateEntree" type="date"></label>
-      <label>Jours de CP non pris (ouvrables)<input id="cpJours" type="number" step="1"></label>
-      <label>Indemnité de rupture négociée (brut)<input id="indem" type="number" step="1000"></label>
-      <label>Indemnité conventionnelle mini (0 = légale)<input id="indemConv" type="number" step="1000"></label>
-      <label class="full">Besoin mensuel net du foyer pendant la transition<input id="besoin" type="number" step="100"></label>
+      <label class="full">Salaire net imposable annuel<input id="netImp" type="number" step="1000"><span class="src">Avis d'impôt, ligne « salaires » du client</span></label>
+      <label class="full">Statut
+        <select id="statut"><option value="cadre">Cadre</option><option value="noncadre">Non-cadre</option></select></label>
+      <label>Entrée dans l'entreprise<input id="dateEntree" type="date"></label>
+      <label>Jours de congés restants<input id="cpJours" type="number" step="1"></label>
+      <label class="full">Indemnité de rupture négociée (brute)<input id="indem" type="number" step="1000"></label>
+      <label class="full">Besoin mensuel net du foyer<input id="besoin" type="number" step="100"></label>
     </div>
-    <div class="calc" id="calcPro" style="margin-top:8px"></div>
+    <div class="calc" id="calcPro"></div>
   </div>
 
-  <div class="card">
-    <h2>🏦 Plan d'Épargne Retraite</h2>
-    <div class="grid2">
-      <label class="full">Capital PER actuel<input id="perCap" type="number" step="1000"></label>
+  <div class="panel">
+    <span class="eyebrow">Plan d'Épargne Retraite</span>
+    <div class="seg" role="radiogroup" aria-label="Situation PER">
+      <label><input type="radio" name="perMode" id="perModeExistant" value="existant">PER existant</label>
+      <label><input type="radio" name="perMode" id="perModeNouveau" value="nouveau">PER à ouvrir</label>
+    </div>
+    <div class="grid2" id="perExistant">
+      <label class="full">Capital actuel<input id="perCap" type="number" step="1000"><span class="src">Dernier relevé de l'assureur</span></label>
       <label>dont versements déduits<input id="perDed" type="number" step="1000"></label>
-      <label>dont versements non déduits<input id="perNonDed" type="number" step="1000"></label>
-      <label>Rendement annuel estimé (%)<input id="perRdt" type="number" step="0.1"></label>
-      <label>Versement annuel jusqu'au départ<input id="perVers" type="number" step="500"></label>
-      <label class="check full"><input id="perVersDed" type="checkbox"> Ces versements futurs sont déduits du revenu imposable</label>
+      <label>dont non déduits<input id="perNonDed" type="number" step="1000"></label>
     </div>
-    <h3>Fiscalité</h3>
+    <div class="grid2" id="perNouveau" hidden>
+      <label class="full">Versement initial<input id="perInit" type="number" step="1000"></label>
+    </div>
     <div class="grid2">
-      <label>TMI pendant la vie active
-        <select id="tmiEntree"><option value="11">11 %</option><option value="30">30 %</option><option value="41">41 %</option><option value="45">45 %</option></select></label>
-      <label>Parts fiscales à la retraite<input id="parts" type="number" step="0.5"></label>
-      <label class="full">Revenu net imposable du foyer à la retraite (hors PER)<input id="revRetraite" type="number" step="1000"></label>
-      <label>Sortie classique étalée sur (années)<input id="fraction" type="number" step="1" min="1" max="10"></label>
-      <label>Prélèvements sociaux (%)<input id="ps" type="number" step="0.1"></label>
+      <label>Versement mensuel jusqu'au départ<input id="perMens" type="number" step="50"></label>
+      <label>Rendement net annuel (%)<input id="perRdt" type="number" step="0.1"></label>
+      <label class="check full"><input id="perVersDed" type="checkbox"> Versements à venir déduits du revenu imposable</label>
     </div>
-    <div class="calc" id="calcPer" style="margin-top:8px"></div>
+    <div class="calc" id="calcPer"></div>
   </div>
 
-  <div class="card">
-    <h2>🎯 Stratégie</h2>
+  <div class="panel">
+    <span class="eyebrow">Fiscalité du foyer</span>
     <div class="grid2">
-      <label class="full">Fenêtre de sécurité (chômage non indemnisé), en mois : <b id="tamponV"></b>
-        <input id="tampon" type="range" min="0" max="60" step="1"></label>
-      <label class="full">Date de rupture imposée (vide = rétroplanning auto)<input id="ruptureManuelle" type="date"></label>
+      <label>TMI
+        <select id="tmiEntree"><option value="0">0 %</option><option value="11">11 %</option><option value="30">30 %</option><option value="41">41 %</option><option value="45">45 %</option></select></label>
+      <label>Nombre de parts<input id="parts" type="number" step="0.5"></label>
+      <label class="full">Plafond épargne retraite disponible<input id="plafondPer" type="number" step="500"><span class="src">Avis d'impôt, cadre « plafond épargne retraite » (0 = ne pas contrôler)</span></label>
+      <label class="full">Autres revenus imposables du foyer à la retraite<input id="autresRev" type="number" step="1000"><span class="src">Conjoint, loyers… La pension du client est ajoutée automatiquement</span></label>
+      <label class="full">Sortie classique du PER étalée sur (années)<input id="fraction" type="number" step="1" min="1" max="10"></label>
     </div>
+    <span class="src">TMI, parts et plafond figurent sur le même avis d'impôt.</span>
   </div>
 
-  <details class="card">
-    <summary>⚙️ Paramètres réglementaires (à mettre à jour)</summary>
-    <h3>Assurance chômage (convention 2025)</h3>
+  <div class="panel">
+    <span class="eyebrow">Stratégie</span>
+    <label>Fenêtre de sécurité après la fin des droits : <b id="tamponV" style="color:var(--fg)"></b>
+      <input id="tampon" type="range" min="0" max="60" step="1"></label>
+    <label>Date de rupture imposée (vide = calcul automatique)<input id="ruptureManuelle" type="date"></label>
+  </div>
+
+  <details class="panel">
+    <summary>Paramètres avancés</summary>
+    <h3>Retraite</h3>
+    <label class="check"><input id="forceReg" type="checkbox"> Saisir âge légal et trimestres requis à la main</label>
+    <div class="grid3">
+      <label>Âge légal (ans)<input id="ageLegalA" type="number" step="1"></label>
+      <label>+ mois<input id="ageLegalM" type="number" step="1" min="0" max="11"></label>
+      <label>Trim. requis<input id="qRequis" type="number" step="1"></label>
+    </div>
+    <label class="check"><input id="cot20" type="checkbox"> Au moins 20 ans de cotisations</label>
+    <div class="grid3">
+      <label>Salaire validant 1 trim.<input id="pTrim" type="number" step="1"></label>
+      <label>Jours chômage / trim.<input id="pJTrim" type="number" step="1"></label>
+      <label>Taux plein auto (âge)<input id="pAge67" type="number" step="1"></label>
+      <label>Plafond non indemn.<input id="pNcStd" type="number" step="1"></label>
+      <label>Plafond long (≥ âge)<input id="pNcLong" type="number" step="1"></label>
+      <label>Âge plafond long<input id="pNcAge" type="number" step="1"></label>
+    </div>
+    <h3>Salaire</h3>
+    <div class="grid3">
+      <label>Net imp./brut cadre<input id="cCadre" type="number" step="0.005"></label>
+      <label>Net imp./brut non-cadre<input id="cNon" type="number" step="0.005"></label>
+      <label>Indemnité conv. mini<input id="indemConv" type="number" step="1000"></label>
+    </div>
+    <h3>Assurance chômage</h3>
     <div class="grid3">
       <label>PASS<input id="pPass" type="number" step="1"></label>
-      <label>Partie fixe ARE €/j<input id="pFixe" type="number" step="0.01"></label>
-      <label>ARE minimum €/j<input id="pMin" type="number" step="0.01"></label>
+      <label>Partie fixe €/j<input id="pFixe" type="number" step="0.01"></label>
+      <label>ARE mini €/j<input id="pMin" type="number" step="0.01"></label>
       <label>Taux 1 (% SJR)<input id="pT1" type="number" step="0.1"></label>
       <label>Taux 2 (% SJR)<input id="pT2" type="number" step="0.1"></label>
       <label>Plafond (% SJR)<input id="pPlaf" type="number" step="0.1"></label>
       <label>Seuil dégressivité €/j<input id="pDegS" type="number" step="0.01"></label>
-      <label>Âge sans dégressivité<input id="pDegA" type="number" step="1"></label>
-      <label>Diviseur différé spécifique<input id="pDiv" type="number" step="0.1"></label>
-      <label>Plafond différé spé. (j)<input id="pDifMax" type="number" step="1"></label>
+      <label>Âge sans dégress.<input id="pDegA" type="number" step="1"></label>
+      <label>Diviseur différé<input id="pDiv" type="number" step="0.1"></label>
+      <label>Différé max (j)<input id="pDifMax" type="number" step="1"></label>
       <label>Délai d'attente (j)<input id="pAttente" type="number" step="1"></label>
       <label>Âge maintien droits<input id="pMaintien" type="number" step="1"></label>
       <label>Durée &lt; seuil 1 (j)<input id="pD1" type="number" step="1"></label>
-      <label>Durée seuil 1–2 (j)<input id="pD2" type="number" step="1"></label>
+      <label>Durée seuils 1–2 (j)<input id="pD2" type="number" step="1"></label>
       <label>Durée ≥ seuil 2 (j)<input id="pD3" type="number" step="1"></label>
       <label>Âge seuil 1<input id="pA1" type="number" step="1"></label>
       <label>Âge seuil 2<input id="pA2" type="number" step="1"></label>
-      <label>Prélèv. sur ARE (%)<input id="pAreCsg" type="number" step="0.01"></label>
+      <label>Prélèv. ARE (%)<input id="pAreCsg" type="number" step="0.01"></label>
     </div>
-    <h3>Retraite</h3>
-    <div class="grid3">
-      <label>Salaire validant 1 trim. (€)<input id="pTrim" type="number" step="1"></label>
-      <label>Jours chômage / trim.<input id="pJTrim" type="number" step="1"></label>
-      <label>Âge taux plein auto<input id="pAge67" type="number" step="1"></label>
-      <label>Plafond non indemn. (std)<input id="pNcStd" type="number" step="1"></label>
-      <label>Plafond non indemn. (long)<input id="pNcLong" type="number" step="1"></label>
-      <label>Âge plafond long<input id="pNcAge" type="number" step="1"></label>
-    </div>
-    <h3>Impôt sur le revenu</h3>
+    <h3>Fiscalité</h3>
     <div class="grid3">
       <label>Seuil 11 %<input id="b1" type="number" step="1"></label>
       <label>Seuil 30 %<input id="b2" type="number" step="1"></label>
       <label>Seuil 41 %<input id="b3" type="number" step="1"></label>
       <label>Seuil 45 %<input id="b4" type="number" step="1"></label>
-      <label>Plafond QF / ½ part<input id="bQF" type="number" step="1"></label>
-      <label>Part IR du PFU (%)<input id="pfu" type="number" step="0.1"></label>
-      <label>CSG/CRDS indemnité (%)<input id="pCsgInd" type="number" step="0.1"></label>
+      <label>Plafond QF ½ part<input id="bQF" type="number" step="1"></label>
+      <label>IR du PFU (%)<input id="pfu" type="number" step="0.1"></label>
+      <label>Prélèv. sociaux (%)<input id="ps" type="number" step="0.1"></label>
+      <label>CSG indemnité (%)<input id="pCsgInd" type="number" step="0.1"></label>
     </div>
-    <p class="hint">Valeurs par défaut = meilleure connaissance à date (2026). Les vérifier sur unedic.fr, service-public.fr et info-retraite.fr avant tout rendez-vous.</p>
+    <p class="hint">Valeurs 2026 au mieux de nos connaissances. À vérifier sur unedic.fr, service-public.fr et info-retraite.fr avant chaque rendez-vous.</p>
   </details>
 </section>
 
-<!-- ================= BLOCS 2 & 3 : RÉSULTATS ================= -->
-<section id="results">
+<!-- ============ RÉSULTATS ============ -->
+<section id="results" aria-label="Résultats">
   <div class="kpis" id="kpis"></div>
 
-  <div class="card" style="margin-top:14px">
-    <h2>🗓️ Rétroplanning</h2>
-    <div class="scroll"><svg id="gantt" width="100%" height="170" role="img" aria-label="Frise de la stratégie"></svg></div>
+  <div class="panel">
+    <h2>Rétroplanning</h2>
+    <div class="scroll"><svg id="gantt" width="100%" height="176" role="img" aria-label="Frise de la stratégie"></svg></div>
     <div class="legend">
       <span style="--c:var(--c-work)">En poste</span>
       <span style="--c:var(--c-car)">Carence France Travail</span>
-      <span style="--c:var(--c-are)">ARE indemnisée</span>
-      <span style="--c:var(--c-per)">Fin de droits · PER débloqué</span>
-      <span style="--c:var(--c-ret)">Retraite taux plein</span>
+      <span style="--c:var(--c-are)">Allocation chômage</span>
+      <span style="--c:var(--c-per)">Fin de droits, PER débloqué</span>
+      <span style="--c:var(--c-ret)">Retraite à taux plein</span>
     </div>
-    <div class="scroll" style="margin-top:10px"><table id="phases"></table></div>
+    <div class="scroll"><table id="phases"></table></div>
   </div>
 
-  <div class="card">
-    <h2>⚙️ Moteur : carence et droits</h2>
-    <div class="scroll"><table id="moteur"></table></div>
-  </div>
-
-  <div class="card">
-    <h2>📊 Comparatif de sortie du PER</h2>
+  <div class="panel">
+    <h2>Comparatif de sortie du PER</h2>
     <div class="scroll"><table id="compPer"></table></div>
     <p class="hint" id="compPerNote"></p>
   </div>
 
-  <div class="card">
-    <h2>⚖️ Bilan global honnête : stratégie vs rester en poste</h2>
+  <div class="panel">
+    <h2>Bilan global : stratégie ou maintien en poste</h2>
     <div class="scroll"><table id="global"></table></div>
-    <div id="verdict" class="verdict" style="margin-top:10px"></div>
+    <div id="verdict" class="verdict"></div>
   </div>
 
-  <div class="card">
-    <h2>🚦 Points de vigilance</h2>
+  <div class="panel">
+    <h2>Points de vigilance</h2>
     <ul class="alerts" id="alerts"></ul>
   </div>
 
-  <div class="card">
-    <h2>✅ Check-list de mise en œuvre</h2>
-    <ol style="margin:0;padding-left:18px">
-      <li>Télécharger le relevé de carrière (info-retraite.fr) et confirmer trimestres + âge légal.</li>
-      <li>Négocier la rupture conventionnelle (accord de l'employeur indispensable, homologation DREETS ~15 j ouvrables après signature + 15 j calendaires de rétractation).</li>
-      <li>S'inscrire à France Travail dans les 12 mois suivant la fin du contrat ; conserver toutes les notifications.</li>
-      <li>Ne reprendre <b>aucune activité</b> pendant l'ARE (rechargement / prolongation = fin de droits repoussée).</li>
-      <li>À la notification de fin de droits : demander le déblocage anticipé du PER avec l'attestation France Travail.</li>
-      <li>Rester inscrit comme demandeur d'emploi pendant toute la fenêtre pour valider les trimestres de chômage non indemnisé.</li>
-      <li>Liquider la retraite <b>après</b> le déblocage (jamais avant : le cas de déblocage tomberait).</li>
+  <details class="panel">
+    <summary>Détail du calcul chômage</summary>
+    <div class="scroll"><table id="moteur"></table></div>
+  </details>
+
+  <div class="panel">
+    <h2>Mise en œuvre</h2>
+    <ol class="steps">
+      <li>Relevé de carrière sur info-retraite.fr : confirmer les trimestres et la date du taux plein.</li>
+      <li>Négocier la rupture conventionnelle (accord de l'employeur, 15 jours de rétractation puis homologation).</li>
+      <li>S'inscrire à France Travail dans les 12 mois suivant la fin du contrat et garder toutes les notifications.</li>
+      <li>Ne reprendre aucune activité pendant l'indemnisation : cela repousserait la fin de droits.</li>
+      <li>À la notification de fin de droits, demander le déblocage du PER avec l'attestation France Travail.</li>
+      <li>Rester inscrit pendant toute la fenêtre pour valider les trimestres de chômage non indemnisé.</li>
+      <li>Liquider la retraite après le déblocage, jamais avant.</li>
     </ol>
   </div>
 
-  <p class="foot">Simulation indicative fondée sur les paramètres saisis ; ne constitue ni un conseil juridique ni un engagement. Hypothèses simplificatrices : carrière continue au salaire actuel, ARE au maximum de durée (période de référence complète), pas de carrière longue, pas d'activité réduite, IR sur l'écart de revenus approximé par la TMI. Indemnité de rupture : cotisations sociales au-delà de 2 PASS non modélisées.</p>
+  <p class="foot">MIC · Simulation indicative fondée sur les informations saisies, sans valeur de conseil juridique ni d'engagement. Hypothèses : carrière continue au salaire actuel, durée d'indemnisation maximale, pas de carrière longue ni d'activité réduite, impôt sur l'écart de revenus approché par la TMI, cotisations sociales sur l'indemnité au-delà de 2 PASS non modélisées.</p>
 </section>
 </main>
+</div>
 
 <script>
 "use strict";
-/* ---------------- Valeurs par défaut ---------------- */
+/* ---------- Valeurs par défaut (exemple) ---------- */
 const todayISO = new Date().toISOString().slice(0,10);
 const DEFAULTS = {
   nom:"Client exemple", naissance:"1966-05-15", dateEtude:todayISO,
-  q0:148, qRequis:172, ageLegalA:63, ageLegalM:3, autoReg:true, cot20:true, pension:3200,
-  brut:85000, netRatio:0.78, dateEntree:"2002-09-01", cpJours:20, indem:110000, indemConv:0, besoin:4000,
-  perCap:250000, perDed:160000, perNonDed:20000, perRdt:3, perVers:8000, perVersDed:true,
-  tmiEntree:"41", parts:2, revRetraite:42000, fraction:1, ps:17.2,
+  qMode:"connu", q0:148, anneeDebut:1989, pension:3200,
+  netImp:67000, statut:"cadre", dateEntree:"2002-09-01", cpJours:20, indem:110000, besoin:4000,
+  perMode:"existant", perCap:250000, perDed:160000, perNonDed:20000, perInit:30000, perMens:700, perRdt:3, perVersDed:true,
+  tmiEntree:"41", parts:2, plafondPer:0, autresRev:0, fraction:1,
   tampon:12, ruptureManuelle:"",
+  forceReg:false, ageLegalA:63, ageLegalM:3, qRequis:172, cot20:true,
+  pTrim:1803, pJTrim:50, pAge67:67, pNcStd:4, pNcLong:20, pNcAge:55,
+  cCadre:0.79, cNon:0.81, indemConv:0,
   pPass:48060, pFixe:13.18, pMin:32.13, pT1:40.4, pT2:57, pPlaf:75, pDegS:92.12, pDegA:57,
   pDiv:112.6, pDifMax:150, pAttente:7, pMaintien:62, pD1:548, pD2:685, pD3:822, pA1:55, pA2:57, pAreCsg:6.58,
-  pTrim:1803, pJTrim:50, pAge67:67, pNcStd:4, pNcLong:20, pNcAge:55,
-  b1:11600, b2:29579, b3:84577, b4:181917, bQF:1807, pfu:12.8, pCsgInd:9.7
+  b1:11600, b2:29579, b3:84577, b4:181917, bQF:1807, pfu:12.8, ps:17.2, pCsgInd:9.7
 };
-const STORE_KEY = "tunnelFinCarriere.v1";
+const RADIOS = {qMode:["qModeConnu","qModeEstime"], perMode:["perModeExistant","perModeNouveau"]};
+const STORE_KEY = "mic.tunnelFinCarriere.v2";
+const IN_FRAME = (()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
 
-/* ---------------- Outils dates (jours UTC) ---------------- */
+/* ---------- Dates (jours UTC) ---------- */
 const DAY = 86400000;
 const toDay = iso => { if(!iso) return null; const [y,m,d]=iso.split("-").map(Number); return Math.floor(Date.UTC(y,m-1,d)/DAY); };
 const toDate = dn => new Date(dn*DAY);
@@ -312,30 +392,35 @@ const jan1 = y => Math.floor(Date.UTC(y,0,1)/DAY);
 const ageAt = (birth, dn) => { const b=toDate(birth), d=toDate(dn); let a=d.getUTCFullYear()-b.getUTCFullYear();
   if(d.getUTCMonth()<b.getUTCMonth() || (d.getUTCMonth()===b.getUTCMonth() && d.getUTCDate()<b.getUTCDate())) a--; return a; };
 const ageTxt = (birth, dn) => { const b=toDate(birth), d=toDate(dn); let m=(d.getUTCFullYear()-b.getUTCFullYear())*12+d.getUTCMonth()-b.getUTCMonth();
-  if(d.getUTCDate()<b.getUTCDate()) m--; return Math.floor(m/12)+" a "+(m%12)+" m"; };
+  if(d.getUTCDate()<b.getUTCDate()) m--; return Math.floor(m/12)+" ans "+(m%12?(m%12)+" mois":""); };
 const months = days => days/30.4375;
 
-/* ---------------- Formats ---------------- */
+/* ---------- Formats ---------- */
 const eur = v => (isFinite(v)?v:0).toLocaleString("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0});
 const pct = v => (v*100).toLocaleString("fr-FR",{maximumFractionDigits:1})+" %";
-const sgn = v => `<span class="${v>=0?"pos":"neg"}">${v>=0?"+":""}${eur(v)}</span>`;
+const sgn = v => `<span class="${v>=0?"pos":"neg"}">${v>=0?"+":"−"}${eur(Math.abs(v))}</span>`;
 const mo = days => months(days).toLocaleString("fr-FR",{maximumFractionDigits:1})+" mois";
 
-/* ---------------- Lecture / écriture des champs ---------------- */
+/* ---------- Champs ---------- */
 const $ = id => document.getElementById(id);
-function readAll(){ const o={}; for(const k in DEFAULTS){ const el=$(k); if(!el) continue;
-  o[k] = el.type==="checkbox" ? el.checked : (el.type==="number"||el.type==="range") ? parseFloat(el.value) : el.value; }
+function readAll(){ const o={};
+  for(const k in DEFAULTS){
+    if(RADIOS[k]){ const on=RADIOS[k].map($).find(e=>e.checked); o[k]=on?on.value:DEFAULTS[k]; continue; }
+    const el=$(k); if(!el) continue;
+    o[k] = el.type==="checkbox" ? el.checked : (el.type==="number"||el.type==="range") ? (parseFloat(el.value)||0) : el.value; }
   return o; }
-function writeAll(o){ for(const k in DEFAULTS){ const el=$(k); if(!el) continue; const v = (o[k]!==undefined)?o[k]:DEFAULTS[k];
-  if(el.type==="checkbox") el.checked=!!v; else el.value=v; } }
+function writeAll(o){
+  for(const k in DEFAULTS){ const v=(o[k]!==undefined)?o[k]:DEFAULTS[k];
+    if(RADIOS[k]){ RADIOS[k].forEach(id=>{ $(id).checked = $(id).value===v; }); continue; }
+    const el=$(k); if(!el) continue; if(el.type==="checkbox") el.checked=!!v; else el.value=v; } }
 
-/* ---------------- Règles retraite par génération (à vérifier) ---------------- */
+/* ---------- Règles retraite par génération (calendrier suspendu par la LFSS 2026, à vérifier) ---------- */
 function regleGeneration(birthISO){
   const [y,m]=birthISO.split("-").map(Number);
   if(y<=1960) return {a:62,m:0,q:167};
   if(y===1961) return m<=8 ? {a:62,m:0,q:168} : {a:62,m:3,q:169};
   if(y===1962) return {a:62,m:6,q:169};
-  if(y===1963 || y===1964) return {a:62,m:9,q:170}; // gel LFSS 2026
+  if(y===1963 || y===1964) return {a:62,m:9,q:170};
   if(y===1965) return {a:63,m:0,q:171};
   if(y===1966) return {a:63,m:3,q:172};
   if(y===1967) return {a:63,m:6,q:172};
@@ -343,16 +428,30 @@ function regleGeneration(birthISO){
   return {a:64,m:0,q:172};
 }
 
-/* ---------------- Impôt sur le revenu ---------------- */
+/* ---------- Grandeurs dérivées de la saisie ---------- */
+function deriver(P){
+  const coef = P.statut==="cadre" ? P.cCadre : P.cNon;
+  P.brut = P.netImp/coef;
+  P.netAnnuel = P.brut*(coef-0.0285);          // net versé = net imposable moins CSG non déductible et CRDS
+  const anDernier = yearOf(toDay(P.dateEtude))-1;
+  P.qEstime = P.qMode==="estime";
+  if(P.qEstime) P.q0 = Math.max(0, (anDernier-P.anneeDebut+1)*4);
+  if(!P.forceReg && P.naissance){ const g=regleGeneration(P.naissance); P.ageLegalA=g.a; P.ageLegalM=g.m; P.qRequis=g.q; }
+  P.revRetraite = P.pension*12*1.03*0.9 + P.autresRev;
+  if(P.perMode==="nouveau"){ P.perCap=P.perInit; P.perDed=P.perVersDed?P.perInit:0; P.perNonDed=P.perVersDed?0:P.perInit; }
+  return P;
+}
+
+/* ---------- Impôt sur le revenu ---------- */
 function impotParPart(r,P){
   let imp=0; const s=[0,P.b1,P.b2,P.b3,P.b4]; const rates=[0,.11,.30,.41,.45];
   for(let i=0;i<5;i++){ const lo=s[i], hi=(i<4?s[i+1]:Infinity); if(r>lo) imp += (Math.min(r,hi)-lo)*rates[i]; }
   return imp; }
-function impot(rev,parts,P){ rev=Math.max(0,rev); const base = parts>=2?2:1;
+function impot(rev,parts,P){ rev=Math.max(0,rev); parts=Math.max(1,parts); const base = parts>=2?2:1;
   const avec = parts*impotParPart(rev/parts,P); const sans = base*impotParPart(rev/base,P);
-  const plafond = (parts-base)*2*P.bQF; return Math.max(avec, sans-plafond); }
+  return Math.max(avec, sans-(parts-base)*2*P.bQF); }
 
-/* ---------------- Calculs chômage ---------------- */
+/* ---------- Chômage ---------- */
 function calcAre(P, ageRupture){
   const sjr = Math.min(P.brut, 4*P.pPass)/365;
   let aj = Math.max(P.pT1/100*sjr + P.pFixe, P.pT2/100*sjr);
@@ -362,8 +461,7 @@ function calcAre(P, ageRupture){
   const ajDeg = degressif ? Math.max(aj*0.7, P.pDegS) : aj;
   const net = a => Math.max(0, a - 0.03*sjr - a*0.9825*P.pAreCsg/100);
   const j1 = Math.min(182, duree), j2 = duree-j1;
-  const totalNet = j1*net(aj) + j2*net(degressif?ajDeg:aj);
-  return {sjr, aj, ajNet:net(aj), ajDeg, ajDegNet:net(ajDeg), duree, degressif, totalNet};
+  return {sjr, aj, ajNet:net(aj), ajDeg, ajDegNet:net(ajDeg), duree, degressif, totalNet: j1*net(aj) + j2*net(ajDeg)};
 }
 function calcIndemnite(P, R){
   const anc = Math.max(0,(R - toDay(P.dateEntree))/365.25);
@@ -376,15 +474,13 @@ function calcIndemnite(P, R){
   const difCP = Math.ceil(iccp/sjr);
   const difSpe = Math.min(P.pDifMax, Math.floor(supra/P.pDiv));
   const carence = difCP + difSpe + P.pAttente;
-  // Fiscalité indemnité (estimation)
   const csg = supra*P.pCsgInd/100;
   const exoIR = Math.min(6*P.pPass, Math.max(mini, Math.min(2*P.brut, 0.5*P.indem)));
   const irInd = Math.max(0, P.indem-exoIR)*parseFloat(P.tmiEntree)/100;
-  const net = P.indem - csg - irInd;
-  return {anc, legale, mini, supra, iccp, difCP, difSpe, carence, csg, exoIR, irInd, net};
+  return {anc, legale, mini, supra, iccp, difCP, difSpe, carence, csg, exoIR, irInd, net: P.indem - csg - irInd};
 }
 
-/* ---------------- Simulation jour par jour des trimestres ---------------- */
+/* ---------- Trimestres, jour par jour ---------- */
 function simuler(P, R){
   const birth = toDay(P.naissance);
   const start = jan1(yearOf(toDay(P.dateEtude)));
@@ -392,8 +488,7 @@ function simuler(P, R){
   const auto = addMonths(birth, P.pAge67*12);
   let carence=0, are=null, debutAre=null, finAre=null, plafNc=P.pNcStd;
   if(R!=null){
-    const ageR = ageAt(birth, R);
-    are = calcAre(P, ageR);
+    are = calcAre(P, ageAt(birth, R));
     carence = calcIndemnite(P, R).carence;
     debutAre = R + carence; finAre = debutAre + are.duree;
     plafNc = (ageAt(birth, finAre) >= P.pNcAge && P.cot20) ? P.pNcLong : P.pNcStd;
@@ -410,54 +505,55 @@ function simuler(P, R){
     if(phase==="poste") salY+=salJ; else if(phase==="are") areY++; else if(phase==="nc") ncY++;
     const ncQ = Math.min(Math.floor(ncY/P.pJTrim), plafNc - (ncTotal - ncQY));
     if(ncQ>ncQY){ ncTotal += ncQ-ncQY; ncQY=ncQ; }
-    const brutQ = Math.floor(salY/P.pTrim) + Math.floor(areY/P.pJTrim) + ncQY;
-    const nq = Math.min(4, brutQ);
+    const nq = Math.min(4, Math.floor(salY/P.pTrim) + Math.floor(areY/P.pJTrim) + ncQY);
     if(nq>qY){ parPhase[phase]+=nq-qY; cum+=nq-qY; qY=nq; }
     if(tp==null && ((d>=legal && cum>=P.qRequis) || d>=auto)){ tp = firstOfNextMonth(Math.max(d, legal)); break; }
   }
   return {birth, start, legal, auto, R, carence, are, debutAre, finAre, plafNc, ncTotal, tp, cum, parPhase};
 }
 
-/* Rétroplanning : date de rupture la plus tardive qui laisse la fin de droits + fenêtre avant le taux plein */
+/* Rétroplanning : taux plein le plus tôt possible, puis rupture la plus tardive qui l'atteint */
 function retroplanning(P){
   const etude = toDay(P.dateEtude);
   const classique = simuler(P, null);
   const tamponJ = Math.round(P.tampon*30.4375);
-  // on retient d'abord le taux plein le plus tôt possible, puis la rupture la plus tardive qui l'atteint
   const evalR = R => { const s=simuler(P,R); return s.finAre + tamponJ <= s.tp ? s.tp : null; };
   let best=null, bestTp=Infinity;
   for(let R=etude; R<=classique.tp; R+=7){ const tp=evalR(R); if(tp!=null && tp<=bestTp){ bestTp=tp; best=R; } }
   if(best!=null){ for(let R=best+1; R<=Math.min(best+6, classique.tp); R++){ const tp=evalR(R); if(tp!=null && tp<=bestTp) best=R; } }
-  const sansRecul = best!=null && bestTp<=classique.tp;
-  return {classique, best, faisable: best!=null, sansRecul};
+  return {classique, best, faisable: best!=null, sansRecul: best!=null && bestTp<=classique.tp};
 }
 
-/* ---------------- PER ---------------- */
+/* ---------- PER : capitalisation mensuelle ---------- */
 function projeterPer(P, dateSortie, R){
   const etude = toDay(P.dateEtude);
-  const r = P.perRdt/100;
-  const ans = Math.max(0,(dateSortie-etude)/365.25);
-  const ansVers = Math.max(0,(Math.min(R,dateSortie)-etude)/365.25);
-  const versTot = P.perVers*ansVers;
-  // capitalisation : capital actuel sur toute la durée, versements futurs étalés (approx. mi-période)
-  const capital = P.perCap*Math.pow(1+r,ans) + versTot*Math.pow(1+r, Math.max(0, ans-ansVers/2));
+  const rm = Math.pow(1+P.perRdt/100, 1/12)-1;
+  const nMois = Math.max(0, Math.round(months(dateSortie-etude)));
+  const nVers = Math.max(0, Math.min(nMois, Math.round(months(Math.min(R,dateSortie)-etude))));
+  let capital = P.perCap;
+  for(let i=0;i<nMois;i++){ capital = capital*(1+rm) + (i<nVers?P.perMens:0); }
+  const versTot = P.perMens*nVers;
   const ded = P.perDed + (P.perVersDed?versTot:0);
   const nonDed = P.perNonDed + (P.perVersDed?0:versTot);
-  const pv = Math.max(0, capital-ded-nonDed);
-  return {capital, ded, nonDed, pv, versTot};
+  return {capital, ded, nonDed, pv: Math.max(0, capital-ded-nonDed), versTot, nVers};
 }
 
-/* ---------------- Rendu ---------------- */
-function render(){
-  const P = readAll();
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify(P)); }catch(e){}
-  if(P.autoReg && P.naissance){ const g=regleGeneration(P.naissance);
-    if($("ageLegalA").value!=g.a || $("ageLegalM").value!=g.m || $("qRequis").value!=g.q){
-      $("ageLegalA").value=g.a; $("ageLegalM").value=g.m; $("qRequis").value=g.q; P.ageLegalA=g.a; P.ageLegalM=g.m; P.qRequis=g.q; } }
-  $("ageLegalA").disabled=$("ageLegalM").disabled=$("qRequis").disabled=!!P.autoReg;
+/* ---------- Rendu ---------- */
+function syncUI(P){
+  $("wrapQ0").hidden = P.qMode==="estime"; $("wrapDebut").hidden = P.qMode!=="estime";
+  $("perExistant").hidden = P.perMode!=="existant"; $("perNouveau").hidden = P.perMode!=="nouveau";
+  ["ageLegalA","ageLegalM","qRequis"].forEach(id=>{ $(id).disabled=!P.forceReg; });
+  if(!P.forceReg){ $("ageLegalA").value=P.ageLegalA; $("ageLegalM").value=P.ageLegalM; $("qRequis").value=P.qRequis; }
   $("tamponV").textContent = P.tampon+" mois";
-  $("printHead").textContent = `Dossier : ${P.nom} — étude du ${fmtD(toDay(P.dateEtude))}`;
-  if(!P.naissance || !P.dateEtude || !P.dateEntree){ return; }
+}
+
+function render(){
+  const raw = readAll();
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(raw)); }catch(e){}
+  if(!raw.naissance || !raw.dateEtude || !raw.dateEntree || !raw.netImp) return;
+  const P = deriver(Object.assign({}, raw));
+  syncUI(P);
+  $("printHead").textContent = `Dossier ${P.nom} · étude du ${fmtD(toDay(P.dateEtude))}`;
 
   const etude = toDay(P.dateEtude);
   const rp = retroplanning(P);
@@ -466,168 +562,167 @@ function render(){
   const R = manuel!=null ? manuel : (rp.faisable ? rp.best : etude);
   const s = simuler(P, R);
   const ind = calcIndemnite(P, R);
-  const are = s.are;
+  const are = s.are, birth = s.birth;
   const tamponReel = s.tp - s.finAre;
-  const birth = s.birth;
 
   /* PER */
   const per = projeterPer(P, s.finAre, R);
-  const PS = P.ps/100, PFU = P.pfu/100;
+  const PS = P.ps/100, PFU = P.pfu/100, tmi = parseFloat(P.tmiEntree)/100;
   const N = Math.max(1, Math.round(P.fraction||1));
   const irClassCap = N*(impot(P.revRetraite + per.ded/N, P.parts, P) - impot(P.revRetraite, P.parts, P));
   const taux = per.ded>0 ? irClassCap/per.ded : 0;
   const pvClass = per.pv*(PFU+PS), pvStrat = per.pv*PS;
   const totClass = irClassCap + pvClass, totStrat = pvStrat;
   const gainPer = totClass - totStrat;
-  const ecoEntree = per.ded*parseFloat(P.tmiEntree)/100;
+  const ecoEntree = per.ded*tmi;
   const perNetStrat = per.capital - pvStrat;
 
-  /* Revenus */
-  const netJ = P.brut*P.netRatio/365;
+  /* Revenus comparés */
+  const netJ = P.netAnnuel/365;
   const salaireRester = Math.max(0, classique.tp - R)*netJ;
   const pensionDecal = Math.max(0, s.tp - classique.tp)/30.4375*P.pension;
   const revRester = salaireRester + pensionDecal;
   const revStrat = ind.net + are.totalNet;
   const deltaRev = revStrat - revRester;
-  const tmi = parseFloat(P.tmiEntree)/100;
   const deltaRevApresIR = deltaRev*(1-tmi);
   const bilan = deltaRevApresIR + gainPer;
 
-  /* Besoins */
   const besoinCarence = months(s.carence)*P.besoin;
   const besoinFenetre = months(Math.max(0,tamponReel))*P.besoin;
   const manqueAre = Math.max(0, P.besoin*months(are.duree) - are.totalNet);
   const perApresFenetre = perNetStrat - besoinFenetre;
+  const versAnnuel = P.perMens*12 + (P.perMode==="nouveau"?P.perInit:0);
 
-  /* Calculs affichés dans la saisie */
-  $("calcPro").innerHTML = `Indemnité légale à la rupture : <b>${eur(ind.legale)}</b> (ancienneté ${ind.anc.toFixed(1)} ans) · supra-légale : <b>${eur(ind.supra)}</b> · net estimé : <b>${eur(ind.net)}</b>`;
-  $("calcPer").innerHTML = `Plus-values actuelles : <b>${eur(Math.max(0,P.perCap-P.perDed-P.perNonDed))}</b> · capital projeté au déblocage : <b>${eur(per.capital)}</b>`;
+  /* Encarts de saisie */
+  const rc = $("calcRetraite"); rc.className = "calc"+(P.qEstime?" est":"");
+  rc.innerHTML = `Âge légal <b>${P.ageLegalA} ans${P.ageLegalM?" "+P.ageLegalM+" mois":""}</b> (${fmtD(s.legal)}) · <b>${P.qRequis}</b> trimestres requis${P.qEstime?` · <b>${P.q0}</b> trimestres estimés`:""}<br>Sans rien changer, taux plein le <b>${fmtD(classique.tp)}</b>.`;
+  $("calcPro").innerHTML = `Brut annuel reconstitué <b>${eur(P.brut)}</b> · net versé <b>${eur(P.netAnnuel/12)}</b>/mois<br>Indemnité légale <b>${eur(ind.legale)}</b> (${ind.anc.toFixed(1).replace(".",",")} ans d'ancienneté) · indemnité nette estimée <b>${eur(ind.net)}</b>`;
+  $("calcPer").innerHTML = `Capital projeté au déblocage <b>${eur(per.capital)}</b><br>dont déduit <b>${eur(per.ded)}</b> · plus-values <b>${eur(per.pv)}</b> · ${per.nVers} versements mensuels`;
 
-  /* KPIs */
+  /* KPI */
   $("kpis").innerHTML = `
-    <div class="kpi hl"><div class="l">Date de départ ${manuel!=null?"imposée":"limite"}</div><div class="v">${fmtD(R)}</div><div class="s">à ${ageTxt(birth,R)}</div></div>
-    <div class="kpi"><div class="l">Fin de droits → déblocage PER</div><div class="v">${fmtD(s.finAre)}</div><div class="s">à ${ageTxt(birth,s.finAre)}</div></div>
-    <div class="kpi"><div class="l">Retraite taux plein</div><div class="v">${fmtD(s.tp)}</div><div class="s">${s.tp>classique.tp?`<span class="neg">+${mo(s.tp-classique.tp)} vs en poste</span>`:"identique au maintien en poste"}</div></div>
-    <div class="kpi hl"><div class="l">Impôt évité à la sortie du PER</div><div class="v pos">${eur(gainPer)}</div><div class="s">bilan global : ${sgn(bilan)}</div></div>`;
+    <div class="kpi hl"><span class="l">Départ ${manuel!=null?"imposé":"au plus tard"}</span><span class="v">${fmtD(R)}</span><span class="s">à ${ageTxt(birth,R)}</span></div>
+    <div class="kpi"><span class="l">Déblocage du PER</span><span class="v">${fmtD(s.finAre)}</span><span class="s">fin de droits à ${ageTxt(birth,s.finAre)}</span></div>
+    <div class="kpi"><span class="l">Taux plein</span><span class="v">${fmtD(s.tp)}</span><span class="s">${s.tp>classique.tp?`<span class="neg">${mo(s.tp-classique.tp)} plus tard qu'en poste</span>`:"même date qu'en restant en poste"}</span></div>
+    <div class="kpi gold"><span class="l">Impôt évité sur le PER</span><span class="v">${eur(gainPer)}</span><span class="s">bilan global ${sgn(bilan)}</span></div>`;
 
-  /* Gantt */
   drawGantt(s, etude, birth);
 
   /* Phases */
   const ph = [
-    ["En poste", etude, R, "Salaire", netJ*30.4375, s.parPhase.poste + (s.start<etude?0:0)],
-    ["Carence France Travail", R, s.debutAre, "Indemnité de rupture / épargne", 0, s.parPhase.carence],
-    ["ARE indemnisée", s.debutAre, s.finAre, "France Travail", are.ajNet*30.4375, s.parPhase.are],
-    ["Fenêtre PER (non indemnisé)", s.finAre, s.tp, "PER débloqué (net de PS)", P.besoin, s.parPhase.nc],
-    ["Retraite taux plein", s.tp, null, "Pensions + reliquat PER", P.pension, null]
+    ["En poste", etude, R, "Salaire", netJ*30.4375, s.parPhase.poste],
+    ["Carence France Travail", R, s.debutAre, "Indemnité de rupture", 0, s.parPhase.carence],
+    ["Allocation chômage", s.debutAre, s.finAre, "France Travail", are.ajNet*30.4375, s.parPhase.are],
+    ["Fenêtre PER", s.finAre, s.tp, "PER débloqué", P.besoin, s.parPhase.nc],
+    ["Retraite à taux plein", s.tp, null, "Pensions et solde du PER", P.pension, null]
   ];
   $("phases").innerHTML = `<tr><th>Phase</th><th>Du</th><th>Au</th><th class="num">Durée</th><th>Financement</th><th class="num">Net / mois</th><th class="num">Trim.</th></tr>` +
     ph.map(p=>`<tr><td>${p[0]}</td><td>${fmtD(p[1])}</td><td>${fmtD(p[2])}</td><td class="num">${p[2]!=null?mo(p[2]-p[1]):"—"}</td><td>${p[3]}</td><td class="num">${p[4]?eur(p[4]):"—"}</td><td class="num">${p[5]!=null?"+"+p[5]:"—"}</td></tr>`).join("") +
-    `<tr class="total"><td colspan="6">Trimestres au départ (requis : ${P.qRequis})</td><td class="num">${s.cum}</td></tr>`;
+    `<tr class="total"><td colspan="6">Trimestres au départ en retraite (requis : ${P.qRequis})</td><td class="num">${s.cum}</td></tr>`;
 
-  /* Moteur */
+  /* Détail chômage */
   $("moteur").innerHTML = `
     <tr><th>Étape</th><th>Détail</th><th class="num">Valeur</th></tr>
-    <tr><td>Salaire journalier de référence</td><td>brut annuel (plafonné 4 PASS) / 365</td><td class="num">${are.sjr.toFixed(2)} €</td></tr>
-    <tr><td>Différé congés payés</td><td>${P.cpJours} j ouvrables → ICCP ${eur(ind.iccp)} / SJR</td><td class="num">${ind.difCP} j</td></tr>
+    <tr><td>Salaire journalier de référence</td><td>brut reconstitué ${eur(P.brut)} / 365 (plafond 4 PASS)</td><td class="num">${are.sjr.toFixed(2)} €</td></tr>
+    <tr><td>Différé congés payés</td><td>${P.cpJours} jours → ${eur(ind.iccp)} / SJR</td><td class="num">${ind.difCP} j</td></tr>
     <tr><td>Différé spécifique</td><td>supra-légale ${eur(ind.supra)} / ${P.pDiv} (plafond ${P.pDifMax} j)</td><td class="num">${ind.difSpe} j</td></tr>
     <tr><td>Délai d'attente</td><td>légal</td><td class="num">${P.pAttente} j</td></tr>
-    <tr class="total"><td>Carence totale à financer</td><td>${eur(besoinCarence)} au besoin saisi</td><td class="num">${s.carence} j (${mo(s.carence)})</td></tr>
-    <tr><td>Durée des droits ARE</td><td>âge à la rupture : ${ageAt(birth,R)} ans</td><td class="num">${are.duree} j (${mo(are.duree)})</td></tr>
-    <tr><td>Allocation journalière</td><td>brute ${are.aj.toFixed(2)} € → nette ${are.ajNet.toFixed(2)} €${are.degressif?` · dégressive dès le 183e jour : ${are.ajDegNet.toFixed(2)} € net`:""}</td><td class="num">${eur(are.ajNet*30.4375)}/mois</td></tr>
-    <tr><td>Total ARE nette sur la période</td><td></td><td class="num">${eur(are.totalNet)}</td></tr>
-    <tr><td>Fenêtre de sécurité réelle</td><td>fin de droits → taux plein (cible ${P.tampon} mois)</td><td class="num">${mo(tamponReel)}</td></tr>
-    <tr><td>Plafond trimestres non indemnisés</td><td>${s.plafNc===P.pNcLong?"≥ "+P.pNcAge+" ans à la fin des droits + 20 ans de cotisations":"règle standard"}</td><td class="num">${s.ncTotal} / ${s.plafNc}</td></tr>`;
+    <tr class="total"><td>Carence à financer</td><td>soit ${eur(besoinCarence)} au besoin saisi</td><td class="num">${s.carence} j</td></tr>
+    <tr><td>Durée d'indemnisation</td><td>${ageAt(birth,R)} ans à la rupture</td><td class="num">${are.duree} j (${mo(are.duree)})</td></tr>
+    <tr><td>Allocation journalière</td><td>brute ${are.aj.toFixed(2)} €, nette ${are.ajNet.toFixed(2)} €${are.degressif?`, puis ${are.ajDegNet.toFixed(2)} € dès le 183ᵉ jour`:""}</td><td class="num">${eur(are.ajNet*30.4375)}/mois</td></tr>
+    <tr><td>Total des allocations nettes</td><td></td><td class="num">${eur(are.totalNet)}</td></tr>
+    <tr><td>Trimestres de chômage non indemnisé</td><td>${s.plafNc===P.pNcLong?`plafond long (${P.pNcAge} ans et plus, 20 ans de cotisations)`:"plafond standard"}</td><td class="num">${s.ncTotal} / ${s.plafNc}</td></tr>`;
 
   /* Comparatif PER */
   $("compPer").innerHTML = `
-    <tr><th>Indicateur de sortie du PER</th><th class="num">Voie classique (retraite)</th><th class="num">Stratégie fin de droits</th><th class="num">Gain client</th></tr>
-    <tr><td><b>Capital issu de versements déduits</b><br><span class="hint">${eur(per.ded)} · barème IR${N>1?` étalé sur ${N} ans`:""} (taux effectif ${pct(taux)})</span></td><td class="num">${eur(irClassCap)}</td><td class="num">0 € · exonéré d'IR</td><td class="num">${sgn(irClassCap)}</td></tr>
-    <tr><td><b>Plus-values</b><br><span class="hint">${eur(per.pv)}</span></td><td class="num">${eur(pvClass)}<br><span class="hint">PFU ${pct(PFU+PS)}</span></td><td class="num">${eur(pvStrat)}<br><span class="hint">PS ${pct(PS)}</span></td><td class="num">${sgn(pvClass-pvStrat)}</td></tr>
+    <tr><th>Sortie du PER</th><th class="num">Voie classique</th><th class="num">Fin de droits</th><th class="num">Gain client</th></tr>
+    <tr><td><b>Versements déduits</b><br><span class="hint">${eur(per.ded)} · barème de l'IR${N>1?` sur ${N} ans`:""}, taux effectif ${pct(taux)}</span></td><td class="num">${eur(irClassCap)}</td><td class="num">0 €<br><span class="hint">exonéré d'IR</span></td><td class="num">${sgn(irClassCap)}</td></tr>
+    <tr><td><b>Plus-values</b><br><span class="hint">${eur(per.pv)}</span></td><td class="num">${eur(pvClass)}<br><span class="hint">PFU ${pct(PFU+PS)}</span></td><td class="num">${eur(pvStrat)}<br><span class="hint">prélèvements sociaux ${pct(PS)}</span></td><td class="num">${sgn(pvClass-pvStrat)}</td></tr>
     <tr><td><b>Versements non déduits</b><br><span class="hint">${eur(per.nonDed)}</span></td><td class="num">0 €</td><td class="num">0 €</td><td class="num">—</td></tr>
     <tr class="total"><td>Total prélevé à la sortie</td><td class="num">${eur(totClass)}</td><td class="num">${eur(totStrat)}</td><td class="num">${sgn(gainPer)}</td></tr>
-    <tr><td><b>Trimestres retraite</b></td><td class="num">taux plein au ${fmtD(classique.tp)}</td><td class="num">taux plein au ${fmtD(s.tp)}</td><td class="num">${s.tp>classique.tp?`<span class="neg">+${mo(s.tp-classique.tp)}</span>`:"départ à la même date"}</td></tr>
-    <tr><td><b>Économie d'impôt à l'entrée</b> (déjà acquise / à venir)</td><td class="num" colspan="2" style="text-align:center">${eur(ecoEntree)} — commune aux deux voies</td><td class="num">double effet : ${eur(ecoEntree+gainPer)}</td></tr>`;
-  $("compPerNote").textContent = `Capital comparé à la même date (${fmtD(s.finAre)}), projeté à ${P.perRdt} %/an. Voie classique : IR calculé au barème sur un revenu de base de ${eur(P.revRetraite)} et ${P.parts} parts. Capital net disponible dans la stratégie : ${eur(perNetStrat)}.`;
+    <tr><td><b>Économie d'impôt à l'entrée</b><br><span class="hint">acquise dans les deux voies</span></td><td class="num" colspan="2" style="text-align:center">${eur(ecoEntree)}</td><td class="num">double effet ${eur(ecoEntree+gainPer)}</td></tr>`;
+  $("compPerNote").textContent = `Capital comparé à la même date (${fmtD(s.finAre)}), rendement ${P.perRdt} % par an. Voie classique : IR au barème sur un revenu de base de ${eur(P.revRetraite)} (pension ${P.autresRev?"et autres revenus ":""}après abattement) et ${P.parts} parts. Capital net disponible dans la stratégie : ${eur(perNetStrat)}.`;
 
   /* Bilan global */
   $("global").innerHTML = `
     <tr><th>Du ${fmtD(R)} au ${fmtD(s.tp)}</th><th class="num">Rester en poste</th><th class="num">Stratégie</th><th class="num">Écart</th></tr>
-    <tr><td>Salaire net jusqu'au taux plein</td><td class="num">${eur(salaireRester)}</td><td class="num">—</td><td></td></tr>
-    ${pensionDecal>0?`<tr><td>Pension perçue pendant le décalage</td><td class="num">${eur(pensionDecal)}</td><td class="num">—</td><td></td></tr>`:""}
-    <tr><td>Indemnité de rupture nette (est.)</td><td class="num">—</td><td class="num">${eur(ind.net)}</td><td></td></tr>
-    <tr><td>ARE nette</td><td class="num">—</td><td class="num">${eur(are.totalNet)}</td><td></td></tr>
-    <tr><td>Revenus nets avant IR</td><td class="num">${eur(revRester)}</td><td class="num">${eur(revStrat)}</td><td class="num">${sgn(deltaRev)}</td></tr>
-    <tr><td>Écart après IR (TMI ${P.tmiEntree} % sur l'écart)</td><td></td><td></td><td class="num">${sgn(deltaRevApresIR)}</td></tr>
-    <tr><td>Impôt évité sur la sortie du PER</td><td></td><td></td><td class="num">${sgn(gainPer)}</td></tr>
+    <tr><td>Salaires nets jusqu'au taux plein</td><td class="num">${eur(salaireRester)}</td><td class="num">—</td><td></td></tr>
+    ${pensionDecal>0?`<tr><td>Pension pendant le décalage du taux plein</td><td class="num">${eur(pensionDecal)}</td><td class="num">—</td><td></td></tr>`:""}
+    <tr><td>Indemnité de rupture nette</td><td class="num">—</td><td class="num">${eur(ind.net)}</td><td></td></tr>
+    <tr><td>Allocations chômage nettes</td><td class="num">—</td><td class="num">${eur(are.totalNet)}</td><td></td></tr>
+    <tr><td>Revenus nets avant impôt</td><td class="num">${eur(revRester)}</td><td class="num">${eur(revStrat)}</td><td class="num">${sgn(deltaRev)}</td></tr>
+    <tr><td>Écart après impôt (TMI ${P.tmiEntree} %)</td><td></td><td></td><td class="num">${sgn(deltaRevApresIR)}</td></tr>
+    <tr><td>Impôt évité sur le PER</td><td></td><td></td><td class="num">${sgn(gainPer)}</td></tr>
     <tr class="total"><td>Bilan net de la stratégie</td><td></td><td></td><td class="num">${sgn(bilan)}</td></tr>`;
-  const v=$("verdict");
-  const annees = Math.max(0,(s.tp-R)/365.25);
-  if(bilan>=0){ v.className="verdict ok"; v.innerHTML=`🟢 <b>Stratégie gagnante de ${eur(bilan)}</b> par rapport au maintien en poste, en plus de libérer ${annees.toFixed(1)} années de temps libre.`; }
-  else { const parAn = -bilan/Math.max(annees,0.1);
-    v.className="verdict "+(gainPer>0?"warn":"bad");
-    v.innerHTML=`🟠 <b>La stratégie coûte ${eur(-bilan)}</b> par rapport au maintien en poste (≈ ${eur(parAn)} par année d'arrêt anticipé). Le gain fiscal du PER (${eur(gainPer)}) réduit la facture mais ne la compense pas : c'est le prix de ${annees.toFixed(1)} années de liberté. Pertinent si le client veut — ou doit — arrêter ; pas un placement en soi.`; }
+  const v=$("verdict"), annees = Math.max(0,(s.tp-R)/365.25);
+  if(bilan>=0){ v.className="verdict ok"; v.innerHTML=`<b>Stratégie gagnante de ${eur(bilan)}</b> par rapport au maintien en poste, avec ${annees.toFixed(1).replace(".",",")} années libérées avant la retraite.`; }
+  else { v.className="verdict "+(gainPer>0?"warn":"bad");
+    v.innerHTML=`<b>La stratégie coûte ${eur(-bilan)}</b> par rapport au maintien en poste, soit environ ${eur(-bilan/Math.max(annees,0.1))} par année d'arrêt anticipé. Le gain fiscal du PER (${eur(gainPer)}) réduit la facture sans la compenser. Pertinent si le client veut ou doit arrêter ; ce n'est pas un placement.`; }
 
-  /* Alertes */
-  const A=[]; const add=(t,c)=>A.push(`<li class="${c}">${t}</li>`);
-  if(manuel==null && !rp.faisable) add(`Impossible de caser fin de droits + ${P.tampon} mois de fenêtre avant le taux plein en partant aujourd'hui : réduire la fenêtre ou accepter un décalage. Calcul affiché avec un départ au ${fmtD(etude)}.`,"bad");
-  if(manuel!=null && R<etude) add("La date de rupture imposée est antérieure à la date d'étude.","bad");
-  if(s.finAre>=s.tp) add(`Les droits ARE ne sont pas épuisés avant le taux plein (${fmtD(s.finAre)} ≥ ${fmtD(s.tp)}) : <b>aucun déblocage possible</b> au titre de la fin de droits.`,"bad");
-  else if(tamponReel<60) add("Fenêtre de moins de 2 mois entre la fin de droits et le taux plein : aucune marge en cas de retard administratif.","warn");
-  if(ageAt(birth,s.finAre)>=P.pMaintien) add(`Âge à la fin des droits ≥ ${P.pMaintien} ans : risque de <b>maintien des droits ARE jusqu'au taux plein</b> (si conditions d'affiliation remplies), ce qui supprimerait la « fin de droits » et donc le cas de déblocage. À vérifier avec France Travail.`,"bad");
-  if(s.tp>classique.tp) add(`Le taux plein recule de ${mo(s.tp-classique.tp)} par rapport au maintien en poste : ${s.ncTotal>=s.plafNc?`plafond de ${s.plafNc} trimestres de chômage non indemnisé atteint`:"trimestres perdus (année de rupture incomplète, carence non validante)"}.${manuel==null&&rp.faisable&&!rp.sansRecul?" C'est le recul minimal possible avec la fenêtre choisie (réduire la fenêtre pour le limiter).":""}`,"warn");
-  if(ageAt(birth,R)<P.pA2) add(`Rupture avant ${P.pA2} ans : droits limités à ${mo(are.duree)} (27 mois réservés aux ${P.pA2} ans et plus depuis la convention 2025).`,"warn");
-  if(are.degressif) add("Dégressivité de 30 % de l'ARE à partir du 7e mois (client de moins de "+P.pDegA+" ans à haut salaire).","warn");
+  /* Vigilance */
+  const A=[]; const add=(t,c)=>A.push(`<li class="${c}"><span>${t}</span></li>`);
+  if(manuel==null && !rp.faisable) add(`Fin de droits et fenêtre de ${P.tampon} mois impossibles à caser avant le taux plein : réduire la fenêtre. Calcul affiché avec un départ au ${fmtD(etude)}.`,"bad");
+  if(manuel!=null && R<etude) add("La date de rupture imposée précède la date d'étude.","bad");
+  if(s.finAre>=s.tp) add(`Les droits au chômage ne sont pas épuisés avant le taux plein : <b>pas de déblocage possible</b> au titre de la fin de droits.`,"bad");
+  else if(tamponReel<60) add("Moins de 2 mois entre la fin de droits et le taux plein : aucune marge en cas de retard administratif.","warn");
+  if(ageAt(birth,s.finAre)>=P.pMaintien) add(`Fin de droits à ${ageAt(birth,s.finAre)} ans : risque de <b>maintien de l'allocation jusqu'au taux plein</b> si les conditions d'affiliation sont remplies. Il n'y aurait alors pas de fin de droits, donc pas de déblocage. À vérifier avec France Travail.`,"bad");
+  if(s.tp>classique.tp) add(`Le taux plein recule de ${mo(s.tp-classique.tp)} : ${s.ncTotal>=s.plafNc?`plafond de ${s.plafNc} trimestres de chômage non indemnisé atteint`:"trimestres moins vite acquis (année de rupture incomplète, carence non validée, 50 jours par trimestre en fin de période)"}.${manuel==null&&rp.faisable&&!rp.sansRecul?" C'est le recul minimal avec cette fenêtre.":""}`,"warn");
+  if(P.qEstime) add("Trimestres estimés depuis l'année du premier emploi : chômage, temps partiel ou études peuvent fausser le résultat. Récupérer le relevé de carrière avant toute décision.","warn");
+  if(ageAt(birth,R)<P.pA2) add(`Rupture avant ${P.pA2} ans : ${mo(are.duree)} d'indemnisation seulement (27 mois à partir de ${P.pA2} ans depuis la convention 2025).`,"warn");
+  if(are.degressif) add(`Allocation réduite de 30 % à partir du 7ᵉ mois (moins de ${P.pDegA} ans et haut salaire).`,"warn");
   if(besoinCarence>ind.net) add(`L'indemnité nette (${eur(ind.net)}) ne couvre pas la carence (${eur(besoinCarence)}).`,"warn");
-  if(manqueAre>0) add(`Pendant l'ARE, il manque ≈ ${eur(manqueAre)} par rapport au besoin mensuel : à financer par l'indemnité ou l'épargne (le PER n'est pas encore débloquable).`,"info");
-  if(perApresFenetre<0) add(`Le PER net (${eur(perNetStrat)}) ne finance pas toute la fenêtre (${eur(besoinFenetre)}) : il manque ${eur(-perApresFenetre)}.`,"bad");
-  else add(`Le PER finance la fenêtre (${eur(besoinFenetre)}) et laisse ≈ ${eur(perApresFenetre)} à la retraite.`,"ok");
-  if(P.indem>2*P.pPass) add(`Indemnité supérieure à 2 PASS (${eur(2*P.pPass)}) : cotisations sociales dues sur l'excédent, non modélisées.`,"warn");
-  if(ind.difSpe>=P.pDifMax) add(`Différé spécifique plafonné à ${P.pDifMax} jours : la supra-légale au-delà de ${eur(P.pDifMax*P.pDiv)} ne décale plus l'ARE.`,"info");
-  if(gainPer<=0) add("Aucun gain fiscal : vérifier la répartition versements déduits / plus-values.","warn");
-  add("Rupture conventionnelle = accord de l'employeur. Le régime des ruptures conventionnelles seniors et de l'ARE est en cours de durcissement : revalider les paramètres à chaque rendez-vous.","info");
-  add(`Prélèvements sociaux paramétrés à ${P.ps} % : la LFSS 2026 a relevé la CSG sur certains revenus du capital — vérifier le taux applicable aux gains du PER.`,"info");
+  if(manqueAre>0) add(`Pendant l'indemnisation, il manque environ ${eur(manqueAre)} par rapport au besoin mensuel, à financer par l'indemnité ou l'épargne : le PER n'est pas encore débloquable.`,"info");
+  if(perApresFenetre<0) add(`Le PER net (${eur(perNetStrat)}) ne couvre pas toute la fenêtre (${eur(besoinFenetre)}) : il manque ${eur(-perApresFenetre)}.`,"bad");
+  else add(`Le PER finance la fenêtre (${eur(besoinFenetre)}) et laisse environ ${eur(perApresFenetre)} pour la retraite.`,"ok");
+  if(P.perVersDed && P.plafondPer>0 && versAnnuel>P.plafondPer) add(`Versements prévus sur 12 mois (${eur(versAnnuel)}) supérieurs au plafond disponible (${eur(P.plafondPer)}) : l'excédent ne sera pas déductible.`,"bad");
+  if(P.perVersDed && P.plafondPer===0 && versAnnuel>0) add("Plafond de déduction non renseigné : vérifier sur l'avis d'impôt que les versements prévus restent déductibles.","info");
+  if(P.perMode==="nouveau" && per.nVers<36) add("PER ouvert moins de 3 ans avant la rupture : peu de plus-values, le gain vient surtout de la déduction. Surveiller les frais d'entrée.","info");
+  if(P.indem>2*P.pPass) add(`Indemnité supérieure à 2 PASS (${eur(2*P.pPass)}) : cotisations sociales sur l'excédent, non modélisées.`,"warn");
+  if(ind.difSpe>=P.pDifMax) add(`Différé spécifique au plafond de ${P.pDifMax} jours : au-delà de ${eur(P.pDifMax*P.pDiv)} de supra-légale, l'indemnisation n'est plus décalée.`,"info");
+  add("La rupture conventionnelle suppose l'accord de l'employeur. Les règles chômage des seniors évoluent : revalider les paramètres à chaque rendez-vous.","info");
   $("alerts").innerHTML = A.join("");
 }
 
-/* ---------------- Frise SVG ---------------- */
+/* ---------- Frise ---------- */
 function drawGantt(s, etude, birth){
-  const svg=$("gantt"); const W=Math.max(640, svg.clientWidth||900), H=170;
+  const svg=$("gantt"); const W=Math.max(640, svg.clientWidth||900), H=176;
   svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
-  const x0 = Math.min(etude, s.R) , x1 = addMonths(s.tp, 12);
-  const pad=14, X = d => pad + (d-x0)/(x1-x0)*(W-2*pad);
-  const bands = [[x0,s.R,"--c-work","En poste"],[s.R,s.debutAre,"--c-car","Carence"],[s.debutAre,s.finAre,"--c-are","ARE"],[s.finAre,s.tp,"--c-per","PER"],[s.tp,x1,"--c-ret","Retraite"]];
-  let g="";
-  const y=48, h=36;
+  const x0 = Math.min(etude, s.R), x1 = addMonths(s.tp, 12);
+  const pad=16, X = d => pad + (d-x0)/(x1-x0)*(W-2*pad);
+  const bands = [[x0,s.R,"--c-work","--t-work","En poste"],[s.R,s.debutAre,"--c-car","--t-car","Carence"],[s.debutAre,s.finAre,"--c-are",null,"Chômage"],[s.finAre,s.tp,"--c-per",null,"PER"],[s.tp,x1,"--c-ret",null,"Retraite"]];
+  const y=54, h=38; let g="";
   bands.forEach(b=>{ if(b[1]<=b[0]) return; const w=X(b[1])-X(b[0]);
-    g+=`<rect x="${X(b[0])}" y="${y}" width="${w}" height="${h}" fill="var(${b[2]})" rx="3"/>`;
-    if(w>46) g+=`<text x="${X(b[0])+w/2}" y="${y+h/2+4}" text-anchor="middle" font-size="12" style="fill:#fff;font-weight:600">${b[3]}</text>`; });
-  // graduations annuelles avec âge
-  for(let yr=yearOf(x0)+1; yr<=yearOf(x1); yr++){ const d=jan1(yr); const xx=X(d);
+    g+=`<rect x="${X(b[0])}" y="${y}" width="${w}" height="${h}" fill="var(${b[2]})"/>`;
+    if(w>52) g+=`<text x="${X(b[0])+w/2}" y="${y+h/2+4}" text-anchor="middle" font-size="12" style="fill:${b[3]?`var(${b[3]})`:"#fbf7ec"};font-weight:500;letter-spacing:.04em">${b[4]}</text>`; });
+  for(let yr=yearOf(x0)+1; yr<=yearOf(x1); yr++){ const d=jan1(yr), xx=X(d);
     g+=`<line x1="${xx}" x2="${xx}" y1="${y+h}" y2="${y+h+6}" stroke="var(--muted)"/>`+
-       `<text x="${xx}" y="${y+h+19}" text-anchor="middle" font-size="11">${yr}</text>`+
-       `<text x="${xx}" y="${y+h+33}" text-anchor="middle" font-size="10" style="fill:var(--muted)">${ageAt(birth,d)} ans</text>`; }
-  // jalons
-  const marks=[[s.R,"Rupture"],[s.finAre,"Fin de droits"],[s.tp,"Taux plein"]];
-  marks.forEach((m,i)=>{ const xx=X(m[0]); const ty = i%2===0 ? 16 : 32;
-    g+=`<line x1="${xx}" x2="${xx}" y1="${ty+4}" y2="${y+h}" stroke="var(--ink)" stroke-dasharray="3 3"/>`+
-       `<text x="${Math.min(Math.max(xx,40),W-40)}" y="${ty}" text-anchor="middle" font-size="11" style="font-weight:600">${m[1]} · ${fmtMY(m[0])}</text>`; });
+       `<text x="${xx}" y="${y+h+20}" text-anchor="middle" font-size="11">${yr}</text>`+
+       `<text x="${xx}" y="${y+h+34}" text-anchor="middle" font-size="10" style="fill:var(--muted)">${ageAt(birth,d)} ans</text>`; }
+  [[s.R,"Rupture"],[s.finAre,"Fin de droits"],[s.tp,"Taux plein"]].forEach((m,i)=>{ const xx=X(m[0]), ty = i%2===0 ? 18 : 36;
+    g+=`<line x1="${xx}" x2="${xx}" y1="${ty+5}" y2="${y+h}" stroke="var(--fg)" stroke-dasharray="2 3"/>`+
+       `<text x="${Math.min(Math.max(xx,60),W-60)}" y="${ty}" text-anchor="middle" font-size="11.5" style="font-weight:600">${m[1]} · ${fmtMY(m[0])}</text>`; });
   svg.innerHTML=g;
 }
 
-/* ---------------- Dossiers ---------------- */
-function exportJSON(){ const P=readAll(); const blob=new Blob([JSON.stringify(P,null,2)],{type:"application/json"});
+/* ---------- Dossiers ---------- */
+$("btnPrint").addEventListener("click", ()=>window.print());
+$("btnSave").addEventListener("click", ()=>{ const P=readAll(); const blob=new Blob([JSON.stringify(P,null,2)],{type:"application/json"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-  a.download=`tunnel-${(P.nom||"client").replace(/[^\w-]+/g,"_")}-${P.dateEtude}.json`; a.click(); URL.revokeObjectURL(a.href); }
-function importJSON(input){ const f=input.files[0]; if(!f) return; const r=new FileReader();
-  r.onload=()=>{ try{ writeAll(JSON.parse(r.result)); render(); }catch(e){ alert("Fichier invalide"); } input.value=""; }; r.readAsText(f); }
-function resetAll(){ if(!confirm("Réinitialiser avec les valeurs d'exemple ?")) return; writeAll(DEFAULTS); render(); }
+  a.download=`MIC-${(P.nom||"client").replace(/[^\w-]+/g,"_")}-${P.dateEtude}.json`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); });
+$("fileOpen").addEventListener("change", e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+  r.onload=()=>{ try{ writeAll(JSON.parse(r.result)); render(); }catch(err){ $("btnReset").textContent="Fichier illisible"; setTimeout(()=>$("btnReset").textContent="Réinitialiser",2500); } e.target.value=""; };
+  r.readAsText(f); });
+let resetArmed=null;
+$("btnReset").addEventListener("click", ()=>{ const b=$("btnReset");
+  if(!resetArmed){ b.textContent="Confirmer la remise à zéro"; resetArmed=setTimeout(()=>{ resetArmed=null; b.textContent="Réinitialiser"; },3000); return; }
+  clearTimeout(resetArmed); resetArmed=null; b.textContent="Réinitialiser"; writeAll(DEFAULTS); render(); });
 
-/* ---------------- Init ---------------- */
+/* ---------- Démarrage ---------- */
+if(IN_FRAME){ document.querySelectorAll(".local-only").forEach(el=>el.hidden=true); $("onlineNote").hidden=false; }
 let saved=null; try{ saved=JSON.parse(localStorage.getItem(STORE_KEY)); }catch(e){}
 writeAll(Object.assign({}, DEFAULTS, saved||{}));
 document.querySelectorAll("#inputs input, #inputs select").forEach(el=>{ if(el.type!=="file") el.addEventListener("input", render); });
-window.addEventListener("resize", ()=>render());
+let rz; window.addEventListener("resize", ()=>{ clearTimeout(rz); rz=setTimeout(render,150); });
 render();
 </script>
 </body>
