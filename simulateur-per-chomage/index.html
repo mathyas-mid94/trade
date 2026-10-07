@@ -122,7 +122,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
 .print-only{display:none}
 .online-note{font-size:12px;color:var(--muted)}
 @media print{
-  html,body{background:#fff}
+  html,body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body{color:#000;font-size:11px;padding:0}
   .toolbar,#inputs,.no-print{display:none!important}
   main{display:block;padding:0}
@@ -178,7 +178,9 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
     <div class="grid2">
       <label class="full" id="wrapQ0">Trimestres validés au 31/12 de l'an dernier<input id="q0" type="number" step="1"><span class="src">info-retraite.fr › Mon relevé de carrière</span></label>
       <label class="full" id="wrapDebut" hidden>Année du premier emploi<input id="anneeDebut" type="number" step="1"><span class="src">Estimation : 4 trimestres par an, carrière continue</span></label>
-      <label class="full">Pension brute mensuelle au taux plein<input id="pension" type="number" step="50"><span class="src">info-retraite.fr › Mon estimation retraite (montants bruts)</span></label>
+      <label class="full">Trimestres enfants et autres majorations<input id="qMaj" type="number" step="1"><span class="src">Non inclus dans le relevé : comparer le nombre de trimestres de l'estimation à celui du relevé (mère : jusqu'à 8 par enfant)</span></label>
+      <label class="check full"><input id="invalidite" type="checkbox"> Taux plein dès 62 ans (pension d'invalidité ou inaptitude)</label>
+      <label class="full">Pension brute mensuelle au taux plein<input id="pension" type="number" step="50"><span class="src">info-retraite.fr › Mon estimation, montant brut à l'âge du taux plein</span></label>
     </div>
     <div class="calc" id="calcRetraite"></div>
   </div>
@@ -190,8 +192,8 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
       <label class="full">Statut
         <select id="statut"><option value="cadre">Cadre</option><option value="noncadre">Non-cadre</option><option value="independant">Indépendant / micro-entrepreneur</option></select></label>
       <label>Entrée dans l'entreprise<input id="dateEntree" type="date"></label>
-      <label>Jours de congés restants<input id="cpJours" type="number" step="1"></label>
-      <label class="full">Indemnité de rupture négociée (brute)<input id="indem" type="number" step="1000"></label>
+      <label>Jours de congés restants<input id="cpJours" type="number" step="1"><span class="src">Inconnu : 0 (congés soldés avant le départ)</span></label>
+      <label class="full">Indemnité de rupture négociée (brute)<input id="indem" type="number" step="1000"><span class="src">Inconnue : 0 = minimum légal calculé automatiquement</span></label>
       <label class="full">Besoin mensuel net du foyer<input id="besoin" type="number" step="100"></label>
     </div>
     <div class="calc" id="calcPro"></div>
@@ -225,6 +227,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
       <label>TMI
         <select id="tmiEntree"><option value="0">0 %</option><option value="11">11 %</option><option value="30">30 %</option><option value="41">41 %</option><option value="45">45 %</option></select></label>
       <label>Nombre de parts<input id="parts" type="number" step="0.5"></label>
+      <label class="check full"><input id="couple" type="checkbox"> Couple marié ou pacsé (imposition commune)</label>
       <label class="full">Plafond épargne retraite disponible<input id="plafondPer" type="number" step="500"><span class="src">Avis d'impôt, cadre « plafond épargne retraite » (0 = ne pas contrôler)</span></label>
       <label class="full">Autres revenus imposables du foyer à la retraite<input id="autresRev" type="number" step="1000"><span class="src">Conjoint, loyers… La pension du client est ajoutée automatiquement</span></label>
       <label class="full">Sortie classique du PER étalée sur (années)<input id="fraction" type="number" step="1" min="1" max="10"></label>
@@ -292,6 +295,8 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
       <label>Seuil 41 %<input id="b3" type="number" step="1"></label>
       <label>Seuil 45 %<input id="b4" type="number" step="1"></label>
       <label>Plafond QF ½ part<input id="bQF" type="number" step="1"></label>
+      <label>Décote seul<input id="bDecS" type="number" step="1"></label>
+      <label>Décote couple<input id="bDecC" type="number" step="1"></label>
       <label>IR du PFU (%)<input id="pfu" type="number" step="0.1"></label>
       <label>Prélèv. sociaux (%)<input id="ps" type="number" step="0.1"></label>
       <label>CSG indemnité (%)<input id="pCsgInd" type="number" step="0.1"></label>
@@ -363,7 +368,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
 const todayISO = new Date().toISOString().slice(0,10);
 const DEFAULTS = {
   nom:"Client exemple", naissance:"1966-05-15", dateEtude:todayISO,
-  qMode:"connu", q0:148, anneeDebut:1989, pension:3550,
+  qMode:"connu", q0:148, qMaj:0, invalidite:false, couple:true, anneeDebut:1989, pension:3550,
   netImp:67000, statut:"cadre", dateEntree:"2002-09-01", cpJours:20, indem:110000, besoin:4000,
   perMode:"existant", perCap:250000, perDed:160000, perNonDed:20000, perInit:30000, perMens:700, perRdt:3, perVersDed:true,
   tmiEntree:"41", parts:2, plafondPer:0, autresRev:0, fraction:1,
@@ -373,7 +378,7 @@ const DEFAULTS = {
   cCadre:0.79, cNon:0.81, indemConv:0,
   pPass:48060, pFixe:13.18, pMin:32.13, pT1:40.4, pT2:57, pPlaf:75, pDegS:92.12, pDegA:57,
   pDiv:112.6, pDifMax:150, pAttente:7, pMaintien:62, pD1:548, pD2:685, pD3:822, pA1:55, pA2:57, pAreCsg:6.58,
-  b1:11600, b2:29579, b3:84577, b4:181917, bQF:1807, pfu:12.8, ps:17.2, pCsgInd:9.7
+  b1:11600, b2:29579, b3:84577, b4:181917, bQF:1807, bDecS:897, bDecC:1483, pfu:12.8, ps:17.2, pCsgInd:9.7
 };
 const RADIOS = {qMode:["qModeConnu","qModeEstime"], perMode:["perModeExistant","perModeNouveau"]};
 const STORE_KEY = "mic.tunnelFinCarriere.v2";
@@ -437,7 +442,9 @@ function deriver(P){
   const anDernier = yearOf(toDay(P.dateEtude))-1;
   P.qEstime = P.qMode==="estime";
   if(P.qEstime) P.q0 = Math.max(0, (anDernier-P.anneeDebut+1)*4);
+  P.q0 += P.qMaj||0;
   if(!P.forceReg && P.naissance){ const g=regleGeneration(P.naissance); P.ageLegalA=g.a; P.ageLegalM=g.m; P.qRequis=g.q; }
+  if(P.invalidite){ P.ageLegalA=62; P.ageLegalM=0; }
   P.pensionNette = P.pension*(1-P.pPrelevPension/100);
   P.revRetraite = P.pensionNette*12*1.03*0.9 + P.autresRev;
   if(P.perMode==="nouveau"){ P.perCap=P.perInit; P.perDed=P.perVersDed?P.perInit:0; P.perNonDed=P.perVersDed?0:P.perInit; }
@@ -449,9 +456,11 @@ function impotParPart(r,P){
   let imp=0; const s=[0,P.b1,P.b2,P.b3,P.b4]; const rates=[0,.11,.30,.41,.45];
   for(let i=0;i<5;i++){ const lo=s[i], hi=(i<4?s[i+1]:Infinity); if(r>lo) imp += (Math.min(r,hi)-lo)*rates[i]; }
   return imp; }
-function impot(rev,parts,P){ rev=Math.max(0,rev); parts=Math.max(1,parts); const base = parts>=2?2:1;
+function impot(rev,parts,P){ rev=Math.max(0,rev); parts=Math.max(1,parts); const base = P.couple?2:1;
   const avec = parts*impotParPart(rev/parts,P); const sans = base*impotParPart(rev/base,P);
-  return Math.max(avec, sans-(parts-base)*2*P.bQF); }
+  const brut = Math.max(avec, sans-Math.max(0,parts-base)*2*P.bQF);
+  const decote = Math.max(0, Math.min(brut, (P.couple?P.bDecC:P.bDecS) - 0.4525*brut));
+  return brut - decote; }
 
 /* ---------- Chômage ---------- */
 function calcAre(P, ageRupture, R){
@@ -475,16 +484,17 @@ function calcIndemnite(P, R){
   const ref = P.brut/12;
   const legale = ref*(0.25*Math.min(anc,10) + (1/3)*Math.max(anc-10,0));
   const mini = Math.max(legale, P.indemConv||0);
-  const supra = Math.max(0, P.indem - mini);
+  const montant = P.indem>0 ? P.indem : mini;
+  const supra = Math.max(0, montant - mini);
   const sjr = Math.min(P.brut, 4*P.pPass)/365;
   const iccp = P.cpJours * P.brut/312;
   const difCP = Math.ceil(iccp/sjr);
   const difSpe = Math.min(P.pDifMax, Math.floor(supra/P.pDiv));
   const carence = difCP + difSpe + P.pAttente;
   const csg = supra*P.pCsgInd/100;
-  const exoIR = Math.min(6*P.pPass, Math.max(mini, Math.min(2*P.brut, 0.5*P.indem)));
-  const irInd = Math.max(0, P.indem-exoIR)*parseFloat(P.tmiEntree)/100;
-  return {anc, legale, mini, supra, iccp, difCP, difSpe, carence, csg, exoIR, irInd, net: P.indem - csg - irInd};
+  const exoIR = Math.min(6*P.pPass, Math.max(mini, Math.min(2*P.brut, 0.5*montant)));
+  const irInd = Math.max(0, montant-exoIR)*parseFloat(P.tmiEntree)/100;
+  return {anc, legale, mini, montant, supra, iccp, difCP, difSpe, carence, csg, exoIR, irInd, net: montant - csg - irInd};
 }
 
 /* ---------- Trimestres, jour par jour ---------- */
@@ -514,7 +524,7 @@ function simuler(P, R){
     if(ncQ>ncQY){ ncTotal += ncQ-ncQY; ncQY=ncQ; }
     const nq = Math.min(4, Math.floor(salY/P.pTrim) + Math.floor(areY/P.pJTrim) + ncQY);
     if(nq>qY){ parPhase[phase]+=nq-qY; cum+=nq-qY; qY=nq; }
-    if(tp==null && ((d>=legal && cum>=P.qRequis) || d>=auto)){ tp = firstOfNextMonth(Math.max(d, legal)); break; }
+    if(tp==null && ((d>=legal && (cum>=P.qRequis || P.invalidite)) || d>=auto)){ tp = firstOfNextMonth(Math.max(d, legal)); break; }
   }
   return {birth, start, legal, auto, R, carence, are, debutAre, finAre, plafNc, ncTotal, tp, cum, parPhase};
 }
@@ -605,7 +615,7 @@ function render(){
   /* Encarts de saisie */
   const rc = $("calcRetraite"); rc.className = "calc"+(P.qEstime?" est":"");
   rc.innerHTML = `Âge légal <b>${P.ageLegalA} ans${P.ageLegalM?" "+P.ageLegalM+" mois":""}</b> (${fmtD(s.legal)}) · <b>${P.qRequis}</b> trimestres requis${P.qEstime?` · <b>${P.q0}</b> trimestres estimés`:""}<br>Sans rien changer, taux plein le <b>${fmtD(classique.tp)}</b>.`;
-  $("calcPro").innerHTML = `Brut annuel reconstitué <b>${eur(P.brut)}</b> · net versé <b>${eur(P.netAnnuel/12)}</b>/mois<br>Indemnité légale <b>${eur(ind.legale)}</b> (${ind.anc.toFixed(1).replace(".",",")} ans d'ancienneté) · indemnité nette estimée <b>${eur(ind.net)}</b>`;
+  $("calcPro").innerHTML = `Brut annuel reconstitué <b>${eur(P.brut)}</b> · net versé <b>${eur(P.netAnnuel/12)}</b>/mois<br>Indemnité légale <b>${eur(ind.legale)}</b> (${ind.anc.toFixed(1).replace(".",",")} ans d'ancienneté) · indemnité ${P.indem>0?"":"(minimum légal) "}nette estimée <b>${eur(ind.net)}</b>`;
   $("calcPer").innerHTML = `Capital projeté au déblocage <b>${eur(per.capital)}</b><br>dont déduit <b>${eur(per.ded)}</b> · plus-values <b>${eur(per.pv)}</b> · ${per.nVers} versements mensuels`;
 
   /* KPI */
@@ -673,7 +683,8 @@ function render(){
   if(P.statut==="independant") add("Indépendant ou micro-entrepreneur : <b>pas de rupture conventionnelle ni d'allocation chômage</b> (ARE). La stratégie ne s'applique qu'aux salariés en CDI. Résultats affichés à titre théorique.","bad");
   if(!are.eligible) add(`Moins de 130 jours travaillés dans l'entreprise à la date de rupture : pas de droit à l'allocation chômage.`,"bad");
   else if(are.duree<are.dureeMax) add(`Ancienneté trop courte pour la durée maximale : ${mo(are.duree)} d'indemnisation au lieu de ${mo(are.dureeMax)}. Le calcul ne compte que l'emploi actuel ; d'autres emplois salariés récents peuvent allonger les droits.`,"warn");
-  if(P.statut!=="independant" && P.indem < ind.mini) add(`Indemnité saisie inférieure au minimum légal (${eur(ind.mini)}) : une rupture conventionnelle ne peut pas descendre sous ce montant.`,"bad");
+  if(P.statut!=="independant" && P.indem>0 && P.indem < ind.mini) add(`Indemnité saisie inférieure au minimum légal (${eur(ind.mini)}) : une rupture conventionnelle ne peut pas descendre sous ce montant.`,"bad");
+  if(P.invalidite) add("Invalidité : si la pension est de <b>2ᵉ ou 3ᵉ catégorie</b>, l'invalidité est à elle seule un cas de déblocage anticipé du PER, avec la même fiscalité que la fin de droits, sans passer par le chômage. Vérifier la catégorie sur la notification de la CPAM. En 2ᵉ ou 3ᵉ catégorie, l'allocation chômage est aussi réduite du montant de la pension.","warn");
   if(manuel==null && !rp.faisable) add(`Fin de droits et fenêtre de ${P.tampon} mois impossibles à caser avant le taux plein : réduire la fenêtre. Calcul affiché avec un départ au ${fmtD(etude)}.`,"bad");
   if(manuel!=null && R<etude) add("La date de rupture imposée précède la date d'étude.","bad");
   if(s.finAre>=s.tp) add(`Les droits au chômage ne sont pas épuisés avant le taux plein : <b>pas de déblocage possible</b> au titre de la fin de droits.`,"bad");
@@ -690,7 +701,7 @@ function render(){
   if(P.perVersDed && P.plafondPer>0 && versAnnuel>P.plafondPer) add(`Versements prévus sur 12 mois (${eur(versAnnuel)}) supérieurs au plafond disponible (${eur(P.plafondPer)}) : l'excédent ne sera pas déductible.`,"bad");
   if(P.perVersDed && P.plafondPer===0 && versAnnuel>0) add("Plafond de déduction non renseigné : vérifier sur l'avis d'impôt que les versements prévus restent déductibles.","info");
   if(P.perMode==="nouveau" && per.nVers<36) add("PER ouvert moins de 3 ans avant la rupture : peu de plus-values, le gain vient surtout de la déduction. Surveiller les frais d'entrée.","info");
-  if(P.indem>2*P.pPass) add(`Indemnité supérieure à 2 PASS (${eur(2*P.pPass)}) : cotisations sociales sur l'excédent, non modélisées.`,"warn");
+  if(ind.montant>2*P.pPass) add(`Indemnité supérieure à 2 PASS (${eur(2*P.pPass)}) : cotisations sociales sur l'excédent, non modélisées.`,"warn");
   if(ind.difSpe>=P.pDifMax) add(`Différé spécifique au plafond de ${P.pDifMax} jours : au-delà de ${eur(P.pDifMax*P.pDiv)} de supra-légale, l'indemnisation n'est plus décalée.`,"info");
   add("La rupture conventionnelle suppose l'accord de l'employeur. Les règles chômage des seniors évoluent : revalider les paramètres à chaque rendez-vous.","info");
   $("alerts").innerHTML = A.join("");
