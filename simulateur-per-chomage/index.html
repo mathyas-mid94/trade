@@ -239,6 +239,9 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
     <span class="eyebrow">Stratégie</span>
     <label>Fenêtre de sécurité après la fin des droits : <b id="tamponV" style="color:var(--fg)"></b>
       <input id="tampon" type="range" min="0" max="60" step="1"></label>
+    <label>Marge avant la date limite : <b id="margeV" style="color:var(--fg)"></b>
+      <input id="marge" type="range" min="0" max="12" step="1"></label>
+    <label class="check"><input id="maintienRisk" type="checkbox"> Le client remplit les conditions du maintien des droits jusqu'à la retraite (dans le doute, laisser coché)</label>
     <label>Date de rupture imposée (vide = calcul automatique)<input id="ruptureManuelle" type="date"></label>
   </div>
 
@@ -310,6 +313,12 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
   <div class="kpis" id="kpis"></div>
 
   <div class="panel">
+    <h2>Fiabilité du déblocage</h2>
+    <div id="fiab" class="verdict"></div>
+    <div class="scroll"><table id="robust"></table></div>
+  </div>
+
+  <div class="panel">
     <h2>Rétroplanning</h2>
     <div class="scroll"><svg id="gantt" width="100%" height="176" role="img" aria-label="Frise de la stratégie"></svg></div>
     <div class="legend">
@@ -345,6 +354,19 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
   </details>
 
   <div class="panel">
+    <h2>À faire valider avant la signature</h2>
+    <div class="scroll"><table>
+      <tr><th>Interlocuteur</th><th>Ce qu'il confirme</th><th>Document à obtenir</th></tr>
+      <tr><td><b>Assurance retraite (Carsat)</b><br><span class="hint">info-retraite.fr › Entretien information retraite, gratuit dès 45 ans</span></td><td>Trimestres, trimestres enfants, invalidité ou carrière longue, date exacte du taux plein</td><td>Relevé de carrière régularisé et estimation à jour</td></tr>
+      <tr><td><b>France Travail</b><br><span class="hint">3949 ou conseiller, simulateur « Estimer mes allocations »</span></td><td>Durée des droits, différés, absence de maintien des droits jusqu'à la retraite</td><td>Simulation datée, puis notification d'ouverture de droits</td></tr>
+      <tr><td><b>Assureur ou gestionnaire du PER</b></td><td>Déblocage pour expiration des droits sur chaque compartiment, pièces exigées, délai, frais</td><td>Confirmation écrite des conditions de déblocage</td></tr>
+      <tr><td><b>Employeur, avec un avocat en droit du travail si besoin</b></td><td>Indemnité conventionnelle, date de fin de contrat, solde des congés</td><td>Convention de rupture et sa date d'homologation</td></tr>
+      <tr><td><b>CPAM</b> <span class="hint">(si invalidité)</span></td><td>Catégorie de la pension d'invalidité</td><td>Notification d'attribution</td></tr>
+      <tr><td><b>Service des impôts</b> <span class="hint">(impots.gouv.fr › messagerie)</span></td><td>Plafond épargne retraite disponible, situation du foyer</td><td>Dernier avis d'impôt</td></tr>
+    </table></div>
+  </div>
+
+  <div class="panel">
     <h2>Mise en œuvre</h2>
     <ol class="steps">
       <li>Relevé de carrière sur info-retraite.fr : confirmer les trimestres et la date du taux plein.</li>
@@ -367,12 +389,12 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
 /* ---------- Valeurs par défaut (exemple) ---------- */
 const todayISO = new Date().toISOString().slice(0,10);
 const DEFAULTS = {
-  nom:"Client exemple", naissance:"1966-05-15", dateEtude:todayISO,
-  qMode:"connu", q0:148, qMaj:0, invalidite:false, couple:true, anneeDebut:1989, pension:3550,
+  nom:"Client exemple", naissance:"1968-05-15", dateEtude:todayISO,
+  qMode:"connu", q0:140, qMaj:0, invalidite:false, couple:true, anneeDebut:1989, pension:3550,
   netImp:67000, statut:"cadre", dateEntree:"2002-09-01", cpJours:20, indem:110000, besoin:4000,
   perMode:"existant", perCap:250000, perDed:160000, perNonDed:20000, perInit:30000, perMens:700, perRdt:3, perVersDed:true,
   tmiEntree:"41", parts:2, plafondPer:0, autresRev:0, fraction:1,
-  tampon:12, ruptureManuelle:"",
+  tampon:12, marge:3, maintienRisk:true, ruptureManuelle:"",
   forceReg:false, ageLegalA:63, ageLegalM:3, qRequis:172, cot20:true,
   pTrim:1803, pJTrim:50, pAge67:67, pNcStd:4, pNcLong:20, pNcAge:55, pPrelevPension:9.1,
   cCadre:0.79, cNon:0.81, indemConv:0,
@@ -506,23 +528,25 @@ function simuler(P, R){
   let carence=0, are=null, debutAre=null, finAre=null, plafNc=P.pNcStd;
   if(R!=null){
     are = calcAre(P, ageAt(birth, R), R);
-    carence = calcIndemnite(P, R).carence;
+    carence = P._carence!=null ? P._carence : calcIndemnite(P, R).carence;
     debutAre = R + carence; finAre = debutAre + are.duree;
     plafNc = (ageAt(birth, finAre) >= P.pNcAge && P.cot20) ? P.pNcLong : P.pNcStd;
   }
   const salJ = P.brut/365;
   let cum = P.q0, ncTotal = 0, tp = null;
   const parPhase = {poste:0, carence:0, are:0, nc:0};
-  let y = yearOf(start), qY=0, salY=0, areY=0, ncY=0, ncQY=0;
+  let y = yearOf(start), qY=0, salY=0, areY=0, ncY=0, ncQY=0, ncAvant=0;
   for(let d=start; d<=auto+400; d++){
     const yy = yearOf(d);
-    if(yy!==y){ y=yy; qY=0; salY=0; areY=0; ncY=0; ncQY=0; }
+    if(yy!==y){ y=yy; qY=0; salY=0; areY=0; ncY=0; ncQY=0; ncAvant=ncTotal; }
     let phase;
     if(R==null || d<R) phase="poste"; else if(d<debutAre) phase="carence"; else if(d<finAre) phase="are"; else phase="nc";
     if(phase==="poste") salY+=salJ; else if(phase==="are") areY++; else if(phase==="nc") ncY++;
-    const ncQ = Math.min(Math.floor(ncY/P.pJTrim), plafNc - (ncTotal - ncQY));
-    if(ncQ>ncQY){ ncTotal += ncQ-ncQY; ncQY=ncQ; }
-    const nq = Math.min(4, Math.floor(salY/P.pTrim) + Math.floor(areY/P.pJTrim) + ncQY);
+    // le chômage non indemnisé ne complète que les trimestres manquants de l'année, dans la limite du plafond
+    const autresQ = Math.floor(salY/P.pTrim) + Math.floor(areY/P.pJTrim);
+    ncQY = Math.max(0, Math.min(Math.floor(ncY/P.pJTrim), 4-autresQ, plafNc-ncAvant));
+    ncTotal = ncAvant + ncQY;
+    const nq = Math.min(4, autresQ + ncQY);
     if(nq>qY){ parPhase[phase]+=nq-qY; cum+=nq-qY; qY=nq; }
     if(tp==null && ((d>=legal && (cum>=P.qRequis || P.invalidite)) || d>=auto)){ tp = firstOfNextMonth(Math.max(d, legal)); break; }
   }
@@ -530,17 +554,41 @@ function simuler(P, R){
 }
 
 /* Rétroplanning : taux plein le plus tôt possible, puis rupture la plus tardive qui l'atteint */
+// Déblocage sûr : droits épuisés avant le taux plein (avec la fenêtre) et, si le maintien est possible, avant l'âge du maintien
+function deblocageSur(P, s, decalage=0, tpAvance=0, fenetre=Math.round(P.tampon*30.4375)){
+  const fin = s.finAre + decalage;
+  return fin + fenetre <= s.tp - tpAvance && (!P.maintienRisk || ageAt(s.birth, fin) < P.pMaintien);
+}
 function retroplanning(P){
   const etude = toDay(P.dateEtude);
   const classique = simuler(P, null);
-  const tamponJ = Math.round(P.tampon*30.4375);
-  const evalR = R => { const s=simuler(P,R); return s.finAre + tamponJ <= s.tp ? s.tp : null; };
-  let best=null, bestTp=Infinity;
-  // aucune rupture utile plus de 4 ans + fenêtre avant le taux plein (carence + 27 mois max)
-  const debut = Math.max(etude, classique.tp - Math.round((4+P.tampon/12)*365.25));
-  for(let R=debut; R<=classique.tp; R+=7){ const tp=evalR(R); if(tp!=null && tp<=bestTp){ bestTp=tp; best=R; } }
-  if(best!=null){ for(let R=best+1; R<=Math.min(best+6, classique.tp); R++){ const tp=evalR(R); if(tp!=null && tp<=bestTp) best=R; } }
-  return {classique, best, faisable: best!=null, sansRecul: best!=null && bestTp<=classique.tp};
+  const evalR = R => { const s=simuler(P,R); return deblocageSur(P,s) ? s.tp : null; };
+  const ok = []; let bestTp=Infinity;
+  // la rupture utile se situe au plus tard 6 ans + fenêtre avant le taux plein
+  const debut = Math.max(etude, classique.tp - Math.round((6+P.tampon/12)*365.25));
+  for(let R=debut; R<=classique.tp; R+=7){ const tp=evalR(R); if(tp!=null){ ok.push([R,tp]); bestTp=Math.min(bestTp,tp); } }
+  const bons = ok.filter(x=>x[1]===bestTp).map(x=>x[0]);
+  if(!bons.length) return {classique, faisable:false};
+  let limite = bons[bons.length-1];
+  for(let R=limite+1; R<=Math.min(limite+6, classique.tp); R++){ if(evalR(R)===bestTp) limite=R; }
+  const premiere = bons[0];
+  const cible = addMonths(limite, -P.marge);
+  const conseil = bons.filter(R=>R<=cible).pop() ?? premiere;
+  return {classique, faisable:true, premiere, limite, conseil, sansRecul: bestTp<=classique.tp};
+}
+
+/* Tests de robustesse : le déblocage tient-il si la réalité s'écarte du calcul ? */
+function robustesse(P, R){
+  const base = simuler(P, R);
+  const maxCar = Object.assign({}, P, {_carence: Math.max(base.carence, P.pDifMax + Math.ceil(30*365/312) + P.pAttente)});
+  const tests = [
+    ["Signature ou homologation retardée de 3 mois", simuler(P, addMonths(R,3)), 0, 0],
+    ["Carence au maximum (150 jours + 30 jours de congés)", simuler(maxCar, R), 0, 0],
+    ["Indemnisation prolongée de 3 mois (arrêt maladie, activité réduite)", base, 91, 0],
+    ["Taux plein atteint 6 mois plus tôt (trimestres sous-estimés)", base, 0, 183],
+  ];
+  // après un aléa, il suffit de garder 2 mois pour déposer la demande de déblocage avant la retraite
+  return tests.map(([nom, s, dec, av])=>({nom, fin: s.finAre+dec, ok: deblocageSur(P, s, dec, av, 61)}));
 }
 
 /* ---------- PER : capitalisation mensuelle ---------- */
@@ -563,7 +611,7 @@ function syncUI(P){
   $("perExistant").hidden = P.perMode!=="existant"; $("perNouveau").hidden = P.perMode!=="nouveau";
   ["ageLegalA","ageLegalM","qRequis"].forEach(id=>{ $(id).disabled=!P.forceReg; });
   if(!P.forceReg){ $("ageLegalA").value=P.ageLegalA; $("ageLegalM").value=P.ageLegalM; $("qRequis").value=P.qRequis; }
-  $("tamponV").textContent = P.tampon+" mois";
+  $("tamponV").textContent = P.tampon+" mois"; $("margeV").textContent = P.marge+" mois";
 }
 
 function render(){
@@ -578,7 +626,8 @@ function render(){
   const rp = retroplanning(P);
   const classique = rp.classique;
   const manuel = toDay(P.ruptureManuelle);
-  const R = manuel!=null ? manuel : (rp.faisable ? rp.best : etude);
+  const R = manuel!=null ? manuel : (rp.faisable ? rp.conseil : etude);
+  const tests = robustesse(P, R), nbOk = tests.filter(t=>t.ok).length;
   const s = simuler(P, R);
   const ind = calcIndemnite(P, R);
   const are = s.are, birth = s.birth;
@@ -620,12 +669,20 @@ function render(){
 
   /* KPI */
   $("kpis").innerHTML = `
-    <div class="kpi hl"><span class="l">Départ ${manuel!=null?"imposé":"au plus tard"}</span><span class="v">${fmtD(R)}</span><span class="s">à ${ageTxt(birth,R)}</span></div>
+    <div class="kpi hl"><span class="l">${manuel!=null?"Rupture imposée":"Rupture conseillée"}</span><span class="v">${fmtD(R)}</span><span class="s">${manuel==null&&rp.faisable?`${rp.premiere<=etude?"dès aujourd'hui":"à partir du "+fmtD(rp.premiere)}, au plus tard le <b>${fmtD(rp.limite)}</b>`:`à ${ageTxt(birth,R)}`}</span></div>
     <div class="kpi"><span class="l">Déblocage du PER</span><span class="v">${fmtD(s.finAre)}</span><span class="s">fin de droits à ${ageTxt(birth,s.finAre)}</span></div>
     <div class="kpi"><span class="l">Taux plein</span><span class="v">${fmtD(s.tp)}</span><span class="s">${s.tp>classique.tp?`<span class="neg">${mo(s.tp-classique.tp)} plus tard qu'en poste</span>`:"même date qu'en restant en poste"}</span></div>
     <div class="kpi gold"><span class="l">Impôt évité sur le PER</span><span class="v">${eur(gainPer)}</span><span class="s">bilan global ${sgn(bilan)}</span></div>`;
 
   drawGantt(s, etude, birth);
+
+  /* Fiabilité */
+  const f=$("fiab"), baseOk = deblocageSur(P, s);
+  if(!baseOk){ f.className="verdict bad"; f.innerHTML=`<b>Déblocage non garanti avec cette date.</b> ${manuel!=null?"Retirer la date imposée pour laisser l'outil chercher une date sûre.":"Aucune date de rupture ne garantit le déblocage avec ces paramètres : voir les points de vigilance."}`; }
+  else if(nbOk===tests.length){ f.className="verdict ok"; f.innerHTML=`<b>Déblocage sécurisé : ${nbOk} tests sur ${tests.length} réussis.</b> Négocier une rupture effective au plus tard le <b>${fmtD(manuel!=null?R:rp.limite)}</b>, idéalement autour du ${fmtD(R)}. À confirmer avec les interlocuteurs ci-dessous avant signature.`; }
+  else { f.className="verdict warn"; f.innerHTML=`<b>Déblocage fragile : ${nbOk} tests sur ${tests.length} réussis.</b> Augmenter la marge ou la fenêtre de sécurité jusqu'à ce que tous les tests passent.`; }
+  $("robust").innerHTML = `<tr><th>Si la réalité s'écarte du calcul</th><th>Fin de droits</th><th class="num">Déblocage</th></tr>` +
+    tests.map(t=>`<tr><td>${t.nom}</td><td>${fmtD(t.fin)} · ${ageTxt(birth,t.fin)}</td><td class="num"><span class="${t.ok?"pos":"neg"}">${t.ok?"Garanti":"Compromis"}</span></td></tr>`).join("");
 
   /* Phases */
   const ph = [
@@ -685,11 +742,12 @@ function render(){
   else if(are.duree<are.dureeMax) add(`Ancienneté trop courte pour la durée maximale : ${mo(are.duree)} d'indemnisation au lieu de ${mo(are.dureeMax)}. Le calcul ne compte que l'emploi actuel ; d'autres emplois salariés récents peuvent allonger les droits.`,"warn");
   if(P.statut!=="independant" && P.indem>0 && P.indem < ind.mini) add(`Indemnité saisie inférieure au minimum légal (${eur(ind.mini)}) : une rupture conventionnelle ne peut pas descendre sous ce montant.`,"bad");
   if(P.invalidite) add("Invalidité : si la pension est de <b>2ᵉ ou 3ᵉ catégorie</b>, l'invalidité est à elle seule un cas de déblocage anticipé du PER, avec la même fiscalité que la fin de droits, sans passer par le chômage. Vérifier la catégorie sur la notification de la CPAM. En 2ᵉ ou 3ᵉ catégorie, l'allocation chômage est aussi réduite du montant de la pension.","warn");
-  if(manuel==null && !rp.faisable) add(`Fin de droits et fenêtre de ${P.tampon} mois impossibles à caser avant le taux plein : réduire la fenêtre. Calcul affiché avec un départ au ${fmtD(etude)}.`,"bad");
+  if(manuel==null && !rp.faisable) add(`Aucune date de rupture à partir d'aujourd'hui ne permet d'épuiser les droits avant le taux plein${P.maintienRisk?` et avant ${P.pMaintien} ans`:""} avec ${P.tampon} mois de fenêtre : réduire la fenêtre, ou faire confirmer par France Travail que le maintien des droits ne s'applique pas. Calcul affiché avec un départ au ${fmtD(etude)}.`,"bad");
   if(manuel!=null && R<etude) add("La date de rupture imposée précède la date d'étude.","bad");
   if(s.finAre>=s.tp) add(`Les droits au chômage ne sont pas épuisés avant le taux plein : <b>pas de déblocage possible</b> au titre de la fin de droits.`,"bad");
   else if(tamponReel<60) add("Moins de 2 mois entre la fin de droits et le taux plein : aucune marge en cas de retard administratif.","warn");
-  if(ageAt(birth,s.finAre)>=P.pMaintien) add(`Fin de droits à ${ageAt(birth,s.finAre)} ans : risque de <b>maintien de l'allocation jusqu'au taux plein</b> si les conditions d'affiliation sont remplies. Il n'y aurait alors pas de fin de droits, donc pas de déblocage. À vérifier avec France Travail.`,"bad");
+  if(ageAt(birth,s.finAre)>=P.pMaintien) add(P.maintienRisk ? `Fin de droits à ${ageAt(birth,s.finAre)} ans : l'allocation serait <b>maintenue jusqu'au taux plein</b>, donc pas de fin de droits ni de déblocage.` : `Fin de droits à ${ageAt(birth,s.finAre)} ans : déblocage possible seulement si France Travail confirme par écrit que le client ne remplit pas les conditions du maintien des droits (12 ans d'affiliation, 100 trimestres, 1 an continu ou 2 ans discontinus dans une même entreprise sur 5 ans).`,"bad");
+  if(P.maintienRisk && manuel==null && rp.faisable && ageAt(birth,s.finAre)>=P.pMaintien-1) add(`Les droits s'épuisent avant ${P.pMaintien} ans pour éviter leur maintien jusqu'à la retraite : c'est la contrainte qui fixe la date de rupture.`,"info");
   if(s.tp>classique.tp) add(`Le taux plein recule de ${mo(s.tp-classique.tp)} : ${s.ncTotal>=s.plafNc?`plafond de ${s.plafNc} trimestres de chômage non indemnisé atteint`:"trimestres moins vite acquis (année de rupture incomplète, carence non validée, 50 jours par trimestre en fin de période)"}.${manuel==null&&rp.faisable&&!rp.sansRecul?" C'est le recul minimal avec cette fenêtre.":""}`,"warn");
   if(P.qEstime) add("Trimestres estimés depuis l'année du premier emploi : chômage, temps partiel ou études peuvent fausser le résultat. Récupérer le relevé de carrière avant toute décision.","warn");
   if(ageAt(birth,R)<P.pA2) add(`Rupture avant ${P.pA2} ans : ${mo(are.duree)} d'indemnisation seulement (27 mois à partir de ${P.pA2} ans depuis la convention 2025).`,"warn");
