@@ -1,147 +1,160 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
 <style>
-@font-face{font-family:Hand;src:url(../fonts/PatrickHand.ttf)}
-html,body{margin:0;background:#FAF8F3;overflow:hidden}
+@font-face{font-family:Gothic;src:url(../fonts/PathwayGothicOne-Regular.ttf)}
+html,body{margin:0;background:#F3F3E3;overflow:hidden}
 svg{display:block}
-text{font-family:Hand}
 </style></head>
 <body>
-<!-- Intro style "How the Economic Machine Works" : trait noir dessiné à la main, fond crème, accents de couleur rares -->
 <svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080">
-  <defs>
-    <filter id="rough"><feTurbulence id="turb" type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="1"/>
-      <feDisplacementMap in="SourceGraphic" scale="3"/></filter>
-    <clipPath id="nameClip"><rect id="nameRect" x="0" y="640" width="0" height="200"/></clipPath>
-  </defs>
-  <g id="scene" filter="url(#rough)" fill="none" stroke="#1d1d1d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></g>
-  <g id="logo" filter="url(#rough)" fill="none" stroke="#1d1d1d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></g>
+  <rect width="1920" height="1080" fill="#F3F3E3"/>
+  <g id="world"></g>
+  <g id="logo"></g>
+  <g id="fx"></g>
 </svg>
+<script src="../lib/dalio.js"></script>
 <script>
 const CONFIG = {
-  name: "TON NOM ICI",          // nom de la chaîne
-  tagline: "comprendre les marchés, simplement",
-  accentUp: "#2E9E5B", accentDown: "#D94A3D", accentBlue: "#3A7BD5",
-  logoSrc: null                 // ex: "logo.svg" -> remplace le logo dessiné
+  name: "TON NOM ICI",
+  tagline: "COMPRENDRE LES MARCHÉS, SIMPLEMENT",
 };
-const NS = "http://www.w3.org/2000/svg";
-const scene = document.getElementById("scene"), logo = document.getElementById("logo");
-const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag);
-  for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+const { C, el, prog, ease, easeOut, back, lerp } = D;
+const svg = document.getElementById("s");
+const world = document.getElementById("world"), logo = document.getElementById("logo"), fx = document.getElementById("fx");
 
-const clamp = x => Math.max(0, Math.min(1, x));
-const prog = (t, a, b) => clamp((t - a) / (b - a));
-const ease = x => x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
-const back = x => { const c = 1.9; return 1 + (c+1)*Math.pow(x-1,3) + c*Math.pow(x-1,2); };
+// ---------- Scène 1 : la "machine" des échanges (acheteur <-> vendeur) ----------
+function makePair(cx, gy, ta, te) {
+  const g = el("g", {}, world);
+  const top = D.curl(g, [cx - 150, gy - 400], [cx + 150, gy - 400], -55);
+  const bot = D.curl(g, [cx + 150, gy - 150], [cx - 150, gy - 150], 45);
+  D.drawOn(top, te - 0.05, te + 0.4); D.drawOn(bot, te + 0.6, te + 1.0);
+  const A = D.guy(g), B = D.guy(g);
+  const bill = D.bills(g, 3), bx = D.box(g);
+  return { cx, gy, ta, te, A, B, bill, bx };
+}
+const hand = (guy, x, y, s, flip) => [x + (flip ? -1 : 1) * s * guy.hand.R[0], y + s * guy.hand.R[1]];
 
-// chemins "tracés" : chacun a une fenêtre [a,b] pendant laquelle il se dessine
-const draws = [];
-function draw(d, a, b, parent, extra = {}) {
-  const p = el("path", { d, ...extra }, parent);
-  draws.push({ p, a, b, len: p.getTotalLength() + 2 });
-  return p;
+const pairs = [makePair(960, 860, 0.1, 0.95)];
+for (let col = -2; col <= 2; col++) for (let row = -2; row <= 1; row++) {
+  if (!col && !row) continue;
+  const cx = 960 + col * 780, gy = 860 + row * 660 + col * 140;
+  const dist = Math.hypot(col, row);
+  pairs.push(makePair(cx, gy, 2.3 + dist * 0.12, 2.3 + dist * 0.12 + 0.55));
 }
 
-// --- sol + petit graphique ---
-draw("M120 860 C 600 852, 1300 866, 1800 858", 0.0, 0.7, scene);
-const chart = el("g", {}, scene);
-draw("M200 820 L200 470 M200 820 L640 820", 0.2, 0.8, chart);
-draw("M220 780 L290 720 L340 750 L420 640 L470 670 L560 520 L620 540", 0.6, 1.7, chart, { stroke: CONFIG.accentUp, "stroke-width": 8 });
-draw("M590 515 L622 538 L596 568", 1.6, 1.85, chart, { stroke: CONFIG.accentUp, "stroke-width": 8 });
-
-// --- engrenages (la "machine") ---
-function gearPath(cx, cy, r, teeth) {
-  let d = "", n = teeth * 4;
-  for (let i = 0; i <= n; i++) {
-    const a = i / n * Math.PI * 2, rr = (i % 4 < 2) ? r + 22 : r;
-    const x = cx + rr * Math.cos(a), y = cy + rr * Math.sin(a);
-    d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
-  }
-  return d + `M${cx + r*0.35} ${cy} A${r*0.35} ${r*0.35} 0 1 0 ${cx - r*0.35} ${cy} A${r*0.35} ${r*0.35} 0 1 0 ${cx + r*0.35} ${cy}`;
+function renderPair(p, t) {
+  const sA = back(prog(t, p.ta, p.ta + 0.4)), sB = back(prog(t, p.ta + 0.12, p.ta + 0.52));
+  const raise = ease(prog(t, p.ta + 0.35, p.ta + 0.7));
+  p.A.pose(105, lerp(75, -55, raise)).place(p.cx - 200, p.gy, sA, false);
+  p.B.pose(105, lerp(75, -55, raise)).place(p.cx + 200, p.gy, sB, true);
+  p.A.g.style.opacity = sA > 0 ? 1 : 0; p.B.g.style.opacity = sB > 0 ? 1 : 0;
+  const hA = hand(p.A, p.cx - 200, p.gy, 1, false), hB = hand(p.B, p.cx + 200, p.gy, 1, true);
+  // billets : volent de A vers B, en boucle toutes les 1,6 s
+  const phi = t - p.te, cyc = phi >= 0 ? phi % 1.6 : phi;
+  let bp = null, bs = 1, rot = 0;
+  if (cyc < 0) { if (cyc > -0.3) { bp = hA; bs = back(prog(cyc, -0.3, 0)); } }
+  else if (cyc < 0.55) { const u = ease(cyc / 0.55); bp = D.arcPt(hA, hB, -110, u); rot = Math.sin(u * Math.PI) * -25; }
+  else if (cyc < 0.75) bp = hB;
+  else if (cyc > 1.3) { bp = hA; bs = back(prog(cyc, 1.3, 1.55)); }
+  p.bill.g.style.opacity = bp ? 1 : 0;
+  if (bp) p.bill.g.setAttribute("transform", `translate(${bp[0]} ${bp[1] - 18}) rotate(${rot}) scale(${0.85 * bs})`);
+  // carton : repart de B vers A
+  const wA = [p.cx - 150, p.gy - 190], wB = [p.cx + 150, p.gy - 190];
+  let xp = null, xs = 1;
+  if (cyc >= 0.6 && cyc < 0.8) { xp = wB; xs = back(prog(cyc, 0.6, 0.8)); }
+  else if (cyc >= 0.8 && cyc < 1.35) { const u = ease((cyc - 0.8) / 0.55); xp = D.arcPt(wB, wA, 70, u); }
+  else if (cyc >= 1.35 && cyc < 1.55) { xp = wA; xs = 1 - prog(cyc, 1.45, 1.55); }
+  p.bx.g.style.opacity = xp ? 1 : 0;
+  if (xp) p.bx.g.setAttribute("transform", `translate(${xp[0]} ${xp[1]}) scale(${0.9 * xs})`);
 }
-const g1 = el("g", {}, scene), g2 = el("g", {}, scene);
-draw(gearPath(0, 0, 120, 12), 1.0, 2.0, g1);
-draw(gearPath(0, 0, 70, 7), 1.3, 2.1, g2, { stroke: CONFIG.accentBlue });
 
-// --- bonhomme ---
-const guy = el("g", {}, scene);
-draw("M1545 605 A45 45 0 1 1 1455 605 A45 45 0 1 1 1545 605", 1.6, 2.1, guy);           // tête
-draw("M1500 650 L1500 770", 1.9, 2.2, guy);                      // corps
-draw("M1500 770 L1460 855 M1500 770 L1540 855", 2.0, 2.4, guy);  // jambes
-draw("M1500 680 L1450 740", 2.1, 2.4, guy);                      // bras gauche
-const arm = draw("M0 0 L60 -50", 2.2, 2.5, el("g", { id: "armg" }, guy)); // bras qui salue
-const eyes = el("g", { fill: "#1d1d1d", stroke: "none" }, guy);
-el("circle", { cx: 1485, cy: 600, r: 5 }, eyes); el("circle", { cx: 1515, cy: 600, r: 5 }, eyes);
-const smile = draw("M1484 625 Q1500 640 1516 625", 2.2, 2.45, guy);
+// ---------- Transition : un billet fonce vers la caméra ----------
+const hero = D.bills(fx, 1);
+hero.g.querySelectorAll("path").forEach(p => p.setAttribute("vector-effect", "non-scaling-stroke"));
 
-// --- logo (placeholder dessiné : cercle + chandeliers) ---
-const LX = 960, LY = 420;
-const logoG = el("g", {}, logo);
-draw(`M${LX+150} ${LY} A150 150 0 1 1 ${LX-150} ${LY} A150 150 0 1 1 ${LX+150} ${LY}`, 3.7, 4.5, logoG);
+// ---------- Scène 2 : logo ----------
+const LX = 960, LY = 390, LR = 165;
+const disc = el("circle", { cx: LX, cy: LY, r: LR, fill: C.money }, logo);
+const ring = el("circle", { ...D.line, "stroke-width": 6, cx: LX, cy: LY, r: LR, transform: `rotate(-90 ${LX} ${LY})` }, logo);
+D.drawOn(ring, 4.35, 4.8);
 const candles = [
-  { x: -70, o: 40, c: -10, h: -40, l: 60, up: true },
-  { x: 0,   o: 10, c: 50,  h: -10, l: 75, up: false },
-  { x: 70,  o: 30, c: -70, h: -95, l: 45, up: true },
-];
-const candleFills = [];
-candles.forEach((k, i) => {
-  const a = 4.2 + i * 0.18;
-  draw(`M${LX+k.x} ${LY+k.h} L${LX+k.x} ${LY+k.l}`, a, a + 0.25, logoG, { "stroke-width": 6 });
-  const top = Math.min(k.o, k.c), hgt = Math.abs(k.o - k.c);
-  const r = el("rect", { x: LX+k.x-20, y: LY+top, width: 40, height: hgt, rx: 4,
-    fill: k.up ? CONFIG.accentUp : CONFIG.accentDown, "stroke-width": 6 }, logoG);
-  candleFills.push({ r, a: a + 0.15, cx: LX + k.x, cy: LY + top + hgt/2 });
+  { x: -70, o: 35, c: -15, h: -45, l: 65, col: C.money },
+  { x: 0, o: 0, c: 45, h: -20, l: 70, col: C.red },
+  { x: 70, o: 30, c: -80, h: -105, l: 50, col: C.money },
+].map((k, i) => {
+  const g = el("g", {}, logo), top = Math.min(k.o, k.c), hh = Math.abs(k.o - k.c);
+  el("path", { ...D.line, "stroke-width": 6, d: `M${LX + k.x} ${LY + k.h} L${LX + k.x} ${LY + k.l}` }, g);
+  el("rect", { ...D.line, "stroke-width": 6, fill: k.col, x: LX + k.x - 22, y: LY + top, width: 44, height: hh, rx: 3 }, g);
+  return { g, a: 4.6 + i * 0.13, cx: LX + k.x, cy: LY + k.l };
 });
-let logoImg = null;
-if (CONFIG.logoSrc) { logoG.style.display = "none";
-  logoImg = el("image", { href: CONFIG.logoSrc, x: LX-170, y: LY-170, width: 340, height: 340 }, document.getElementById("s")); }
 
-// --- nom + soulignement + slogan ---
-const nameT = el("text", { x: LX, y: 760, "text-anchor": "middle", "font-size": 130, fill: "#1d1d1d",
-  stroke: "none", "clip-path": "url(#nameClip)" }, document.getElementById("s"));
-nameT.textContent = CONFIG.name;
-const w = nameT.getComputedTextLength();
-draw(`M${LX - w/2} 800 C ${LX - w/4} 788, ${LX + w/4} 812, ${LX + w/2} 794`, 5.5, 6.0, logo, { stroke: CONFIG.accentBlue, "stroke-width": 9 });
-const tag = el("text", { x: LX, y: 880, "text-anchor": "middle", "font-size": 52, fill: "#555", stroke: "none" }, document.getElementById("s"));
+window.ready = document.fonts.load("170px Gothic").then(() => {
+const NY = 760, FS = 170;
+const meas = el("text", { "font-size": FS, "font-family": "Gothic", opacity: 0 }, logo);
+meas.textContent = CONFIG.name;
+const W = meas.getComputedTextLength();
+const letters = [...CONFIG.name].map((ch, i) => {
+  const x = LX - W / 2 + meas.getSubStringLength(0, i) + meas.getSubStringLength(i, 1) / 2;
+  const t = el("text", { x, y: NY, "text-anchor": "middle", "font-size": FS, "font-family": "Gothic", fill: C.ink }, logo);
+  t.textContent = ch; return { t, x, a: 5.0 + i * 0.045 };
+});
+const bx0 = LX - W / 2 - 55, bx1 = LX + W / 2 + 55, by0 = NY - 150, by1 = NY + 40;
+const frame1 = el("path", { ...D.line, "stroke-width": 6, d: `M${bx0 - 8} ${by0 + 3} L${bx1 + 6} ${by0 - 2} L${bx1 - 2} ${by1 + 6} L${bx0 + 3} ${by1 - 2} Z` }, logo);
+const frame2 = el("path", { ...D.line, "stroke-width": 3, d: `M${bx0 + 6} ${by0 - 6} L${bx1 - 4} ${by0 + 6} L${bx1 + 5} ${by1 - 4} L${bx0 - 6} ${by1 + 4} Z` }, logo);
+D.drawOn(frame1, 5.55, 5.85); D.drawOn(frame2, 5.65, 5.95);
+// petites fissures "impact" autour du cadre
+const cracks = [];
+[[bx0, by0, -1, -1], [bx1, by0, 1, -1], [bx1, by1, 1, 1], [bx0, by1, -1, 1], [LX - W / 3, by0, 0, -1], [LX + W / 4, by0, 0, -1]].forEach(([x, y, dx, dy]) => {
+  for (let j = 0; j < 3; j++) {
+    const a = Math.atan2(dy || (j - 1) * 0.2 + dy, dx || (j - 1) * 0.6) + (j - 1) * 0.45;
+    const r0 = 22, r1 = 22 + 30 + j * 8;
+    const p = el("path", { ...D.line, "stroke-width": 3.5, d: `M${x + r0 * Math.cos(a)} ${y + r0 * Math.sin(a)} L${x + r1 * Math.cos(a)} ${y + r1 * Math.sin(a)}` }, logo);
+    D.drawOn(p, 5.95 + j * 0.03, 6.1 + j * 0.03); cracks.push(p);
+  }
+});
+window.NAME = { NY, letters };
+const tag = el("text", { x: LX, y: NY + 155, "text-anchor": "middle", "font-size": 54, "font-family": "Gothic", fill: "#6B6F68", "letter-spacing": 4 }, logo);
 tag.textContent = CONFIG.tagline;
+window.TAG = tag;
+D.paper(svg);
+});
 
-// --- rendu d'une frame à l'instant t (secondes) ---
-window.DURATION = 7.5;
+// ---------- rendu ----------
+window.DURATION = 8.5;
 window.render = function (t) {
-  // trait qui "vibre" légèrement, comme un dessin à la main (change toutes les 3 frames)
-  document.getElementById("turb").setAttribute("seed", 1 + Math.floor(t * 10) % 4);
-  for (const d of draws) {
-    const k = ease(prog(t, d.a, d.b));
-    d.p.setAttribute("stroke-dasharray", d.len);
-    d.p.setAttribute("stroke-dashoffset", d.len * (1 - k));
-    d.p.style.opacity = k > 0 ? 1 : 0;
-  }
-  // engrenages : tournent une fois dessinés, en sens inverse
-  const rot = Math.max(0, t - 1.6) * 60;
-  g1.setAttribute("transform", `translate(980 600) rotate(${rot})`);
-  g2.setAttribute("transform", `translate(1172 470) rotate(${-rot * 120/70 + 12})`);
-  // bras qui salue
-  const wave = t > 2.5 ? Math.sin((t - 2.5) * 12) * 18 * (1 - prog(t, 2.5, 3.4)) : 0;
-  document.getElementById("armg").setAttribute("transform", `translate(1500 680) rotate(${wave})`);
-  eyes.style.opacity = t > 2.1 ? 1 : 0;
-  // caméra : zoom avant dans la machine, la scène s'efface
-  const z = ease(prog(t, 3.2, 4.0));
-  scene.setAttribute("transform", `translate(1076 560) scale(${1 + z * 2.2}) translate(-1076 -560)`);
-  scene.style.opacity = 1 - z;
-  // bougies du logo : remplissage avec petit rebond
-  for (const c of candleFills) {
-    const k = prog(t, c.a, c.a + 0.35), s = k > 0 ? back(k) : 0;
-    c.r.setAttribute("transform", `translate(${c.cx} ${c.cy}) scale(${s}) translate(${-c.cx} ${-c.cy})`);
-  }
-  if (logoImg) { const k = prog(t, 3.8, 4.5); logoImg.style.opacity = k;
-    logoImg.setAttribute("transform", `translate(${LX} ${LY}) scale(${0.6 + 0.4*back(k)}) translate(${-LX} ${-LY})`); }
-  // nom : révélé de gauche à droite comme écrit au feutre
-  const nk = ease(prog(t, 4.7, 5.6));
-  const nr = document.getElementById("nameRect");
-  nr.setAttribute("x", LX - w/2 - 10); nr.setAttribute("width", (w + 20) * nk);
-  tag.style.opacity = ease(prog(t, 6.0, 6.6));
-  tag.setAttribute("transform", `translate(0 ${20 * (1 - ease(prog(t, 6.0, 6.6)))})`);
+  D.updateDraws(t);
+  // caméra : petite poussée puis grand recul qui révèle toute l'économie
+  const z = lerp(lerp(1, 1.08, ease(prog(t, 0, 2.3))), 0.36, ease(prog(t, 2.2, 3.4)));
+  const camY = lerp(640, 760, ease(prog(t, 2.2, 3.4)));
+  world.setAttribute("transform", `translate(960 ${540 + (camY - 640) * 0}) scale(${z}) translate(-960 -${camY})`);
+  world.style.opacity = t < 3.85 ? 1 : 0;
+  for (const p of pairs) renderPair(p, t);
+
+  // billet héros : jaillit du centre et remplit l'écran de vert
+  const hk = prog(t, 3.2, 3.85);
+  hero.g.style.opacity = t >= 3.2 && t < 3.86 ? 1 : 0;
+  const hs = lerp(0.6, 75, Math.pow(hk, 2));
+  hero.g.setAttribute("transform", `translate(${lerp(960, 960, hk)} ${lerp(560, 420, hk)}) rotate(${lerp(-35, 0, easeOut(hk))}) scale(${hs})`);
+  for (const i of hero.inner) i.style.opacity = 1 - prog(t, 3.5, 3.7);
+
+  // le vert se resserre en cercle = fond du logo
+  logo.style.opacity = t >= 3.85 ? 1 : 0;
+  const ir = ease(prog(t, 3.85, 4.45));
+  disc.setAttribute("r", lerp(1300, LR, ir));
+  const wk = prog(t, 4.35, 4.7);
+  disc.setAttribute("fill", wk < 1 ? `rgb(${lerp(94, 255, wk)},${lerp(224, 255, wk)},${lerp(91, 255, wk)})` : "#fff");
+  for (const c of candles) { const s = back(prog(t, c.a, c.a + 0.4));
+    c.g.setAttribute("transform", `translate(${c.cx} ${c.cy}) scale(${s}) translate(${-c.cx} ${-c.cy})`); }
+  const { NY, letters } = window.NAME, tag = window.TAG;
+  for (const L of letters) { const k = prog(t, L.a, L.a + 0.22);
+    L.t.style.opacity = k > 0 ? 1 : 0;
+    L.t.setAttribute("transform", `translate(${L.x} ${NY - 60}) scale(${lerp(1.7, 1, easeOut(k))}) translate(${-L.x} ${-(NY - 60)})`); }
+  // secousse à l'impact du cadre
+  const sk = prog(t, 5.95, 6.3), amp = sk > 0 && sk < 1 ? (1 - sk) * 9 : 0;
+  logo.setAttribute("transform", `translate(${Math.sin(t * 90) * amp} ${Math.cos(t * 71) * amp})`);
+  const tk = ease(prog(t, 6.4, 6.9));
+  tag.style.opacity = tk; tag.setAttribute("transform", `translate(0 ${18 * (1 - tk)})`);
 };
-render(0);
+window.ready.then(() => render(0));
 </script>
 </body></html>
