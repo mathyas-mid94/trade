@@ -10,3 +10,6 @@ la loupe s'arrête sur l'icône du thème, et les étiquettes peuvent changer.
 - [ ] … (autres catégories à définir avec l'utilisateur)
 
 Même chose pour l'outro : une variante par catégorie.
+
+## Formats réseaux sociaux
+- [ ] Version verticale 9:16 de l'outro « abonnement » pour TikTok / Reels / Shorts (actuellement en 16:9).

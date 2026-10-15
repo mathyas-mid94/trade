@@ -20,6 +20,9 @@ const CONFIG = {
   title: "Merci d'avoir regardé",
   cta: "ABONNEZ-VOUS POUR LA SUITE",
   button: "S'ABONNER", buttonDone: "ABONNÉ ✓",
+  // version réseaux sociaux (TikTok…) avec le bouton S'abonner : ouvrir outro.html?abonnement
+  // version site (par défaut) : pas d'appel à s'abonner, fin plus courte
+  subscribe: new URLSearchParams(location.search).has("abonnement"),
 };
 const { C, el, prog, ease, easeOut, back, lerp } = D;
 const svg = document.getElementById("s");
@@ -63,8 +66,9 @@ window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fon
   M = D.micLogo(card, LX, LY, LR);
   D.drawOn(M.outer, 5.45, 6.0); D.drawOn(M.inner, 5.65, 6.15);
   D.drawOn(M.ruleL, 6.15, 6.45); D.drawOn(M.ruleR, 6.15, 6.45);
-  title = el("text", { x: LX, y: 640, "text-anchor": "middle", "font-family": "Serif", "font-weight": 500, "font-size": 70, fill: C.ink }, card);
+  title = el("text", { x: LX, y: CONFIG.subscribe ? 640 : 670, "text-anchor": "middle", "font-family": "Serif", "font-weight": 500, "font-size": 70, fill: C.ink }, card);
   title.textContent = CONFIG.title;
+  if (!CONFIG.subscribe) { D.paper(svg); return; }
   cta = el("text", { x: LX, y: 705, "text-anchor": "middle", "font-family": "Sans", "font-weight": 500, "font-size": 22, "letter-spacing": 6, fill: C.inkSoft }, card);
   cta.textContent = CONFIG.cta;
   btn = el("g", {}, card);
@@ -80,7 +84,7 @@ window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fon
 });
 
 // ---------- rendu ----------
-window.DURATION = 10.5;
+window.DURATION = CONFIG.subscribe ? 10.5 : 8.5;
 window.render = function (t) {
   D.updateDraws(t);
   const sg = back(prog(t, 0.15, 0.55));
@@ -125,6 +129,7 @@ window.render = function (t) {
   M.letters.forEach((L, i) => { const k = easeOut(prog(t, 5.85 + i * 0.1, 6.25 + i * 0.1));
     L.t.style.opacity = k; L.t.setAttribute("transform", `translate(0 ${30 * (1 - k)})`); });
   const tk = easeOut(prog(t, 6.4, 6.9)); title.style.opacity = tk; title.setAttribute("transform", `translate(0 ${24 * (1 - tk)})`);
+  if (!CONFIG.subscribe) return;
   const ck = easeOut(prog(t, 6.7, 7.1)); cta.style.opacity = ck; cta.setAttribute("transform", `translate(0 ${18 * (1 - ck)})`);
   // bouton : apparaît, se fait cliquer, passe en "abonné"
   const press = t > 8.22 && t < 8.38 ? 0.93 : 1;

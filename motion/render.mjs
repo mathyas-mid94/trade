@@ -12,7 +12,8 @@ rmSync(frames, { recursive: true, force: true }); mkdirSync(frames, { recursive:
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
-await page.goto("file://" + path.resolve(src));
+const [file, query] = src.split("?");
+await page.goto("file://" + path.resolve(file) + (query !== undefined ? "?" + query : ""));
 await page.evaluate(async () => { await document.fonts.ready; if (window.ready) await window.ready; });
 const duration = await page.evaluate(() => window.DURATION);
 const n = Math.round(duration * fps);

@@ -59,4 +59,9 @@ Pour une nouvelle vidéo, on le recale pour que son impact (à 7,4 s dans le fic
 - **Outro générique MIC (par défaut)** : `outro/outro.html` — le personnage plante une pièce, l'arbre du patrimoine pousse
   (les instruments sont ses fruits), la caméra glisse vers l'écran de fin : logo, « Merci d'avoir regardé », bouton S'abonner cliqué.
   Volontairement à l'opposé de l'intro : on ne plonge pas dans un détail, on prend du recul sur le long terme.
-- Textes modifiables dans `CONFIG` (titre, appel à l'action, bouton). Son : référence MIC décalée de 1,15 s.
+- Deux versions :
+  - **site** (par défaut, `outro/outro.mp4`, 8,5 s) : logo + « Merci d'avoir regardé », sans appel à s'abonner
+    (vidéos hébergées sur le site de l'utilisateur, pas d'abonnement possible) ;
+  - **réseaux sociaux** (`outro/outro_abonnement.mp4`, 10,5 s) : + « Abonnez-vous » et bouton S'abonner cliqué.
+    Rendu : `node render.mjs "outro/outro.html?abonnement" ...`
+- Textes modifiables dans `CONFIG`. Son : référence MIC décalée de 1,15 s.
