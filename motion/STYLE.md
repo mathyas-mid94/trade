@@ -38,3 +38,11 @@ Logo et palette de référence : `brand/mic-logo-reference.png`, `brand/mic-pale
 - `lib/dalio.js` : briques réutilisables (personnage, billets, carton, flèche ressort, tracé progressif, grain).
 - Chaque animation est une page HTML/SVG qui expose `window.render(t)` et `window.DURATION`.
 - `node motion/render.mjs <page.html> <sortie.mp4> [fps]` capture chaque image avec Chromium puis encode en MP4.
+
+## Son
+Référence : l'ouverture « logo reveal » MIC (nappe chaude, whoosh, scintillements, impact grave).
+- Tonalité **mi bémol mineur** : nappe Eb/Gb, le Bb n'arrive qu'à l'impact (la « résolution »).
+- Ordre type : nappe qui monte → whoosh + infra-basse sur la grosse transition → scintillements
+  → petits tics quand un trait se dessine → impact grave sur le logo → traîne de ~2,5 s.
+- Son feutré : rien au-dessus de ~13 kHz, réverbe ample, pas de percussions agressives.
+- Généré par code et calé sur l'animation : `python3 motion/sound/intro_sfx.py <sortie.wav>`, puis mixage ffmpeg.
