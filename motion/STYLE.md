@@ -40,9 +40,10 @@ Logo et palette de référence : `brand/mic-logo-reference.png`, `brand/mic-pale
 - `node motion/render.mjs <page.html> <sortie.mp4> [fps]` capture chaque image avec Chromium puis encode en MP4.
 
 ## Son
-Référence : l'ouverture « logo reveal » MIC (nappe chaude, whoosh, scintillements, impact grave).
-- Tonalité **mi bémol mineur** : nappe Eb/Gb, le Bb n'arrive qu'à l'impact (la « résolution »).
-- Ordre type : nappe qui monte → whoosh + infra-basse sur la grosse transition → scintillements
-  → petits tics quand un trait se dessine → impact grave sur le logo → traîne de ~2,5 s.
-- Son feutré : rien au-dessus de ~13 kHz, réverbe ample, pas de percussions agressives.
-- Généré par code et calé sur l'animation : `python3 motion/sound/intro_sfx.py <sortie.wav>`, puis mixage ffmpeg.
+**Son validé : le son d'origine MIC** (`brand/mic-sound-reference.m4a`), utilisé tel quel.
+Pour une nouvelle vidéo, on le recale pour que son impact (à 7,4 s dans le fichier) tombe sur l'apparition du logo :
+`ffmpeg -i video.mp4 -ss <7.4 - instant_du_logo> -i brand/mic-sound-reference.m4a -map 0:v -map 1:a -c:v copy -af "afade=t=in:d=0.25" -shortest sortie.mp4`
+
+- Rester **sobre** : le sound design synthétisé avec un effet sur chaque mouvement a été jugé « too much ».
+- Pas de bruitage par élément animé ; une seule nappe + whoosh + impact suffit.
+- `sound/intro_sfx.py` (version synthétisée) est gardé pour mémoire, mais n'est plus le choix par défaut.
