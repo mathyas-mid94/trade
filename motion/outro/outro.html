@@ -1,0 +1,146 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Serif;src:url(../fonts/CormorantGaramond.ttf);font-weight:300 700}
+@font-face{font-family:Sans;src:url(../fonts/Inter.ttf);font-weight:100 900}
+html,body{margin:0;background:#FBF7EC;overflow:hidden}
+svg{display:block}
+</style></head>
+<body>
+<!-- Outro générique MIC : on plante une pièce, l'arbre du patrimoine pousse (les instruments sont ses fruits),
+     la caméra glisse et révèle l'écran de fin. Son : brand/mic-sound-reference.m4a décalé de 1,15 s (impact sur le logo). -->
+<svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect width="1920" height="1080" fill="#FBF7EC"/>
+  <g id="world"></g>
+  <g id="card"></g>
+</svg>
+<script src="../lib/dalio.js"></script>
+<script>
+const CONFIG = {
+  title: "Merci d'avoir regardé",
+  cta: "ABONNEZ-VOUS POUR LA SUITE",
+  button: "S'ABONNER", buttonDone: "ABONNÉ ✓",
+};
+const { C, el, prog, ease, easeOut, back, lerp } = D;
+const svg = document.getElementById("s");
+const world = document.getElementById("world"), card = document.getElementById("card");
+
+// ---------- le sol ----------
+const GROUND = 880, TX = 1080;
+D.drawOn(el("path", { ...D.line, d: `M-300 ${GROUND + 4} C700 ${GROUND - 4} 1300 ${GROUND + 6} 1700 ${GROUND - 2}` }, world), 0.0, 0.7);
+
+// ---------- l'arbre ----------
+const tree = el("g", {}, world);
+const trunk = el("path", { ...D.line, "stroke-width": 16, d: `M${TX} ${GROUND} C${TX - 10} 780 ${TX + 12} 660 ${TX} 540` }, tree);
+D.drawOn(trunk, 1.45, 2.6);
+const BR = [[TX, 720, TX - 140, 610], [TX, 680, TX + 150, 570], [TX, 610, TX - 80, 500], [TX, 590, TX + 80, 480]];
+BR.forEach(([x0, y0, x1, y1], i) => D.drawOn(el("path", { ...D.line, "stroke-width": 9,
+  d: `M${x0} ${y0} Q${(x0 + x1) / 2} ${y0 - 10} ${x1} ${y1}` }, tree), 2.3 + i * 0.1, 2.8 + i * 0.1));
+const canopy = el("g", {}, tree);
+const CY = 500;
+const BLOBS = [[-160, 20, 85], [165, 0, 90], [-80, -90, 100], [85, -100, 105], [0, -10, 120], [-215, -70, 65], [215, -85, 65], [0, -195, 85]];
+const blobs = BLOBS.map(([dx, dy, r], i) => ({ c: el("circle", { ...D.line, fill: i === 4 || i === 6 ? C.ink : C.inkSoft, cx: TX + dx, cy: CY + dy, r }, canopy),
+  x: TX + dx, y: CY + dy, a: 2.75 + i * 0.07 }));
+// les fruits = les instruments du patrimoine
+const FRUITS = [["house", -150, 10], ["pie", 160, -5], ["coins", -75, -110], ["contract", 85, -120], ["curve", 0, -20]];
+const fruits = FRUITS.map(([k, dx, dy], i) => { const g = el("g", {}, canopy);
+  el("circle", { ...D.line, fill: C.paper, cx: 0, cy: 0, r: 95 }, g); D.icons[k](g);
+  return { g, x: TX + dx, y: CY + dy, a: 3.45 + i * 0.17 }; });
+
+// ---------- le personnage + la pièce ----------
+const GX = 720, GS = 1.0;
+const guy = D.guy(world);
+const coin = el("g", {}, world);
+el("path", { ...D.line, fill: C.accent, d: "M-26 0 L-26 8 A26 9 0 0 0 26 8 L26 0" }, coin);
+el("ellipse", { ...D.line, fill: C.accentSoft, cx: 0, cy: 0, rx: 26, ry: 9 }, coin);
+const mound = el("path", { ...D.line, fill: C.paperDeep, d: `M${TX - 55} ${GROUND + 2} Q${TX} ${GROUND - 34} ${TX + 55} ${GROUND + 2} Z` }, world);
+world.insertBefore(mound, tree);
+
+// ---------- écran de fin ----------
+const LX = 1390, LY = 360, LR = 150;
+let M, title, cta, btn, btnRect, btnText, cursor;
+window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fonts.load("600 20px Sans")]).then(() => {
+  M = D.micLogo(card, LX, LY, LR);
+  D.drawOn(M.outer, 5.45, 6.0); D.drawOn(M.inner, 5.65, 6.15);
+  D.drawOn(M.ruleL, 6.15, 6.45); D.drawOn(M.ruleR, 6.15, 6.45);
+  title = el("text", { x: LX, y: 640, "text-anchor": "middle", "font-family": "Serif", "font-weight": 500, "font-size": 70, fill: C.ink }, card);
+  title.textContent = CONFIG.title;
+  cta = el("text", { x: LX, y: 705, "text-anchor": "middle", "font-family": "Sans", "font-weight": 500, "font-size": 22, "letter-spacing": 6, fill: C.inkSoft }, card);
+  cta.textContent = CONFIG.cta;
+  btn = el("g", {}, card);
+  btnRect = el("rect", { ...D.line, fill: C.ink, x: LX - 150, y: 770, width: 300, height: 70, rx: 35 }, btn);
+  btnText = el("text", { x: LX, y: 815, "text-anchor": "middle", "font-family": "Sans", "font-weight": 600, "font-size": 24, "letter-spacing": 5, fill: C.paper }, btn);
+  btnText.textContent = CONFIG.button;
+  for (let i = 0; i < 8; i++) {
+    const a = i / 8 * Math.PI * 2, rx = 190, ry = 70;
+    D.drawOn(el("path", { ...D.line, "stroke-width": 3.5, d: `M${LX + rx * Math.cos(a)} ${805 + ry * Math.sin(a)} L${LX + (rx + 28) * Math.cos(a)} ${805 + (ry + 22) * Math.sin(a)}` }, card), 8.3, 8.5);
+  }
+  cursor = el("path", { ...D.line, "stroke-width": 3.5, fill: C.face, d: "M0 0 L0 46 L12 35 L21 55 L30 51 L21 31 L37 31 Z" }, card);
+  D.paper(svg);
+});
+
+// ---------- rendu ----------
+window.DURATION = 10.5;
+window.render = function (t) {
+  D.updateDraws(t);
+  const sg = back(prog(t, 0.15, 0.55));
+  guy.g.style.opacity = sg > 0 ? 1 : 0;
+
+  // bras : tient la pièce, la lance, puis lève les bras en voyant l'arbre
+  const lift = ease(prog(t, 0.45, 0.75)), toss = ease(prog(t, 0.75, 0.95)), cheer = ease(prog(t, 4.1, 4.5));
+  const rest = ease(prog(t, 1.2, 1.7));
+  const angR = lerp(lerp(lerp(lerp(75, -35, lift), 5, toss), 75, rest), -60, cheer);
+  const angL = lerp(105, -120, cheer);
+  guy.pose(angL, angR).place(GX, GROUND, GS * sg);
+  const hand = [GX + guy.hand.R[0] * GS, GROUND + guy.hand.R[1] * GS];
+
+  // la pièce : dans la main, vole, rebondit, s'enfonce
+  let cp = null, cs = 1, cr = 0;
+  if (t > 0.45 && t < 0.8) cp = [hand[0], hand[1] - 12];
+  else if (t >= 0.8 && t < 1.25) { const u = prog(t, 0.8, 1.25); cp = D.arcPt([hand[0], hand[1] - 12], [TX, GROUND - 8], -260, u); cr = u * 540; }
+  else if (t >= 1.25 && t < 1.55) { const u = prog(t, 1.25, 1.55); cp = [TX, GROUND - 8 + 30 * ease(u)]; cs = 1 - u; }
+  coin.style.opacity = cp ? 1 : 0;
+  if (cp) coin.setAttribute("transform", `translate(${cp[0]} ${cp[1]}) rotate(${cr}) scale(${(t < 0.6 ? back(prog(t, 0.45, 0.6)) : 1) * cs})`);
+  const ms = back(prog(t, 1.3, 1.6));
+  mound.style.opacity = ms > 0 ? 1 : 0;
+  mound.setAttribute("transform", `translate(${TX} ${GROUND}) scale(${ms}) translate(${-TX} ${-GROUND})`);
+
+  // l'arbre pousse : le tronc s'épaissit, le feuillage et les fruits apparaissent
+  trunk.setAttribute("stroke-width", lerp(5, 18, ease(prog(t, 1.5, 3.0))));
+  for (const b of blobs) { const s = back(prog(t, b.a, b.a + 0.45));
+    b.c.setAttribute("transform", `translate(${b.x} ${b.y}) scale(${s}) translate(${-b.x} ${-b.y})`); b.c.style.opacity = s > 0 ? 1 : 0; }
+  for (const f of fruits) { const s = back(prog(t, f.a, f.a + 0.4)) * 0.46;
+    f.g.setAttribute("transform", `translate(${f.x} ${f.y}) scale(${s})`); f.g.style.opacity = s > 0 ? 1 : 0; }
+  const sway = t > 3.3 ? Math.sin((t - 3.3) * 1.6) * 1.6 : 0;
+  canopy.setAttribute("transform", `rotate(${sway} ${TX} ${GROUND})`);
+
+  // caméra : légère poussée, puis glisse à gauche pour révéler l'écran de fin
+  const pan = ease(prog(t, 4.7, 5.8));
+  const z = lerp(lerp(1, 1.05, ease(prog(t, 0, 4.7))), 0.78, pan);
+  const cx = lerp(1000, 1540, pan), cy = lerp(600, 600, pan);
+  world.setAttribute("transform", `translate(960 ${lerp(560, 620, pan)}) scale(${z}) translate(${-cx} ${-cy})`);
+
+  // écran de fin
+  card.style.opacity = t > 5.3 ? 1 : 0;
+  M.letters.forEach((L, i) => { const k = easeOut(prog(t, 5.85 + i * 0.1, 6.25 + i * 0.1));
+    L.t.style.opacity = k; L.t.setAttribute("transform", `translate(0 ${30 * (1 - k)})`); });
+  const tk = easeOut(prog(t, 6.4, 6.9)); title.style.opacity = tk; title.setAttribute("transform", `translate(0 ${24 * (1 - tk)})`);
+  const ck = easeOut(prog(t, 6.7, 7.1)); cta.style.opacity = ck; cta.setAttribute("transform", `translate(0 ${18 * (1 - ck)})`);
+  // bouton : apparaît, se fait cliquer, passe en "abonné"
+  const press = t > 8.22 && t < 8.38 ? 0.93 : 1;
+  const bs = back(prog(t, 7.0, 7.4)) * press;
+  btn.setAttribute("transform", `translate(${LX} 805) scale(${bs}) translate(${-LX} -805)`);
+  btn.style.opacity = bs > 0 ? 1 : 0;
+  const done = t >= 8.3;
+  btnRect.setAttribute("fill", done ? C.accent : C.ink);
+  btnText.setAttribute("fill", done ? C.ink : C.paper);
+  btnText.textContent = done ? CONFIG.buttonDone : CONFIG.button;
+  // curseur
+  const cu = ease(prog(t, 7.5, 8.2)), out = ease(prog(t, 9.0, 9.6));
+  const px = lerp(lerp(1980, LX + 70, cu), 2000, out), py = lerp(lerp(1150, 812, cu), 1150, out);
+  cursor.setAttribute("transform", `translate(${px} ${py}) scale(${press < 1 ? 0.88 : 1})`);
+  cursor.style.opacity = t > 7.5 && t < 9.6 ? 1 : 0;
+};
+window.ready.then(() => render(0));
+</script>
+</body></html>

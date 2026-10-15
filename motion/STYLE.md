@@ -54,3 +54,9 @@ Pour une nouvelle vidéo, on le recale pour que son impact (à 7,4 s dans le fic
   Message : « on va décortiquer un instrument financier ».
 - `intro/variante-billets.html` : ancienne version (échanges de billets), trop « commerce » pour de la gestion de patrimoine.
 - Icônes réutilisables : `D.icons.house / pie / coins / contract / curve`, loupe : `D.magnifier()`.
+
+## Outros
+- **Outro générique MIC (par défaut)** : `outro/outro.html` — le personnage plante une pièce, l'arbre du patrimoine pousse
+  (les instruments sont ses fruits), la caméra glisse vers l'écran de fin : logo, « Merci d'avoir regardé », bouton S'abonner cliqué.
+  Volontairement à l'opposé de l'intro : on ne plonge pas dans un détail, on prend du recul sur le long terme.
+- Textes modifiables dans `CONFIG` (titre, appel à l'action, bouton). Son : référence MIC décalée de 1,15 s.
