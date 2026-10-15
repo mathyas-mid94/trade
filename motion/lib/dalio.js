@@ -2,10 +2,14 @@
 // Tout est en SVG ; chaque animation appelle ces helpers puis expose window.render(t).
 const D = (() => {
   const NS = "http://www.w3.org/2000/svg";
+  // Palette MIC (voir brand/mic-palette-reference.webp)
   const C = {
-    paper: "#F3F3E3", ink: "#2F332E", vest: "#B3B7AD", hair: "#A7ABA1",
-    money: "#5EE05B", moneyDark: "#2F7D2C", red: "#E0574B", curl: "#D9798F",
-    box: "#C9A877", white: "#FFFFFF",
+    paper: "#FBF7EC", paperDeep: "#F0E8D2", ink: "#234E48", inkSoft: "#3F6F68",
+    accent: "#CAA97A", accentSoft: "#ECE0C5",
+    // rôles dans les scènes
+    face: "#FFFDF6", vest: "#CAA97A", hair: "#3F6F68",
+    money: "#3F6F68", moneyDetail: "#ECE0C5", curl: "#CAA97A",
+    box: "#ECE0C5", boxTop: "#F0E8D2", boxSide: "#CAA97A",
   };
   const el = (tag, attrs = {}, parent) => {
     const e = document.createElementNS(NS, tag);
@@ -45,10 +49,10 @@ const D = (() => {
     el("path", { ...line, d: "M13 -200 C16 -130 11 -60 13 0 L27 2" }, g);
     const armL = el("path", line, g), armR = el("path", line, g);
     el("path", { ...line, fill: C.vest, d: "M0 -308 C50 -308 48 -205 20 -196 L-20 -196 C-48 -205 -50 -308 0 -308 Z" }, g);
-    el("path", { ...line, fill: C.white, "stroke-width": 3, d: "M-17 -306 L0 -268 L17 -306" }, g);
+    el("path", { ...line, fill: C.face, "stroke-width": 3, d: "M-17 -306 L0 -268 L17 -306" }, g);
     el("circle", { cx: 0, cy: -252, r: 3.5, fill: C.ink }, g);
     el("circle", { cx: 0, cy: -230, r: 3.5, fill: C.ink }, g);
-    el("ellipse", { ...line, fill: C.white, cx: 0, cy: -344, rx: 25, ry: 31 }, g);
+    el("ellipse", { ...line, fill: C.face, cx: 0, cy: -344, rx: 25, ry: 31 }, g);
     el("path", { ...line, fill: C.hair, "stroke-width": 3, d: "M-25 -340 C-30 -386 26 -390 25 -350 C12 -366 -8 -364 -18 -350 C-20 -346 -22 -342 -25 -340 Z" }, g);
     el("path", { ...line, "stroke-width": 3, d: "M10 -340 L15 -339" }, g);
     const arm = (p, side, ang) => {
@@ -74,8 +78,8 @@ const D = (() => {
       const b = el("g", { transform: `translate(0 ${-i * 7})` }, g);
       el("path", { ...line, fill: C.money, d: "M-42 -22 L38 -26 L44 22 L-38 25 Z" }, b);
       if (i === 0) {
-        inner.push(el("path", { fill: "none", stroke: C.moneyDark, "stroke-width": 2.5, d: "M-32 -14 L30 -17 L34 14 L-29 17 Z" }, b));
-        const s = el("text", { x: 1, y: 11, "text-anchor": "middle", "font-size": 34, fill: C.moneyDark, "font-family": "Gothic" }, b);
+        inner.push(el("path", { fill: "none", stroke: C.moneyDetail, "stroke-width": 2.5, d: "M-32 -14 L30 -17 L34 14 L-29 17 Z" }, b));
+        const s = el("text", { x: 1, y: 11, "text-anchor": "middle", "font-size": 34, fill: C.moneyDetail, "font-family": "Serif", "font-weight": 600 }, b);
         s.textContent = "$"; inner.push(s);
       }
     }
@@ -86,8 +90,8 @@ const D = (() => {
   function box(parent) {
     const g = el("g", {}, parent);
     el("path", { ...line, fill: C.box, d: "M-30 -22 L30 -22 L30 26 L-30 26 Z" }, g);
-    el("path", { ...line, fill: "#DCC193", d: "M-30 -22 L-20 -36 L40 -36 L30 -22 Z" }, g);
-    el("path", { ...line, fill: "#B8955F", d: "M30 -22 L40 -36 L40 12 L30 26 Z" }, g);
+    el("path", { ...line, fill: C.boxTop, d: "M-30 -22 L-20 -36 L40 -36 L30 -22 Z" }, g);
+    el("path", { ...line, fill: C.boxSide, d: "M30 -22 L40 -36 L40 12 L30 26 Z" }, g);
     el("path", { ...line, "stroke-width": 3, d: "M-2 -22 L8 -36" }, g);
     return { g };
   }
@@ -125,9 +129,30 @@ const D = (() => {
     const defs = el("defs", {}, svg);
     const f = el("filter", { id: "grain", x: 0, y: 0, width: "100%", height: "100%" }, defs);
     el("feTurbulence", { type: "fractalNoise", baseFrequency: 0.9, numOctaves: 2, seed: 3 }, f);
-    el("feColorMatrix", { values: "0 0 0 0 0.35  0 0 0 0 0.35  0 0 0 0 0.3  0 0 0 0.09 0" }, f);
+    el("feColorMatrix", { values: "0 0 0 0 0.35  0 0 0 0 0.3  0 0 0 0 0.2  0 0 0 0.07 0" }, f);
     return el("rect", { width: w, height: h, filter: "url(#grain)", "pointer-events": "none" }, svg);
   }
 
-  return { C, NS, el, clamp, prog, ease, easeOut, back, lerp, drawOn, updateDraws, line, guy, bills, box, curl, arcPt, paper };
+  // Logo MIC redessiné en vectoriel (double cercle, "MIC" en serif, filet dessous), centré en cx,cy, rayon R
+  function micLogo(parent, cx, cy, R) {
+    const k = R / 175, g = el("g", {}, parent);
+    const disc = el("circle", { cx, cy, r: R, fill: C.paper }, g);
+    const outer = el("circle", { cx, cy, r: R, fill: "none", stroke: C.ink, "stroke-width": 3.2 * k, transform: `rotate(-90 ${cx} ${cy})` }, g);
+    const inner = el("circle", { cx, cy, r: R * 165 / 175, fill: "none", stroke: C.ink, "stroke-width": 1.2 * k, transform: `rotate(90 ${cx} ${cy})` }, g);
+    const fs = 112 * k, base = cy + 36 * k;
+    const meas = el("text", { "font-size": fs, "font-family": "Serif", "font-weight": 500, opacity: 0 }, g);
+    meas.textContent = "MIC";
+    const W = meas.getComputedTextLength();
+    const letters = [..."MIC"].map((ch, i) => {
+      const x = cx - W / 2 + meas.getSubStringLength(0, i) + meas.getSubStringLength(i, 1) / 2;
+      const t = el("text", { x, y: base, "text-anchor": "middle", "font-size": fs, "font-family": "Serif", "font-weight": 500, fill: C.ink }, g);
+      t.textContent = ch; return { t, x, y: base - 35 * k };
+    });
+    const uy = cy + 62 * k, uw = 96 * k;
+    const ruleL = el("path", { fill: "none", stroke: C.ink, "stroke-width": 1.4 * k, d: `M${cx} ${uy} L${cx - uw} ${uy}` }, g);
+    const ruleR = el("path", { fill: "none", stroke: C.ink, "stroke-width": 1.4 * k, d: `M${cx} ${uy} L${cx + uw} ${uy}` }, g);
+    return { g, disc, outer, inner, letters, ruleL, ruleR };
+  }
+
+  return { micLogo, C, NS, el, clamp, prog, ease, easeOut, back, lerp, drawOn, updateDraws, line, guy, bills, box, curl, arcPt, paper };
 })();

@@ -3,15 +3,29 @@
 Référence unique pour toutes les vidéos (intros, pubs, explications) :
 **« How The Economic Machine Works » de Ray Dalio** — propre, clean, très animé.
 
-## Règles visuelles
-- Fond papier crème (`#F3F3E3`) avec un léger grain. Pas de dégradé, pas de photo.
-- Trait gris anthracite (`#2F332E`), net, arrondi, épaisseur régulière.
-- Objets **remplis** (blanc, gris, couleur) et cernés de noir — pas juste des contours.
-- Personnages : jambes très longues et fines, gilet gris (`#B3B7AD`) en œuf avec col en V blanc et deux boutons,
-  tête ovale blanche, cheveux gris, un trait pour l'œil, bras fins et souples.
-- Argent = vert fluo (`#5EE05B`) en liasses. Rouge (`#E0574B`) pour la baisse / le danger. Gris pour la dette.
-- Échanges représentés par des flèches roses en ressort (`#D9798F`).
-- Texte : capitales condensées (Pathway Gothic One), dans des cadres dessinés avec petites lignes d'impact.
+## Identité MIC (prioritaire sur les couleurs de l'original Dalio)
+Logo et palette de référence : `brand/mic-logo-reference.png`, `brand/mic-palette-reference.webp`.
+
+| Rôle | Nom | Hex |
+|---|---|---|
+| Fond | paper | `#FBF7EC` |
+| Fond secondaire, remplissages clairs | paperDeep | `#F0E8D2` |
+| Trait, texte, logo | ink (teal) | `#234E48` |
+| Argent, aplats foncés | inkSoft | `#3F6F68` |
+| Gilets, flèches d'échange, mise en avant | accent | `#CAA97A` |
+| Cartons, détails clairs | accentSoft | `#ECE0C5` |
+
+- Aucune couleur hors palette (pas de vert fluo, pas de rouge vif).
+- Typo : Cormorant Garamond (logo, titres), Inter en capitales espacées (sous-titres, slogans).
+- Logo : double cercle teal (épais + fin), « MIC » en serif, filet dessous. Version vectorielle animable : `D.micLogo()`.
+
+## Règles visuelles (style Dalio)
+- Fond papier uni avec un léger grain. Pas de dégradé, pas de photo.
+- Trait net, arrondi, épaisseur régulière, couleur ink.
+- Objets **remplis** et cernés — pas juste des contours.
+- Personnages : jambes très longues et fines, gilet en œuf avec col en V et deux boutons,
+  tête ovale claire, cheveux, un trait pour l'œil, bras fins et souples.
+- Échanges représentés par des flèches en ressort.
 
 ## Règles d'animation
 - Rien n'est statique : apparitions en « pop » avec rebond, objets qui volent en arc, boucles qui tournent.

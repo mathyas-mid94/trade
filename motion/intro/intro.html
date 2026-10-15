@@ -1,13 +1,14 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
 <style>
-@font-face{font-family:Gothic;src:url(../fonts/PathwayGothicOne-Regular.ttf)}
-html,body{margin:0;background:#F3F3E3;overflow:hidden}
+@font-face{font-family:Serif;src:url(../fonts/CormorantGaramond.ttf);font-weight:300 700}
+@font-face{font-family:Sans;src:url(../fonts/Inter.ttf);font-weight:100 900}
+html,body{margin:0;background:#FBF7EC;overflow:hidden}
 svg{display:block}
 </style></head>
 <body>
 <svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080">
-  <rect width="1920" height="1080" fill="#F3F3E3"/>
+  <rect width="1920" height="1080" fill="#FBF7EC"/>
   <g id="world"></g>
   <g id="logo"></g>
   <g id="fx"></g>
@@ -15,8 +16,7 @@ svg{display:block}
 <script src="../lib/dalio.js"></script>
 <script>
 const CONFIG = {
-  name: "TON NOM ICI",
-  tagline: "COMPRENDRE LES MARCHÉS, SIMPLEMENT",
+  tagline: "",   // slogan optionnel sous le logo (vide = pas de slogan)
 };
 const { C, el, prog, ease, easeOut, back, lerp } = D;
 const svg = document.getElementById("s");
@@ -70,57 +70,32 @@ function renderPair(p, t) {
 
 // ---------- Transition : un billet fonce vers la caméra ----------
 const hero = D.bills(fx, 1);
+hero.g.querySelector("path").setAttribute("stroke", D.C.inkSoft);
 hero.g.querySelectorAll("path").forEach(p => p.setAttribute("vector-effect", "non-scaling-stroke"));
 
-// ---------- Scène 2 : logo ----------
-const LX = 960, LY = 390, LR = 165;
-const disc = el("circle", { cx: LX, cy: LY, r: LR, fill: C.money }, logo);
-const ring = el("circle", { ...D.line, "stroke-width": 6, cx: LX, cy: LY, r: LR, transform: `rotate(-90 ${LX} ${LY})` }, logo);
-D.drawOn(ring, 4.35, 4.8);
-const candles = [
-  { x: -70, o: 35, c: -15, h: -45, l: 65, col: C.money },
-  { x: 0, o: 0, c: 45, h: -20, l: 70, col: C.red },
-  { x: 70, o: 30, c: -80, h: -105, l: 50, col: C.money },
-].map((k, i) => {
-  const g = el("g", {}, logo), top = Math.min(k.o, k.c), hh = Math.abs(k.o - k.c);
-  el("path", { ...D.line, "stroke-width": 6, d: `M${LX + k.x} ${LY + k.h} L${LX + k.x} ${LY + k.l}` }, g);
-  el("rect", { ...D.line, "stroke-width": 6, fill: k.col, x: LX + k.x - 22, y: LY + top, width: 44, height: hh, rx: 3 }, g);
-  return { g, a: 4.6 + i * 0.13, cx: LX + k.x, cy: LY + k.l };
-});
-
-window.ready = document.fonts.load("170px Gothic").then(() => {
-const NY = 760, FS = 170;
-const meas = el("text", { "font-size": FS, "font-family": "Gothic", opacity: 0 }, logo);
-meas.textContent = CONFIG.name;
-const W = meas.getComputedTextLength();
-const letters = [...CONFIG.name].map((ch, i) => {
-  const x = LX - W / 2 + meas.getSubStringLength(0, i) + meas.getSubStringLength(i, 1) / 2;
-  const t = el("text", { x, y: NY, "text-anchor": "middle", "font-size": FS, "font-family": "Gothic", fill: C.ink }, logo);
-  t.textContent = ch; return { t, x, a: 5.0 + i * 0.045 };
-});
-const bx0 = LX - W / 2 - 55, bx1 = LX + W / 2 + 55, by0 = NY - 150, by1 = NY + 40;
-const frame1 = el("path", { ...D.line, "stroke-width": 6, d: `M${bx0 - 8} ${by0 + 3} L${bx1 + 6} ${by0 - 2} L${bx1 - 2} ${by1 + 6} L${bx0 + 3} ${by1 - 2} Z` }, logo);
-const frame2 = el("path", { ...D.line, "stroke-width": 3, d: `M${bx0 + 6} ${by0 - 6} L${bx1 - 4} ${by0 + 6} L${bx1 + 5} ${by1 - 4} L${bx0 - 6} ${by1 + 4} Z` }, logo);
-D.drawOn(frame1, 5.55, 5.85); D.drawOn(frame2, 5.65, 5.95);
-// petites fissures "impact" autour du cadre
-const cracks = [];
-[[bx0, by0, -1, -1], [bx1, by0, 1, -1], [bx1, by1, 1, 1], [bx0, by1, -1, 1], [LX - W / 3, by0, 0, -1], [LX + W / 4, by0, 0, -1]].forEach(([x, y, dx, dy]) => {
-  for (let j = 0; j < 3; j++) {
-    const a = Math.atan2(dy || (j - 1) * 0.2 + dy, dx || (j - 1) * 0.6) + (j - 1) * 0.45;
-    const r0 = 22, r1 = 22 + 30 + j * 8;
-    const p = el("path", { ...D.line, "stroke-width": 3.5, d: `M${x + r0 * Math.cos(a)} ${y + r0 * Math.sin(a)} L${x + r1 * Math.cos(a)} ${y + r1 * Math.sin(a)}` }, logo);
-    D.drawOn(p, 5.95 + j * 0.03, 6.1 + j * 0.03); cracks.push(p);
+// ---------- Scène 2 : logo MIC ----------
+const LX = 960, LY = 500, LR = 250;
+let M = null;
+window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fonts.load("600 100px Serif"), document.fonts.load("500 40px Sans")]).then(() => {
+  M = D.micLogo(logo, LX, LY, LR);
+  D.drawOn(M.outer, 4.3, 4.85); D.drawOn(M.inner, 4.55, 5.1);
+  D.drawOn(M.ruleL, 5.55, 5.9); D.drawOn(M.ruleR, 5.55, 5.9);
+  // petits traits "impact" autour du cercle
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + (i - 4.5) * 0.17 + (i < 5 ? -0.9 : 0.9);
+    const r0 = LR + 22, r1 = LR + 48 + (i % 2) * 14;
+    const p = el("path", { ...D.line, stroke: D.C.ink, "stroke-width": 3, d: `M${LX + r0 * Math.cos(a)} ${LY + r0 * Math.sin(a)} L${LX + r1 * Math.cos(a)} ${LY + r1 * Math.sin(a)}` }, logo);
+    D.drawOn(p, 5.3 + (i % 3) * 0.03, 5.45 + (i % 3) * 0.03);
+    M.impact = (M.impact || []).concat(p);
   }
-});
-window.NAME = { NY, letters };
-const tag = el("text", { x: LX, y: NY + 155, "text-anchor": "middle", "font-size": 54, "font-family": "Gothic", fill: "#6B6F68", "letter-spacing": 4 }, logo);
-tag.textContent = CONFIG.tagline;
-window.TAG = tag;
-D.paper(svg);
+  M.tag = el("text", { x: LX, y: LY + LR + 110, "text-anchor": "middle", "font-size": 34, "font-family": "Sans", "font-weight": 500,
+    fill: D.C.inkSoft, "letter-spacing": 9 }, logo);
+  M.tag.textContent = CONFIG.tagline.toUpperCase();
+  D.paper(svg);
 });
 
 // ---------- rendu ----------
-window.DURATION = 8.5;
+window.DURATION = 8;
 window.render = function (t) {
   D.updateDraws(t);
   // caméra : petite poussée puis grand recul qui révèle toute l'économie
@@ -137,23 +112,20 @@ window.render = function (t) {
   hero.g.setAttribute("transform", `translate(${lerp(960, 960, hk)} ${lerp(560, 420, hk)}) rotate(${lerp(-35, 0, easeOut(hk))}) scale(${hs})`);
   for (const i of hero.inner) i.style.opacity = 1 - prog(t, 3.5, 3.7);
 
-  // le vert se resserre en cercle = fond du logo
+  // l'encre teal se resserre en cercle = le logo
   logo.style.opacity = t >= 3.85 ? 1 : 0;
   const ir = ease(prog(t, 3.85, 4.45));
-  disc.setAttribute("r", lerp(1300, LR, ir));
-  const wk = prog(t, 4.35, 4.7);
-  disc.setAttribute("fill", wk < 1 ? `rgb(${lerp(94, 255, wk)},${lerp(224, 255, wk)},${lerp(91, 255, wk)})` : "#fff");
-  for (const c of candles) { const s = back(prog(t, c.a, c.a + 0.4));
-    c.g.setAttribute("transform", `translate(${c.cx} ${c.cy}) scale(${s}) translate(${-c.cx} ${-c.cy})`); }
-  const { NY, letters } = window.NAME, tag = window.TAG;
-  for (const L of letters) { const k = prog(t, L.a, L.a + 0.22);
+  M.disc.setAttribute("r", lerp(1300, LR, ir));
+  const wk = prog(t, 4.3, 4.75);   // inkSoft -> paper
+  M.disc.setAttribute("fill", `rgb(${lerp(63, 251, wk)},${lerp(111, 247, wk)},${lerp(104, 236, wk)})`);
+  M.letters.forEach((L, i) => { const k = prog(t, 4.85 + i * 0.12, 5.1 + i * 0.12);
     L.t.style.opacity = k > 0 ? 1 : 0;
-    L.t.setAttribute("transform", `translate(${L.x} ${NY - 60}) scale(${lerp(1.7, 1, easeOut(k))}) translate(${-L.x} ${-(NY - 60)})`); }
-  // secousse à l'impact du cadre
-  const sk = prog(t, 5.95, 6.3), amp = sk > 0 && sk < 1 ? (1 - sk) * 9 : 0;
+    L.t.setAttribute("transform", `translate(${L.x} ${L.y}) scale(${lerp(1.8, 1, easeOut(k))}) translate(${-L.x} ${-L.y})`); });
+  // secousse quand le "C" tombe
+  const sk = prog(t, 5.3, 5.65), amp = sk > 0 && sk < 1 ? (1 - sk) * 8 : 0;
   logo.setAttribute("transform", `translate(${Math.sin(t * 90) * amp} ${Math.cos(t * 71) * amp})`);
-  const tk = ease(prog(t, 6.4, 6.9));
-  tag.style.opacity = tk; tag.setAttribute("transform", `translate(0 ${18 * (1 - tk)})`);
+  const tk = ease(prog(t, 6.1, 6.6));
+  M.tag.style.opacity = tk; M.tag.setAttribute("transform", `translate(0 ${18 * (1 - tk)})`);
 };
 window.ready.then(() => render(0));
 </script>
