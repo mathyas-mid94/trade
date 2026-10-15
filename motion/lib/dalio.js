@@ -62,8 +62,14 @@ const D = (() => {
       p.setAttribute("d", `M${sx} ${sy} Q${mx} ${my} ${hx} ${hy}`);
       return [hx, hy];
     };
+    const reach = (p, side, x, y, sag = 30) => {
+      const sx = side * 30, sy = -290, mx = (sx + x) / 2, my = (sy + y) / 2 + sag;
+      p.setAttribute("d", `M${sx} ${sy} Q${mx} ${my} ${x} ${y}`);
+    };
     const o = {
-      g, hand: { L: [0, 0], R: [0, 0] },
+      g, armL, armR, hand: { L: [0, 0], R: [0, 0] },
+      // bras "élastique" façon Dalio : va chercher un point (coordonnées locales)
+      reach(side, x, y, sag) { reach(side < 0 ? armL : armR, side, x, y, sag); return o; },
       pose(angL, angR) { o.hand.L = arm(armL, -1, angL); o.hand.R = arm(armR, 1, angR); return o; },
       place(x, y, s = 1, flip = false, rot = 0) {
         g.setAttribute("transform", `translate(${x} ${y}) rotate(${rot}) scale(${flip ? -s : s} ${s})`); return o; },
@@ -154,5 +160,65 @@ const D = (() => {
     return { g, disc, outer, inner, letters, ruleL, ruleR };
   }
 
-  return { micLogo, C, NS, el, clamp, prog, ease, easeOut, back, lerp, drawOn, updateDraws, line, guy, bills, box, curl, arcPt, paper };
+  // Icônes "patrimoine" (env. 130 px, centrées en 0,0)
+  const icons = {
+    house(parent) {
+      const g = el("g", {}, parent);
+      el("path", { ...line, fill: C.paperDeep, d: "M-48 -5 L48 -5 L48 60 L-48 60 Z" }, g);
+      el("path", { ...line, fill: C.accent, d: "M-62 0 L0 -58 L62 0 Z" }, g);
+      el("path", { ...line, fill: C.inkSoft, d: "M-12 60 L-12 22 L12 22 L12 60" }, g);
+      el("path", { ...line, fill: C.face, d: "M22 12 L40 12 L40 30 L22 30 Z" }, g);
+      el("path", { ...line, d: "M28 -38 L28 -60 L40 -60 L40 -27" }, g);
+      return g;
+    },
+    pie(parent) {
+      const g = el("g", {}, parent), r = 60;
+      const arc = (a0, a1, fill) => {
+        const p = a => `${(r * Math.cos(a)).toFixed(1)} ${(r * Math.sin(a)).toFixed(1)}`;
+        el("path", { ...line, fill, d: `M0 0 L${p(a0)} A${r} ${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${p(a1)} Z` }, g);
+      };
+      const T = Math.PI * 2, s0 = -Math.PI / 2;
+      arc(s0, s0 + T * 0.5, C.inkSoft); arc(s0 + T * 0.5, s0 + T * 0.8, C.accent); arc(s0 + T * 0.8, s0 + T, C.accentSoft);
+      return g;
+    },
+    coins(parent) {
+      const g = el("g", {}, parent);
+      for (let i = 0; i < 5; i++) {
+        const y = 45 - i * 20, x = (i % 2 ? 4 : -3);
+        el("path", { ...line, fill: C.accent, d: `M${x - 46} ${y} L${x - 46} ${y + 12} A46 14 0 0 0 ${x + 46} ${y + 12} L${x + 46} ${y}` }, g);
+        el("ellipse", { ...line, fill: C.accentSoft, cx: x, cy: y, rx: 46, ry: 14 }, g);
+      }
+      return g;
+    },
+    contract(parent) {
+      const g = el("g", {}, parent);
+      el("path", { ...line, fill: C.face, d: "M-45 -62 L25 -62 L45 -42 L45 62 L-45 62 Z" }, g);
+      el("path", { ...line, fill: C.paperDeep, d: "M25 -62 L25 -42 L45 -42" }, g);
+      for (const y of [-35, -18, -1, 16]) el("path", { ...line, "stroke-width": 3, stroke: C.inkSoft, d: `M-30 ${y} L${y < 0 ? 28 : 15} ${y}` }, g);
+      el("path", { ...line, "stroke-width": 3, d: "M-30 42 C-22 28 -16 52 -8 38 C-2 30 4 46 12 40" }, g);
+      el("circle", { ...line, fill: C.accent, cx: 28, cy: 42, r: 13 }, g);
+      return g;
+    },
+    curve(parent) {
+      const g = el("g", {}, parent);
+      el("path", { ...line, fill: C.paperDeep, d: "M-58 -52 L58 -52 L58 52 L-58 52 Z" }, g);
+      el("path", { ...line, stroke: C.inkSoft, "stroke-width": 5, d: "M-42 32 L-18 8 L0 20 L22 -14 L40 -30" }, g);
+      el("path", { ...line, stroke: C.inkSoft, "stroke-width": 5, d: "M26 -32 L41 -31 L40 -16" }, g);
+      return g;
+    },
+  };
+
+  // Loupe : verre de rayon r, manche vers le bas-gauche. Centre du verre en 0,0.
+  function magnifier(parent, r = 110) {
+    const g = el("g", {}, parent);
+    const a = Math.PI * 0.75, x0 = (r + 4) * Math.cos(a), y0 = (r + 4) * Math.sin(a), L = 150;
+    const x1 = x0 + L * Math.cos(a), y1 = y0 + L * Math.sin(a);
+    el("path", { ...line, stroke: C.ink, "stroke-width": 30, d: `M${x0} ${y0} L${x1} ${y1}` }, g);
+    el("path", { ...line, stroke: C.accent, "stroke-width": 20, d: `M${x0 + 12 * Math.cos(a)} ${y0 + 12 * Math.sin(a)} L${x1} ${y1}` }, g);
+    const ring = el("circle", { ...line, "stroke-width": 9, cx: 0, cy: 0, r }, g);
+    const glint = el("path", { ...line, stroke: C.face, "stroke-width": 6, d: `M${-r * 0.62} ${-r * 0.2} A${r * 0.65} ${r * 0.65} 0 0 1 ${-r * 0.2} ${-r * 0.62}` }, g);
+    return { g, ring, glint, r, handleEnd: [x1, y1] };
+  }
+
+  return { icons, magnifier, micLogo, C, NS, el, clamp, prog, ease, easeOut, back, lerp, drawOn, updateDraws, line, guy, bills, box, curl, arcPt, paper };
 })();

@@ -7,121 +7,142 @@ html,body{margin:0;background:#FBF7EC;overflow:hidden}
 svg{display:block}
 </style></head>
 <body>
+<!-- Intro générique MIC : "on passe un instrument financier à la loupe", la loupe devient le logo.
+     Calée sur le son brand/mic-sound-reference.m4a (impact à 7,4 s du fichier = 5,34 s ici). -->
 <svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080">
   <rect width="1920" height="1080" fill="#FBF7EC"/>
+  <defs><clipPath id="lensClip"><circle id="lensHole" cx="0" cy="0" r="100"/></clipPath></defs>
   <g id="world"></g>
   <g id="logo"></g>
-  <g id="fx"></g>
 </svg>
 <script src="../lib/dalio.js"></script>
 <script>
-const CONFIG = {
-  tagline: "",   // slogan optionnel sous le logo (vide = pas de slogan)
-};
+const CONFIG = { tagline: "" };
 const { C, el, prog, ease, easeOut, back, lerp } = D;
 const svg = document.getElementById("s");
-const world = document.getElementById("world"), logo = document.getElementById("logo"), fx = document.getElementById("fx");
+const world = document.getElementById("world"), logo = document.getElementById("logo");
+const easeIn = x => x * x * x;
 
-// ---------- Scène 1 : la "machine" des échanges (acheteur <-> vendeur) ----------
-function makePair(cx, gy, ta, te) {
-  const g = el("g", {}, world);
-  const top = D.curl(g, [cx - 150, gy - 400], [cx + 150, gy - 400], -55);
-  const bot = D.curl(g, [cx + 150, gy - 150], [cx - 150, gy - 150], 45);
-  D.drawOn(top, te - 0.05, te + 0.4); D.drawOn(bot, te + 0.6, te + 1.0);
-  const A = D.guy(g), B = D.guy(g);
-  const bill = D.bills(g, 3), bx = D.box(g);
-  return { cx, gy, ta, te, A, B, bill, bx };
+// ---------- Scène : le personnage, les instruments, la loupe ----------
+const GX = 330, GY = 930, GS = 1.08;
+const guy = D.guy(world);
+
+const ROW_Y = 520, KINDS = ["house", "pie", "coins", "contract", "curve"];
+const ROW_X = [760, 1000, 1240, 1480, 1720];
+const LABELS = ["IMMOBILIER", "ALLOCATION", "ÉPARGNE", "CONTRATS", "MARCHÉS"];
+// une rangée = 5 icônes + étiquettes ; construite deux fois (normale + vue grossie dans la loupe)
+function makeRow(parent) {
+  return KINDS.map((k, i) => {
+    const g = el("g", {}, parent); D.icons[k](g);
+    const label = el("text", { x: ROW_X[i], y: ROW_Y + 115, "text-anchor": "middle", "font-family": "Sans", "font-weight": 600,
+      "font-size": 20, "letter-spacing": 4, fill: C.inkSoft }, parent);
+    label.textContent = LABELS[i];
+    return { g, label, x: ROW_X[i], y: ROW_Y, a: 0.35 + i * 0.17 };
+  });
 }
-const hand = (guy, x, y, s, flip) => [x + (flip ? -1 : 1) * s * guy.hand.R[0], y + s * guy.hand.R[1]];
+const rowA = makeRow(el("g", {}, world));
+const lensView = el("g", { "clip-path": "url(#lensClip)" }, world);
+el("rect", { x: -3000, y: -3000, width: 9000, height: 9000, fill: C.paper }, lensView);
+const zoomed = el("g", {}, lensView);
+const rowB = makeRow(zoomed);
+const hole = document.getElementById("lensHole");
 
-const pairs = [makePair(960, 860, 0.1, 0.95)];
-for (let col = -2; col <= 2; col++) for (let row = -2; row <= 1; row++) {
-  if (!col && !row) continue;
-  const cx = 960 + col * 780, gy = 860 + row * 660 + col * 140;
-  const dist = Math.hypot(col, row);
-  pairs.push(makePair(cx, gy, 2.3 + dist * 0.12, 2.3 + dist * 0.12 + 0.55));
-}
-
-function renderPair(p, t) {
-  const sA = back(prog(t, p.ta, p.ta + 0.4)), sB = back(prog(t, p.ta + 0.12, p.ta + 0.52));
-  const raise = ease(prog(t, p.ta + 0.35, p.ta + 0.7));
-  p.A.pose(105, lerp(75, -55, raise)).place(p.cx - 200, p.gy, sA, false);
-  p.B.pose(105, lerp(75, -55, raise)).place(p.cx + 200, p.gy, sB, true);
-  p.A.g.style.opacity = sA > 0 ? 1 : 0; p.B.g.style.opacity = sB > 0 ? 1 : 0;
-  const hA = hand(p.A, p.cx - 200, p.gy, 1, false), hB = hand(p.B, p.cx + 200, p.gy, 1, true);
-  // billets : volent de A vers B, en boucle toutes les 1,6 s
-  const phi = t - p.te, cyc = phi >= 0 ? phi % 1.6 : phi;
-  let bp = null, bs = 1, rot = 0;
-  if (cyc < 0) { if (cyc > -0.3) { bp = hA; bs = back(prog(cyc, -0.3, 0)); } }
-  else if (cyc < 0.55) { const u = ease(cyc / 0.55); bp = D.arcPt(hA, hB, -110, u); rot = Math.sin(u * Math.PI) * -25; }
-  else if (cyc < 0.75) bp = hB;
-  else if (cyc > 1.3) { bp = hA; bs = back(prog(cyc, 1.3, 1.55)); }
-  p.bill.g.style.opacity = bp ? 1 : 0;
-  if (bp) p.bill.g.setAttribute("transform", `translate(${bp[0]} ${bp[1] - 18}) rotate(${rot}) scale(${0.85 * bs})`);
-  // carton : repart de B vers A
-  const wA = [p.cx - 150, p.gy - 190], wB = [p.cx + 150, p.gy - 190];
-  let xp = null, xs = 1;
-  if (cyc >= 0.6 && cyc < 0.8) { xp = wB; xs = back(prog(cyc, 0.6, 0.8)); }
-  else if (cyc >= 0.8 && cyc < 1.35) { const u = ease((cyc - 0.8) / 0.55); xp = D.arcPt(wB, wA, 70, u); }
-  else if (cyc >= 1.35 && cyc < 1.55) { xp = wA; xs = 1 - prog(cyc, 1.45, 1.55); }
-  p.bx.g.style.opacity = xp ? 1 : 0;
-  if (xp) p.bx.g.setAttribute("transform", `translate(${xp[0]} ${xp[1]}) scale(${0.9 * xs})`);
+const mag = D.magnifier(world, 115);
+const TARGET = 2;   // l'icône sur laquelle la loupe s'arrête (épargne)
+const sparks = [];
+for (let i = 0; i < 8; i++) {
+  const a = -Math.PI * 0.95 + i * 0.25, r0 = 140, r1 = 175 + (i % 2) * 18;
+  const p = el("path", { ...D.line, "stroke-width": 4, d: `M${r0 * Math.cos(a)} ${r0 * Math.sin(a)} L${r1 * Math.cos(a)} ${r1 * Math.sin(a)}` }, mag.g);
+  D.drawOn(p, 2.95 + (i % 3) * 0.03, 3.1 + (i % 3) * 0.03); sparks.push(p);
 }
 
-// ---------- Transition : un billet fonce vers la caméra ----------
-const hero = D.bills(fx, 1);
-hero.g.querySelector("path").setAttribute("stroke", D.C.inkSoft);
-hero.g.querySelectorAll("path").forEach(p => p.setAttribute("vector-effect", "non-scaling-stroke"));
+function lensPos(t) {
+  // apparition à gauche de la rangée, balayage jusqu'au bout, retour sur la cible
+  const x0 = 640, x1 = ROW_X[4], xt = ROW_X[TARGET];
+  let x = x0;
+  if (t > 1.1) x = lerp(x0, x1, ease(prog(t, 1.1, 2.2)));
+  if (t > 2.2) x = lerp(x1, xt, ease(prog(t, 2.2, 2.9)));
+  const y = ROW_Y + Math.sin(prog(t, 1.1, 2.9) * Math.PI * 3) * 14;   // petite ondulation de la main
+  return [x, y];
+}
 
-// ---------- Scène 2 : logo MIC ----------
+// ---------- Logo MIC ----------
 const LX = 960, LY = 500, LR = 250;
 let M = null;
-window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fonts.load("600 100px Serif"), document.fonts.load("500 40px Sans")]).then(() => {
+window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fonts.load("600 20px Sans")]).then(() => {
   M = D.micLogo(logo, LX, LY, LR);
-  D.drawOn(M.outer, 4.3, 4.85); D.drawOn(M.inner, 4.55, 5.1);
+  M.outer.setAttribute("transform", "");
+  D.drawOn(M.inner, 4.45, 5.0);
   D.drawOn(M.ruleL, 5.55, 5.9); D.drawOn(M.ruleR, 5.55, 5.9);
-  // petits traits "impact" autour du cercle
+  M.impact = [];
   for (let i = 0; i < 10; i++) {
     const a = -Math.PI / 2 + (i - 4.5) * 0.17 + (i < 5 ? -0.9 : 0.9);
     const r0 = LR + 22, r1 = LR + 48 + (i % 2) * 14;
-    const p = el("path", { ...D.line, stroke: D.C.ink, "stroke-width": 3, d: `M${LX + r0 * Math.cos(a)} ${LY + r0 * Math.sin(a)} L${LX + r1 * Math.cos(a)} ${LY + r1 * Math.sin(a)}` }, logo);
+    const p = el("path", { ...D.line, "stroke-width": 3, d: `M${LX + r0 * Math.cos(a)} ${LY + r0 * Math.sin(a)} L${LX + r1 * Math.cos(a)} ${LY + r1 * Math.sin(a)}` }, logo);
     D.drawOn(p, 5.3 + (i % 3) * 0.03, 5.45 + (i % 3) * 0.03);
-    M.impact = (M.impact || []).concat(p);
   }
   M.tag = el("text", { x: LX, y: LY + LR + 110, "text-anchor": "middle", "font-size": 34, "font-family": "Sans", "font-weight": 500,
-    fill: D.C.inkSoft, "letter-spacing": 9 }, logo);
+    fill: C.inkSoft, "letter-spacing": 9 }, logo);
   M.tag.textContent = CONFIG.tagline.toUpperCase();
   D.paper(svg);
 });
 
 // ---------- rendu ----------
-window.DURATION = 8;
+const ZOOM_END = 3.85, Z_MAX = 1300 / 115;
+window.DURATION = 7.9;
 window.render = function (t) {
   D.updateDraws(t);
-  // caméra : petite poussée puis grand recul qui révèle toute l'économie
-  const z = lerp(lerp(1, 1.08, ease(prog(t, 0, 2.3))), 0.36, ease(prog(t, 2.2, 3.4)));
-  const camY = lerp(640, 760, ease(prog(t, 2.2, 3.4)));
-  world.setAttribute("transform", `translate(960 ${540 + (camY - 640) * 0}) scale(${z}) translate(-960 -${camY})`);
-  world.style.opacity = t < 3.85 ? 1 : 0;
-  for (const p of pairs) renderPair(p, t);
 
-  // billet héros : jaillit du centre et remplit l'écran de vert
-  const hk = prog(t, 3.2, 3.85);
-  hero.g.style.opacity = t >= 3.2 && t < 3.86 ? 1 : 0;
-  const hs = lerp(0.6, 75, Math.pow(hk, 2));
-  hero.g.setAttribute("transform", `translate(${lerp(960, 960, hk)} ${lerp(560, 420, hk)}) rotate(${lerp(-35, 0, easeOut(hk))}) scale(${hs})`);
-  for (const i of hero.inner) i.style.opacity = 1 - prog(t, 3.5, 3.7);
+  // personnage
+  const sg = back(prog(t, 0.05, 0.5));
+  guy.g.style.opacity = sg > 0 ? 1 : 0;
+  guy.pose(100, 70).place(GX, GY, GS * sg);
 
-  // l'encre teal se resserre en cercle = le logo
-  logo.style.opacity = t >= 3.85 ? 1 : 0;
-  const ir = ease(prog(t, 3.85, 4.45));
-  M.disc.setAttribute("r", lerp(1300, LR, ir));
-  const wk = prog(t, 4.3, 4.75);   // inkSoft -> paper
-  M.disc.setAttribute("fill", `rgb(${lerp(63, 251, wk)},${lerp(111, 247, wk)},${lerp(104, 236, wk)})`);
+  // icônes qui apparaissent une à une, avec leur étiquette
+  for (const it of [...rowA, ...rowB]) {
+    const s = back(prog(t, it.a, it.a + 0.4));
+    it.g.setAttribute("transform", `translate(${it.x} ${it.y}) scale(${s})`);
+    it.g.style.opacity = s > 0 ? 1 : 0;
+    const lk = ease(prog(t, it.a + 0.2, it.a + 0.5));
+    it.label.style.opacity = lk;
+    it.label.setAttribute("transform", `translate(0 ${12 * (1 - lk)})`);
+  }
+
+  // loupe + vue grossie (x1,7 autour du centre du verre)
+  const [lx, ly] = lensPos(t);
+  const ms = back(prog(t, 0.85, 1.25));
+  mag.g.style.opacity = ms > 0 ? 1 : 0;
+  const pulse = 1 + 0.06 * Math.sin(prog(t, 2.9, 3.2) * Math.PI);
+  mag.g.setAttribute("transform", `translate(${lx} ${ly}) scale(${ms * pulse})`);
+  hole.setAttribute("cx", lx); hole.setAttribute("cy", ly); hole.setAttribute("r", (mag.r - 5) * ms * pulse);
+  const MZ = 1.7;
+  zoomed.setAttribute("transform", `translate(${lx} ${ly}) scale(${MZ}) translate(${-lx} ${-ly})`);
+  lensView.style.opacity = ms > 0 ? 1 : 0;
+  zoomed.style.opacity = 1 - prog(t, 3.4, 3.8);
+  mag.glint.style.opacity = 1 - prog(t, 3.55, 3.8);   // l'intérieur du verre se vide avant de devenir le logo
+
+  // le bras élastique va chercher le manche
+  const hx = lx + mag.handleEnd[0] * ms * pulse, hy = ly + mag.handleEnd[1] * ms * pulse;
+  if (ms > 0.05) guy.reach(1, (hx - GX) / (GS * sg || 1), (hy - GY) / (GS * sg || 1), 45);
+
+  // caméra : légère poussée, puis plongée dans la loupe
+  const zk = easeIn(prog(t, 3.15, ZOOM_END));
+  const z = lerp(lerp(1, 1.05, ease(prog(t, 0, 3.1))), Z_MAX, zk);
+  const wc = [lerp(960, lx, Math.min(1, zk * 4)), lerp(540, ly, Math.min(1, zk * 4))];
+  const sc = [960, lerp(540, LY, zk)];
+  world.setAttribute("transform", `translate(${sc[0]} ${sc[1]}) scale(${z}) translate(${-wc[0]} ${-wc[1]})`);
+  world.style.opacity = t < ZOOM_END ? 1 : 0;
+
+  // le verre devient le cercle du logo
+  logo.style.opacity = t >= ZOOM_END ? 1 : 0;
+  const ir = easeOut(prog(t, ZOOM_END, 4.5));
+  const R = lerp(1300, LR, ir);
+  M.disc.setAttribute("r", R); M.outer.setAttribute("r", R);
+  M.outer.setAttribute("stroke-width", lerp(9 * Z_MAX, 3.2 * LR / 175, ir));
+  M.outer.removeAttribute("stroke-dasharray");
   M.letters.forEach((L, i) => { const k = prog(t, 4.85 + i * 0.12, 5.1 + i * 0.12);
     L.t.style.opacity = k > 0 ? 1 : 0;
     L.t.setAttribute("transform", `translate(${L.x} ${L.y}) scale(${lerp(1.8, 1, easeOut(k))}) translate(${-L.x} ${-L.y})`); });
-  // secousse quand le "C" tombe
   const sk = prog(t, 5.3, 5.65), amp = sk > 0 && sk < 1 ? (1 - sk) * 8 : 0;
   logo.setAttribute("transform", `translate(${Math.sin(t * 90) * amp} ${Math.cos(t * 71) * amp})`);
   const tk = ease(prog(t, 6.1, 6.6));

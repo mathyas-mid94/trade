@@ -47,3 +47,10 @@ Pour une nouvelle vidéo, on le recale pour que son impact (à 7,4 s dans le fic
 - Rester **sobre** : le sound design synthétisé avec un effet sur chaque mouvement a été jugé « too much ».
 - Pas de bruitage par élément animé ; une seule nappe + whoosh + impact suffit.
 - `sound/intro_sfx.py` (version synthétisée) est gardé pour mémoire, mais n'est plus le choix par défaut.
+
+## Intros
+- **Intro générique MIC (par défaut)** : `intro/intro.html` — le personnage passe des instruments du patrimoine
+  (immobilier, allocation, épargne, contrats, marchés) à la loupe ; la caméra plonge dans le verre, qui devient le logo.
+  Message : « on va décortiquer un instrument financier ».
+- `intro/variante-billets.html` : ancienne version (échanges de billets), trop « commerce » pour de la gestion de patrimoine.
+- Icônes réutilisables : `D.icons.house / pie / coins / contract / curve`, loupe : `D.magnifier()`.

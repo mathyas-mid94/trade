@@ -1,0 +1,132 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Serif;src:url(../fonts/CormorantGaramond.ttf);font-weight:300 700}
+@font-face{font-family:Sans;src:url(../fonts/Inter.ttf);font-weight:100 900}
+html,body{margin:0;background:#FBF7EC;overflow:hidden}
+svg{display:block}
+</style></head>
+<body>
+<svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect width="1920" height="1080" fill="#FBF7EC"/>
+  <g id="world"></g>
+  <g id="logo"></g>
+  <g id="fx"></g>
+</svg>
+<script src="../lib/dalio.js"></script>
+<script>
+const CONFIG = {
+  tagline: "",   // slogan optionnel sous le logo (vide = pas de slogan)
+};
+const { C, el, prog, ease, easeOut, back, lerp } = D;
+const svg = document.getElementById("s");
+const world = document.getElementById("world"), logo = document.getElementById("logo"), fx = document.getElementById("fx");
+
+// ---------- Scène 1 : la "machine" des échanges (acheteur <-> vendeur) ----------
+function makePair(cx, gy, ta, te) {
+  const g = el("g", {}, world);
+  const top = D.curl(g, [cx - 150, gy - 400], [cx + 150, gy - 400], -55);
+  const bot = D.curl(g, [cx + 150, gy - 150], [cx - 150, gy - 150], 45);
+  D.drawOn(top, te - 0.05, te + 0.4); D.drawOn(bot, te + 0.6, te + 1.0);
+  const A = D.guy(g), B = D.guy(g);
+  const bill = D.bills(g, 3), bx = D.box(g);
+  return { cx, gy, ta, te, A, B, bill, bx };
+}
+const hand = (guy, x, y, s, flip) => [x + (flip ? -1 : 1) * s * guy.hand.R[0], y + s * guy.hand.R[1]];
+
+const pairs = [makePair(960, 860, 0.1, 0.95)];
+for (let col = -2; col <= 2; col++) for (let row = -2; row <= 1; row++) {
+  if (!col && !row) continue;
+  const cx = 960 + col * 780, gy = 860 + row * 660 + col * 140;
+  const dist = Math.hypot(col, row);
+  pairs.push(makePair(cx, gy, 2.3 + dist * 0.12, 2.3 + dist * 0.12 + 0.55));
+}
+
+function renderPair(p, t) {
+  const sA = back(prog(t, p.ta, p.ta + 0.4)), sB = back(prog(t, p.ta + 0.12, p.ta + 0.52));
+  const raise = ease(prog(t, p.ta + 0.35, p.ta + 0.7));
+  p.A.pose(105, lerp(75, -55, raise)).place(p.cx - 200, p.gy, sA, false);
+  p.B.pose(105, lerp(75, -55, raise)).place(p.cx + 200, p.gy, sB, true);
+  p.A.g.style.opacity = sA > 0 ? 1 : 0; p.B.g.style.opacity = sB > 0 ? 1 : 0;
+  const hA = hand(p.A, p.cx - 200, p.gy, 1, false), hB = hand(p.B, p.cx + 200, p.gy, 1, true);
+  // billets : volent de A vers B, en boucle toutes les 1,6 s
+  const phi = t - p.te, cyc = phi >= 0 ? phi % 1.6 : phi;
+  let bp = null, bs = 1, rot = 0;
+  if (cyc < 0) { if (cyc > -0.3) { bp = hA; bs = back(prog(cyc, -0.3, 0)); } }
+  else if (cyc < 0.55) { const u = ease(cyc / 0.55); bp = D.arcPt(hA, hB, -110, u); rot = Math.sin(u * Math.PI) * -25; }
+  else if (cyc < 0.75) bp = hB;
+  else if (cyc > 1.3) { bp = hA; bs = back(prog(cyc, 1.3, 1.55)); }
+  p.bill.g.style.opacity = bp ? 1 : 0;
+  if (bp) p.bill.g.setAttribute("transform", `translate(${bp[0]} ${bp[1] - 18}) rotate(${rot}) scale(${0.85 * bs})`);
+  // carton : repart de B vers A
+  const wA = [p.cx - 150, p.gy - 190], wB = [p.cx + 150, p.gy - 190];
+  let xp = null, xs = 1;
+  if (cyc >= 0.6 && cyc < 0.8) { xp = wB; xs = back(prog(cyc, 0.6, 0.8)); }
+  else if (cyc >= 0.8 && cyc < 1.35) { const u = ease((cyc - 0.8) / 0.55); xp = D.arcPt(wB, wA, 70, u); }
+  else if (cyc >= 1.35 && cyc < 1.55) { xp = wA; xs = 1 - prog(cyc, 1.45, 1.55); }
+  p.bx.g.style.opacity = xp ? 1 : 0;
+  if (xp) p.bx.g.setAttribute("transform", `translate(${xp[0]} ${xp[1]}) scale(${0.9 * xs})`);
+}
+
+// ---------- Transition : un billet fonce vers la caméra ----------
+const hero = D.bills(fx, 1);
+hero.g.querySelector("path").setAttribute("stroke", D.C.inkSoft);
+hero.g.querySelectorAll("path").forEach(p => p.setAttribute("vector-effect", "non-scaling-stroke"));
+
+// ---------- Scène 2 : logo MIC ----------
+const LX = 960, LY = 500, LR = 250;
+let M = null;
+window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fonts.load("600 100px Serif"), document.fonts.load("500 40px Sans")]).then(() => {
+  M = D.micLogo(logo, LX, LY, LR);
+  D.drawOn(M.outer, 4.3, 4.85); D.drawOn(M.inner, 4.55, 5.1);
+  D.drawOn(M.ruleL, 5.55, 5.9); D.drawOn(M.ruleR, 5.55, 5.9);
+  // petits traits "impact" autour du cercle
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + (i - 4.5) * 0.17 + (i < 5 ? -0.9 : 0.9);
+    const r0 = LR + 22, r1 = LR + 48 + (i % 2) * 14;
+    const p = el("path", { ...D.line, stroke: D.C.ink, "stroke-width": 3, d: `M${LX + r0 * Math.cos(a)} ${LY + r0 * Math.sin(a)} L${LX + r1 * Math.cos(a)} ${LY + r1 * Math.sin(a)}` }, logo);
+    D.drawOn(p, 5.3 + (i % 3) * 0.03, 5.45 + (i % 3) * 0.03);
+    M.impact = (M.impact || []).concat(p);
+  }
+  M.tag = el("text", { x: LX, y: LY + LR + 110, "text-anchor": "middle", "font-size": 34, "font-family": "Sans", "font-weight": 500,
+    fill: D.C.inkSoft, "letter-spacing": 9 }, logo);
+  M.tag.textContent = CONFIG.tagline.toUpperCase();
+  D.paper(svg);
+});
+
+// ---------- rendu ----------
+window.DURATION = 8;
+window.render = function (t) {
+  D.updateDraws(t);
+  // caméra : petite poussée puis grand recul qui révèle toute l'économie
+  const z = lerp(lerp(1, 1.08, ease(prog(t, 0, 2.3))), 0.36, ease(prog(t, 2.2, 3.4)));
+  const camY = lerp(640, 760, ease(prog(t, 2.2, 3.4)));
+  world.setAttribute("transform", `translate(960 ${540 + (camY - 640) * 0}) scale(${z}) translate(-960 -${camY})`);
+  world.style.opacity = t < 3.85 ? 1 : 0;
+  for (const p of pairs) renderPair(p, t);
+
+  // billet héros : jaillit du centre et remplit l'écran de vert
+  const hk = prog(t, 3.2, 3.85);
+  hero.g.style.opacity = t >= 3.2 && t < 3.86 ? 1 : 0;
+  const hs = lerp(0.6, 75, Math.pow(hk, 2));
+  hero.g.setAttribute("transform", `translate(${lerp(960, 960, hk)} ${lerp(560, 420, hk)}) rotate(${lerp(-35, 0, easeOut(hk))}) scale(${hs})`);
+  for (const i of hero.inner) i.style.opacity = 1 - prog(t, 3.5, 3.7);
+
+  // l'encre teal se resserre en cercle = le logo
+  logo.style.opacity = t >= 3.85 ? 1 : 0;
+  const ir = ease(prog(t, 3.85, 4.45));
+  M.disc.setAttribute("r", lerp(1300, LR, ir));
+  const wk = prog(t, 4.3, 4.75);   // inkSoft -> paper
+  M.disc.setAttribute("fill", `rgb(${lerp(63, 251, wk)},${lerp(111, 247, wk)},${lerp(104, 236, wk)})`);
+  M.letters.forEach((L, i) => { const k = prog(t, 4.85 + i * 0.12, 5.1 + i * 0.12);
+    L.t.style.opacity = k > 0 ? 1 : 0;
+    L.t.setAttribute("transform", `translate(${L.x} ${L.y}) scale(${lerp(1.8, 1, easeOut(k))}) translate(${-L.x} ${-L.y})`); });
+  // secousse quand le "C" tombe
+  const sk = prog(t, 5.3, 5.65), amp = sk > 0 && sk < 1 ? (1 - sk) * 8 : 0;
+  logo.setAttribute("transform", `translate(${Math.sin(t * 90) * amp} ${Math.cos(t * 71) * amp})`);
+  const tk = ease(prog(t, 6.1, 6.6));
+  M.tag.style.opacity = tk; M.tag.setAttribute("transform", `translate(0 ${18 * (1 - tk)})`);
+};
+window.ready.then(() => render(0));
+</script>
+</body></html>
