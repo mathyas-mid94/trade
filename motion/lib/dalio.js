@@ -43,17 +43,19 @@ const D = (() => {
   const line = { fill: "none", stroke: C.ink, "stroke-width": 4, "stroke-linecap": "round", "stroke-linejoin": "round" };
 
   // personnage : jambes interminables, gilet gris, tête ovale blanche (pieds en 0,0)
-  function guy(parent) {
+  // opts : { vest: couleur du gilet, hair: "f" pour une coupe longue }
+  function guy(parent, opts = {}) {
     const g = el("g", {}, parent);
     el("path", { ...line, d: "M-13 -200 C-16 -130 -9 -60 -12 0 L-26 2" }, g);
     el("path", { ...line, d: "M13 -200 C16 -130 11 -60 13 0 L27 2" }, g);
     const armL = el("path", line, g), armR = el("path", line, g);
-    el("path", { ...line, fill: C.vest, d: "M0 -308 C50 -308 48 -205 20 -196 L-20 -196 C-48 -205 -50 -308 0 -308 Z" }, g);
+    el("path", { ...line, fill: opts.vest || C.vest, d: "M0 -308 C50 -308 48 -205 20 -196 L-20 -196 C-48 -205 -50 -308 0 -308 Z" }, g);
     el("path", { ...line, fill: C.face, "stroke-width": 3, d: "M-17 -306 L0 -268 L17 -306" }, g);
     el("circle", { cx: 0, cy: -252, r: 3.5, fill: C.ink }, g);
     el("circle", { cx: 0, cy: -230, r: 3.5, fill: C.ink }, g);
     el("ellipse", { ...line, fill: C.face, cx: 0, cy: -344, rx: 25, ry: 31 }, g);
-    el("path", { ...line, fill: C.hair, "stroke-width": 3, d: "M-25 -340 C-30 -386 26 -390 25 -350 C12 -366 -8 -364 -18 -350 C-20 -346 -22 -342 -25 -340 Z" }, g);
+    if (opts.hair === "f") el("path", { ...line, fill: C.hair, "stroke-width": 3, d: "M-30 -330 C-36 -392 34 -396 30 -336 L32 -300 Q24 -296 20 -306 L20 -340 C8 -360 -12 -360 -22 -344 L-24 -300 Q-30 -296 -34 -302 Z" }, g);
+    else el("path", { ...line, fill: C.hair, "stroke-width": 3, d: "M-25 -340 C-30 -386 26 -390 25 -350 C12 -366 -8 -364 -18 -350 C-20 -346 -22 -342 -25 -340 Z" }, g);
     el("path", { ...line, "stroke-width": 3, d: "M10 -340 L15 -339" }, g);
     const arm = (p, side, ang) => {
       const sx = side * 30, sy = -290, L = 115, a = ang * Math.PI / 180;

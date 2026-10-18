@@ -73,5 +73,14 @@ Pour une nouvelle vidéo, on le recale pour que son impact (à 7,4 s dans le fic
 - Thèmes existants :
   - `generique`
   - `defiscalisation` : le « % » rétrécit sous la loupe ; outro : parapluie contre la pluie d'impôts
+  - `assurancevie` : le sceau du contrat grossit sous la loupe
   - `budget` : revenus, dépenses, budget, épargne, logement ; sous la loupe le camembert tourne et une part se détache
 - Ajouter un thème = une entrée dans `THEMES` (icônes, étiquettes, mention, et `react(f, k)` pour l'effet sous la loupe).
+
+## Vidéos explicatives longues
+- Une vidéo = un dossier `videos/<sujet>/` avec `SCRIPT.md` (voix off), `video.html` (scènes), `build.sh` (montage).
+- `video.html` : liste `SCENES` ({ dur, build(g, T, draw) -> render(lt) }), enchaînées avec une transition glissée de 0,6 s.
+  Les sous-titres (`say(T, début, fin, texte)`) reprennent la voix off, scène par scène.
+- Montage : intro du thème + corps + outro (version site), sons MIC sur intro et outro.
+- Vérification rapide sans tout rendre : `node snap.mjs <page.html> <dossier> t1 t2 ...`
+- Personnages : `D.guy(parent, { vest, hair: "f" })` pour varier (femmes, gilets, enfants = échelle réduite).

@@ -19,3 +19,9 @@ Même chose pour l'outro : une variante par catégorie.
 - [ ] Outro défiscalisation : animation prête (nuage « IMPÔTS » qui pleut, parapluie au-dessus de l'arbre),
       reste le rendu final + son : `node render.mjs "outro/outro.html?theme=defiscalisation" ...`
       (son : référence MIC avec `adelay=150`). Version abonnement : ajouter `&abonnement`.
+
+## Vidéo « L'assurance-vie en 2 min 30 » (`videos/assurance-vie/`)
+- [x] Script voix off (`SCRIPT.md`) + animation complète (8 scènes) + intro thème assurance-vie + outro site
+- [ ] **Voix off** : l'utilisateur enregistre le script (ou passe par un outil de synthèse vocale de qualité) → recaler l'animation dessus
+- [ ] Faire valider les chiffres par l'utilisateur (abattements 4 600 / 9 200 €, 152 500 € par bénéficiaire avant 70 ans)
+- [ ] Musique de fond discrète (à fournir ou choisir)

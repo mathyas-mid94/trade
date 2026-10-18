@@ -1,0 +1,396 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Serif;src:url(../../fonts/CormorantGaramond.ttf);font-weight:300 700}
+@font-face{font-family:Sans;src:url(../../fonts/Inter.ttf);font-weight:100 900}
+html,body{margin:0;background:#FBF7EC;overflow:hidden}
+svg{display:block}
+</style></head>
+<body>
+<!-- « L'assurance-vie en 2 min 30 » — corps de la vidéo (l'intro et l'outro MIC sont ajoutées au montage).
+     Script voix off : SCRIPT.md. Les sous-titres reprennent le script en attendant la voix enregistrée. -->
+<svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect width="1920" height="1080" fill="#FBF7EC"/>
+  <g id="scenes"></g>
+  <g id="captions"></g>
+</svg>
+<script src="../../lib/dalio.js"></script>
+<script>
+const { C, el, prog, ease, easeOut, back, lerp } = D;
+const svg = document.getElementById("s"), root = document.getElementById("scenes"), capRoot = document.getElementById("captions");
+const OV = 0.6;   // chevauchement entre deux scènes (transition)
+
+// ---------- petits outils ----------
+const pop = (lt, a, d = 0.4) => back(prog(lt, a, a + d));
+const fade = (lt, a, d = 0.4) => easeOut(prog(lt, a, a + d));
+function place(node, x, y, s = 1, r = 0) { node.setAttribute("transform", `translate(${x} ${y}) rotate(${r}) scale(${s})`); node.style.opacity = s > 0.001 ? 1 : 0; }
+function show(node, k, dy = 20) { node.style.opacity = k; node.setAttribute("transform", `translate(0 ${dy * (1 - k)})`); }
+function txt(parent, x, y, str, size, o = {}) {
+  const t = el("text", { x, y, "text-anchor": o.anchor || "middle", "font-family": o.font || "Sans", "font-weight": o.weight || 600,
+    "font-size": size, "letter-spacing": o.ls || 0, fill: o.fill || C.ink }, parent);
+  t.textContent = str; return t;
+}
+function pill(parent, x, y, str, o = {}) {
+  const g = el("g", {}, parent);
+  const t = txt(g, 0, 0, str, o.size || 26, { weight: 700, ls: o.ls ?? 4, fill: o.fg || C.ink });
+  const w = t.getComputedTextLength() + 56, h = (o.size || 26) * 2;
+  const r = el("rect", { ...D.line, "stroke-width": 3, fill: o.bg || C.accentSoft, x: -w / 2, y: -h / 2, width: w, height: h, rx: h / 2 }, g);
+  g.insertBefore(r, t); t.setAttribute("y", (o.size || 26) * 0.36);
+  return { g, x, y };
+}
+function coin(parent, rx = 26) {
+  const g = el("g", {}, parent);
+  el("path", { ...D.line, fill: C.accent, d: `M${-rx} 0 L${-rx} 9 A${rx} ${rx * 0.35} 0 0 0 ${rx} 9 L${rx} 0` }, g);
+  el("ellipse", { ...D.line, fill: C.accentSoft, cx: 0, cy: 0, rx, ry: rx * 0.35 }, g);
+  return g;
+}
+function envelope(parent) {
+  const g = el("g", {}, parent);
+  const flapOpen = el("path", { ...D.line, fill: C.accentSoft, d: "M-260 -170 L0 -330 L260 -170 Z" }, g);
+  const inside = el("path", { ...D.line, fill: C.inkSoft, d: "M-250 -165 L250 -165 L250 -120 L-250 -120 Z" }, g);
+  el("path", { ...D.line, fill: C.paperDeep, d: "M-260 -170 L260 -170 L260 170 L-260 170 Z" }, g);
+  el("path", { ...D.line, "stroke-width": 3, d: "M-260 170 L-40 20 M260 170 L40 20" }, g);
+  const flapShut = el("path", { ...D.line, fill: C.accentSoft, d: "M-260 -170 L0 20 L260 -170 Z" }, g);
+  el("rect", { ...D.line, "stroke-width": 3, fill: C.face, x: -195, y: 88, width: 390, height: 50, rx: 6 }, g);
+  txt(g, 0, 124, "ASSURANCE-VIE", 30, { weight: 700, ls: 8, fill: C.ink });
+  return { g, setOpen(k) { flapShut.style.opacity = k < 0.5 ? 1 : 0; flapOpen.style.opacity = k >= 0.5 ? 1 : 0; inside.style.opacity = k >= 0.5 ? 1 : 0;
+    flapShut.setAttribute("transform", `translate(0 -170) scale(1 ${1 - 2 * Math.min(k, 0.5)}) translate(0 170)`);
+    flapOpen.setAttribute("transform", `translate(0 -170) scale(1 ${Math.max(0, 2 * k - 1)}) translate(0 170)`); } };
+}
+function padlock(parent) {
+  const g = el("g", {}, parent);
+  const sh = el("path", { fill: "none", stroke: C.ink, "stroke-width": 14, "stroke-linecap": "round", d: "M-30 0 L-30 -40 A30 30 0 0 1 30 -40 L30 0" }, g);
+  el("rect", { ...D.line, fill: C.accent, x: -55, y: -8, width: 110, height: 90, rx: 10 }, g);
+  el("circle", { cx: 0, cy: 28, r: 10, fill: C.ink }, g); el("path", { ...D.line, "stroke-width": 7, d: "M0 30 L0 52" }, g);
+  return { g, sh };
+}
+function vault(parent) {
+  const g = el("g", {}, parent);
+  el("path", { ...D.line, fill: C.ink, d: "M-120 130 L-120 150 L-80 150 L-80 130 M80 130 L80 150 L120 150 L120 130" }, g);
+  el("rect", { ...D.line, fill: C.paperDeep, x: -150, y: -130, width: 300, height: 260, rx: 10 }, g);
+  el("rect", { ...D.line, "stroke-width": 3, fill: "none", x: -128, y: -108, width: 256, height: 216, rx: 6 }, g);
+  const dial = el("g", {}, g);
+  el("circle", { ...D.line, fill: C.face, cx: 0, cy: 0, r: 56 }, dial);
+  for (let i = 0; i < 4; i++) el("path", { ...D.line, "stroke-width": 7, d: `M0 0 L${44 * Math.cos(i * Math.PI / 2)} ${44 * Math.sin(i * Math.PI / 2)}` }, dial);
+  el("circle", { cx: 0, cy: 0, r: 10, fill: C.ink }, dial);
+  el("path", { ...D.line, "stroke-width": 9, d: "M108 -40 L108 40" }, g);
+  return { g, dial };
+}
+function heart(parent) {
+  return el("path", { ...D.line, fill: C.accent, d: "M0 40 C-80 -10 -66 -78 -20 -72 C0 -70 0 -52 0 -46 C0 -52 0 -70 20 -72 C66 -78 80 -10 0 40 Z" }, parent);
+}
+function chartBox(parent, w, h, pts) {
+  const g = el("g", {}, parent);
+  el("rect", { ...D.line, "stroke-width": 3, fill: C.face, x: -w / 2, y: -h / 2, width: w, height: h, rx: 8 }, g);
+  const d = pts.map((p, i) => `${i ? "L" : "M"}${(-w / 2 + 20 + p[0] * (w - 40)).toFixed(1)} ${(h / 2 - 16 - p[1] * (h - 32)).toFixed(1)}`).join(" ");
+  const line = el("path", { ...D.line, stroke: C.inkSoft, "stroke-width": 5, d }, g);
+  return { g, line };
+}
+
+// ---------- sous-titres (texte de la voix off) ----------
+const captions = [];
+function say(T, a, b, str) { captions.push({ a: T + a, b: T + b, str }); }
+
+// ---------- les scènes ----------
+// Chaque scène : dur (s) et build(g, T, draw) -> render(lt). draw(path, a, b) = tracé progressif en temps local.
+const SCENES = [
+
+// 1. Ouverture : le placement préféré des Français... mais mal compris
+{ dur: 14, build(g, T, draw) {
+  say(T, 0.3, 4.5, "L'assurance-vie, c'est le placement préféré des Français.");
+  say(T, 4.5, 9, "Pourtant, beaucoup ne savent pas vraiment comment elle fonctionne.");
+  say(T, 9, 13.6, "En deux minutes, on vous explique tout.");
+  const title = "L'assurance-vie", meas = txt(g, 0, 0, title, 130, { font: "Serif", weight: 500 }); meas.style.opacity = 0;
+  const W = meas.getComputedTextLength();
+  const letters = [...title].map((ch, i) => { const x = 960 - W / 2 + meas.getSubStringLength(0, i) + meas.getSubStringLength(i, 1) / 2;
+    return { t: txt(g, x, 330, ch, 130, { font: "Serif", weight: 500 }), x }; });
+  draw(el("path", { ...D.line, stroke: C.accent, "stroke-width": 6, d: `M${960 - W / 2} 370 C${960 - W / 6} 360 ${960 + W / 6} 382 ${960 + W / 2} 366` }, g), 1.3, 1.9);
+  const crowd = [];
+  for (let i = 0; i < 11; i++) {
+    const guy = D.guy(g, { vest: i % 3 === 1 ? C.inkSoft : C.accent, hair: i % 2 ? "f" : "" });
+    const mark = txt(g, 0, 0, "?", 64, { font: "Serif", weight: 700, fill: C.inkSoft });
+    crowd.push({ guy, mark, x: 260 + i * 140, a: 1.6 + Math.abs(i - 5) * 0.07, q: i % 2 === 0 });
+  }
+  return lt => {
+    letters.forEach((L, i) => { const k = prog(lt, 0.2 + i * 0.045, 0.45 + i * 0.045);
+      L.t.style.opacity = k > 0 ? 1 : 0; L.t.setAttribute("transform", `translate(${L.x} 300) scale(${lerp(1.6, 1, easeOut(k))}) translate(${-L.x} -300)`); });
+    for (const c of crowd) {
+      const s = pop(lt, c.a) * 0.56, bob = Math.sin(lt * 3 + c.x) * 3;
+      const cheer = ease(prog(lt, 9.4, 9.8));
+      c.guy.pose(lerp(105, -120, c.q ? cheer : 0), lerp(75, -60, c.q ? cheer : 0)).place(c.x, 880 + (s > 0 ? 0 : 0), s, c.x > 960);
+      c.guy.g.style.opacity = s > 0 ? 1 : 0;
+      const ks = c.q ? pop(lt, 4.8 + c.x / 4000) : 0;
+      c.mark.textContent = lt > 9.5 ? "!" : "?";
+      c.mark.setAttribute("fill", lt > 9.5 ? C.accent : C.inkSoft);
+      place(c.mark, c.x, 640 + bob, ks * (lt > 9.5 ? 1 + 0.3 * Math.sin(prog(lt, 9.5, 9.9) * Math.PI) : 1));
+    }
+  };
+} },
+
+// 2. Ce n'est pas une assurance, c'est une enveloppe
+{ dur: 16, build(g, T, draw) {
+  say(T, 0.2, 5, "Premier point : malgré son nom, ce n'est pas vraiment une assurance.");
+  say(T, 5, 10, "C'est une enveloppe, dans laquelle vous déposez votre argent.");
+  say(T, 10, 15.4, "Et à l'intérieur, c'est vous qui choisissez comment il travaille.");
+  const word = el("g", {}, g); txt(word, 0, 30, "ASSURANCE", 110, { weight: 800, ls: 14 });
+  const strike = draw(el("path", { ...D.line, stroke: C.accent, "stroke-width": 12, d: "M-380 0 L380 -6" }, word), 2.6, 3.1);
+  const env = envelope(g);
+  const guy = D.guy(g);
+  const coins = [0, 1, 2].map(() => coin(g));
+  const icons = ["coins", "house", "curve"].map(k => { const w = el("g", {}, g); el("circle", { ...D.line, fill: C.face, r: 80 }, w); D.icons[k](w); return w; });
+  return lt => {
+    const wIn = pop(lt, 0.2), wOut = ease(prog(lt, 4.3, 4.9));
+    place(word, 960, 420 - 80 * wOut, wIn * (1 - wOut));
+    const es = pop(lt, 5.0, 0.5);
+    env.setOpen(ease(prog(lt, 6.0, 6.4)));
+    place(env.g, 1080, 560, es * 0.95);
+    const gs = pop(lt, 5.3);
+    const throwK = lt > 6.4 && lt < 8.9;
+    guy.pose(105, throwK ? -30 + 30 * Math.sin((lt - 6.4) * 2.5 * Math.PI) : (lt > 10 ? -25 : 75)).place(420, 880, gs * 0.95);
+    guy.g.style.opacity = gs > 0 ? 1 : 0;
+    const hand = [420 + guy.hand.R[0] * 0.95, 880 + guy.hand.R[1] * 0.95];
+    coins.forEach((c, i) => { const a = 6.5 + i * 0.75, u = prog(lt, a, a + 0.6);
+      const p = D.arcPt(hand, [1080, 400], -260, ease(u));
+      place(c, p[0], p[1], u > 0 && u < 1 ? 1 : 0, u * 300); });
+    icons.forEach((ic, i) => { const k = ease(prog(lt, 10.3 + i * 0.35, 11.1 + i * 0.35));
+      place(ic, 1080 + (i - 1) * 230 * k, lerp(420, 190, k), k > 0 ? 0.55 * back(prog(lt, 10.3 + i * 0.35, 10.9 + i * 0.35)) : 0); });
+  };
+} },
+
+// 3. Deux familles : fonds en euros / unités de compte
+{ dur: 24, build(g, T, draw) {
+  say(T, 0.2, 4, "Vous avez deux grandes familles de placements.");
+  say(T, 4, 8, "Le fonds en euros : votre capital est garanti par l'assureur.");
+  say(T, 8, 12, "C'est la sécurité, avec un rendement plus modeste.");
+  say(T, 12, 16, "Les unités de compte : actions, immobilier, obligations…");
+  say(T, 16, 20, "Plus de potentiel, mais votre capital peut baisser.");
+  say(T, 20, 23.4, "L'idée, c'est de doser les deux selon vos projets.");
+  const head = txt(g, 960, 150, "DEUX FAMILLES DE PLACEMENTS", 38, { weight: 700, ls: 10, fill: C.inkSoft });
+  draw(el("path", { ...D.line, "stroke-width": 3, d: "M960 210 L960 840" }, g), 1.0, 1.8);
+  const lt1 = txt(g, 500, 260, "FONDS EN EUROS", 40, { weight: 800, ls: 6 });
+  const v = vault(g);
+  const safe = pill(g, 500, 690, "CAPITAL GARANTI", { bg: C.accent });
+  const c1 = chartBox(g, 360, 120, [[0, .2], [.25, .3], [.5, .4], [.75, .5], [1, .6]]);
+  draw(c1.line, 9, 11);
+  const lt2 = txt(g, 1420, 260, "UNITÉS DE COMPTE", 40, { weight: 800, ls: 6 });
+  const ucIcons = ["curve", "house", "pie"].map(k => { const w = el("g", {}, g); D.icons[k](w); return w; });
+  const c2 = chartBox(g, 360, 170, [[0, .3], [.12, .55], [.22, .25], [.34, .6], [.45, .15], [.58, .5], [.7, .35], [.82, .85], [.9, .6], [1, .95]]);
+  draw(c2.line, 14.5, 17);
+  const pot = pill(g, 1320, 820, "POTENTIEL +", { bg: C.accent });
+  const risk = pill(g, 1560, 820, "RISQUE", { bg: C.face });
+  // curseur de dosage
+  const slider = el("g", {}, g);
+  const trL = el("rect", { fill: C.ink, x: -300, y: -10, height: 20, rx: 10 }, slider);
+  const trR = el("rect", { fill: C.accent, y: -10, height: 20, rx: 10 }, slider);
+  const knob = el("circle", { ...D.line, fill: C.face, r: 26 }, slider);
+  txt(slider, -340, 10, "€", 36, { font: "Serif", weight: 700 }); txt(slider, 350, 10, "UC", 28, { weight: 800 });
+  return lt => {
+    show(head, fade(lt, 0.2));
+    show(lt1, fade(lt, 4.0)); place(v.g, 500, 470, pop(lt, 4.3) * 0.95);
+    v.dial.setAttribute("transform", `rotate(${ease(prog(lt, 5.2, 6.4)) * 270})`);
+    place(safe.g, safe.x, safe.y, pop(lt, 6.6));
+    place(c1.g, 500, 810, pop(lt, 8.6));
+    show(lt2, fade(lt, 12.0));
+    ucIcons.forEach((ic, i) => place(ic, 1270 + i * 150, 420, pop(lt, 12.6 + i * 0.4) * 0.8));
+    place(c2.g, 1420, 615, pop(lt, 14.2));
+    place(pot.g, pot.x, pot.y, pop(lt, 16.3)); place(risk.g, risk.x, risk.y, pop(lt, 17.3));
+    const sk = pop(lt, 20.0);
+    const pos = lerp(0.3, lerp(0.75, 0.5, ease(prog(lt, 21.8, 22.8))), ease(prog(lt, 20.5, 21.6)));
+    const x = -300 + 600 * pos;
+    trL.setAttribute("width", Math.max(0, x + 300)); trR.setAttribute("x", x); trR.setAttribute("width", Math.max(0, 300 - x));
+    knob.setAttribute("cx", x);
+    place(slider, 960, 915, sk);
+  };
+} },
+
+// 4. Disponible : versements et retraits à tout moment
+{ dur: 14, build(g, T, draw) {
+  say(T, 0.2, 4, "Bonne nouvelle : votre argent n'est pas bloqué.");
+  say(T, 4, 8, "Vous pouvez faire des versements quand vous voulez,");
+  say(T, 8, 13.4, "et récupérer tout ou partie de votre épargne à tout moment.");
+  const env = envelope(g);
+  const lock = padlock(g);
+  const left = D.guy(g), right = D.guy(g, { vest: C.inkSoft, hair: "f" });
+  const curlIn = D.curl(g, [520, 470], [800, 430], -90), curlOut = D.curl(g, [1120, 430], [1400, 470], -90);
+  draw(curlIn, 4.2, 4.9); draw(curlOut, 8.1, 8.8);
+  const lin = txt(g, 660, 300, "VERSEMENTS", 30, { weight: 800, ls: 6, fill: C.inkSoft });
+  const lout = txt(g, 1260, 300, "RETRAITS", 30, { weight: 800, ls: 6, fill: C.inkSoft });
+  const cIn = [0, 1, 2].map(() => coin(g)), cOut = [0, 1, 2].map(() => coin(g));
+  return lt => {
+    env.setOpen(1); place(env.g, 960, 600, pop(lt, 0.2) * 0.62);
+    const lk = pop(lt, 0.6), up = ease(prog(lt, 2.4, 2.9)), gone = ease(prog(lt, 3.6, 4.0));
+    place(lock.g, 960, 590, lk * (1 - gone));
+    lock.sh.setAttribute("transform", `translate(30 ${-30 * up}) rotate(${-35 * up}) translate(-30 0)`);
+    const sl = pop(lt, 4.0), sr = pop(lt, 7.9);
+    left.pose(105, lt > 4.4 && lt < 7 ? -20 : 75).place(380, 900, sl * 0.9); left.g.style.opacity = sl > 0 ? 1 : 0;
+    right.pose(105, lt > 8.3 && lt < 11 ? -15 : 75).place(1540, 900, sr * 0.9, true); right.g.style.opacity = sr > 0 ? 1 : 0;
+    show(lin, fade(lt, 4.3)); show(lout, fade(lt, 8.2));
+    const hl = [380 + left.hand.R[0] * 0.9, 900 + left.hand.R[1] * 0.9], hr = [1540 - right.hand.R[0] * 0.9, 900 + right.hand.R[1] * 0.9];
+    cIn.forEach((c, i) => { const a = 4.9 + i * 0.7, u = prog(lt, a, a + 0.55); const p = D.arcPt(hl, [960, 500], -200, ease(u)); place(c, p[0], p[1], u > 0 && u < 1 ? 0.9 : 0, u * 360); });
+    cOut.forEach((c, i) => { const a = 8.8 + i * 0.7, u = prog(lt, a, a + 0.55); const p = D.arcPt([960, 500], hr, -200, ease(u)); place(c, p[0], p[1], u > 0 && u < 1 ? 0.9 : 0, u * 360); });
+  };
+} },
+
+// 5. Le temps : après 8 ans, la fiscalité s'allège
+{ dur: 24, build(g, T, draw) {
+  say(T, 0.2, 5, "Là où l'assurance-vie devient vraiment intéressante, c'est avec le temps.");
+  say(T, 5, 10, "Après huit ans, la fiscalité s'allège nettement.");
+  say(T, 10, 15, "Chaque année, vos gains retirés bénéficient d'un abattement :");
+  say(T, 15, 19, "4 600 euros, ou 9 200 euros pour un couple.");
+  say(T, 19, 23.4, "D'où l'intérêt d'ouvrir un contrat tôt, même avec peu.");
+  const X0 = 300, X1 = 1640, AY = 800;
+  draw(el("path", { ...D.line, "stroke-width": 5, d: `M${X0 - 60} ${AY} L${X1 + 60} ${AY}` }, g), 0.3, 1.4);
+  const years = [];
+  for (let i = 0; i < 8; i++) {
+    const x = X0 + i * (X1 - X0) / 7;
+    draw(el("path", { ...D.line, "stroke-width": 4, d: `M${x} ${AY - 10} L${x} ${AY + 12}` }, g), 0.6 + i * 0.08, 0.8 + i * 0.08);
+    const lab = txt(g, x, AY + 52, i ? `${i + 1} ans` : "1 an", 26, { weight: 600, fill: i === 7 ? C.ink : C.inkSoft });
+    const stack = el("g", {}, g);
+    for (let j = 0; j <= i; j++) { const c = coin(stack, 30); c.setAttribute("transform", `translate(${(j % 2) * 4 - 2} ${-22 - j * 17})`); }
+    years.push({ x, lab, stack, a: 1.3 + i * 0.3 });
+  }
+  const ring = draw(el("ellipse", { ...D.line, stroke: C.accent, "stroke-width": 6, cx: X1, cy: AY - 80, rx: 95, ry: 215, transform: `rotate(-90 ${X1} ${AY - 80}) rotate(90 ${X1} ${AY - 80})` }, g), 5.3, 6.0);
+  const allege = pill(g, X1 - 120, 440, "FISCALITÉ ALLÉGÉE", { bg: C.accent });
+  const headA = txt(g, 960, 130, "ABATTEMENT ANNUEL SUR LES GAINS", 30, { weight: 700, ls: 8, fill: C.inkSoft });
+  const cards = [["4 600 €", "PAR AN · PERSONNE SEULE", 700, 10.6], ["9 200 €", "PAR AN · COUPLE", 1220, 15.2]].map(([big, small, x, a]) => {
+    const c = el("g", {}, g);
+    el("rect", { ...D.line, fill: C.face, x: -220, y: -95, width: 440, height: 190, rx: 16 }, c);
+    txt(c, 0, 18, big, 92, { font: "Serif", weight: 600 });
+    txt(c, 0, 66, small, 20, { weight: 700, ls: 4, fill: C.inkSoft });
+    return { c, x, a };
+  });
+  const early = pill(g, X0 + 40, 640, "OUVREZ TÔT", { bg: C.accentSoft });
+  const earlyRing = draw(el("circle", { ...D.line, stroke: C.accent, "stroke-width": 6, cx: X0, cy: AY - 40, r: 70 }, g), 19.4, 20.0);
+  return lt => {
+    for (const y of years) { show(y.lab, fade(y.lab ? lt : lt, y.a - 0.2), 12); const s = pop(lt, y.a, 0.45);
+      y.stack.setAttribute("transform", `translate(${y.x} ${AY}) scale(${s})`); y.stack.style.opacity = s > 0 ? 1 : 0; }
+    place(allege.g, allege.x, allege.y, pop(lt, 6.4));
+    const fadeA = 1 - ease(prog(lt, 9.6, 10.1));
+    allege.g.style.opacity = Math.min(allege.g.style.opacity, fadeA);
+    show(headA, fade(lt, 10.2));
+    for (const c of cards) place(c.c, c.x, 300, pop(lt, c.a, 0.5));
+    place(early.g, early.x, early.y, pop(lt, 19.8));
+  };
+} },
+
+// 6. Transmission
+{ dur: 24, build(g, T, draw) {
+  say(T, 0.2, 5, "Enfin, l'assurance-vie est un formidable outil de transmission.");
+  say(T, 5, 10, "Vous désignez librement vos bénéficiaires dans le contrat.");
+  say(T, 10, 15, "Et pour les versements faits avant 70 ans, chaque bénéficiaire peut recevoir");
+  say(T, 15, 20, "jusqu'à 152 500 euros sans droits de succession.");
+  say(T, 20, 23.4, "Une protection précieuse pour vos proches.");
+  const head = txt(g, 960, 140, "TRANSMISSION", 46, { weight: 800, ls: 14, fill: C.ink });
+  const sub = txt(g, 960, 196, "VERSEMENTS AVANT 70 ANS · HORS DROITS DE SUCCESSION", 22, { weight: 600, ls: 5, fill: C.inkSoft });
+  const contract = el("g", {}, g); D.icons.contract(contract);
+  const clause = txt(g, 520, 300, "CLAUSE BÉNÉFICIAIRE", 26, { weight: 800, ls: 5 });
+  const sign = el("path", { ...D.line, stroke: C.ink, "stroke-width": 5, d: "M440 690 C470 640 490 720 520 670 C540 640 560 700 590 680 C610 668 630 690 660 676" }, g);
+  draw(sign, 6.3, 7.6);
+  const fam = [
+    { guy: D.guy(g, { hair: "f", vest: C.inkSoft }), x: 1220, s: 0.72, a: 7.0 },
+    { guy: D.guy(g), x: 1430, s: 0.76, a: 7.25 },
+    { guy: D.guy(g, { vest: C.accentSoft }), x: 1610, s: 0.5, a: 7.5 },
+  ];
+  fam.forEach((f, i) => { f.curl = D.curl(g, [720, 420 + i * 110], [f.x - 40, 880 - f.s * 290], -70 + i * 40, 3, 12); draw(f.curl, 10.4 + i * 0.35, 11.3 + i * 0.35);
+    f.tag = pill(g, f.x, 880 - f.s * 400 - 50, "152 500 €", { size: 24, ls: 2, bg: C.accent }); });
+  const dome = draw(el("path", { ...D.line, stroke: C.accent, "stroke-width": 7, d: "M1080 880 C1080 420 1760 420 1760 880" }, g), 20.2, 21.2);
+  return lt => {
+    show(head, fade(lt, 0.3)); show(sub, fade(lt, 12.0));
+    place(contract, 560, 540, pop(lt, 0.6, 0.5) * 2.3);
+    show(clause, fade(lt, 5.4));
+    for (const f of fam) { const s = pop(lt, f.a);
+      const joy = ease(prog(lt, 20.6, 21)); f.guy.pose(lerp(105, -115, joy), lerp(75, -65, joy)).place(f.x, 880, s * f.s, true); f.guy.g.style.opacity = s > 0 ? 1 : 0; }
+    fam.forEach((f, i) => place(f.tag.g, f.tag.x, f.tag.y, pop(lt, 15.2 + i * 0.3)));
+  };
+} },
+
+// 7. Résumé : souple, fiscalité, transmission
+{ dur: 16, build(g, T, draw) {
+  say(T, 0.2, 3, "En résumé, l'assurance-vie, c'est :");
+  say(T, 3, 6, "une épargne souple,");
+  say(T, 6, 10, "une fiscalité qui s'allège avec le temps,");
+  say(T, 10, 15.4, "et un outil pour protéger ceux qu'on aime.");
+  const head = txt(g, 960, 170, "EN RÉSUMÉ", 46, { weight: 800, ls: 16 });
+  const items = [
+    { x: 500, a: 3.0, label: "SOUPLE", sub: "versements et retraits libres", icon: w => { const p = padlock(w); p.sh.setAttribute("transform", "translate(30 -26) rotate(-35) translate(-30 0)"); p.g.setAttribute("transform", "translate(0 -10)"); } },
+    { x: 960, a: 6.2, label: "FISCALITÉ", sub: "allégée après 8 ans", icon: w => D.icons.percent(w) },
+    { x: 1420, a: 10.2, label: "TRANSMISSION", sub: "jusqu'à 152 500 € par bénéficiaire", icon: w => { const h = heart(w); h.setAttribute("transform", "translate(0 12)"); } },
+  ].map(it => {
+    const m = el("g", {}, g);
+    el("circle", { ...D.line, fill: C.face, r: 150 }, m);
+    draw(el("circle", { ...D.line, stroke: C.accent, "stroke-width": 5, fill: "none", r: 168, transform: "rotate(-90)" }, m), it.a + 0.2, it.a + 0.9);
+    const ic = el("g", { transform: "scale(1.15)" }, m); it.icon(ic);
+    const l1 = txt(g, it.x, 760, it.label, 36, { weight: 800, ls: 8 }), l2 = txt(g, it.x, 805, it.sub, 24, { weight: 500, fill: C.inkSoft });
+    return { ...it, m, l1, l2 };
+  });
+  return lt => {
+    show(head, fade(lt, 0.2));
+    for (const it of items) { place(it.m, it.x, 500, pop(lt, it.a, 0.5)); show(it.l1, fade(lt, it.a + 0.3)); show(it.l2, fade(lt, it.a + 0.5)); }
+  };
+} },
+
+// 8. Conclusion : parlons-en
+{ dur: 10, build(g, T, draw) {
+  say(T, 0.2, 4.2, "Chaque situation est unique.");
+  say(T, 4.2, 9.4, "Pour savoir comment l'utiliser au mieux, parlons-en.");
+  const table = el("g", {}, g);
+  el("path", { ...D.line, "stroke-width": 6, d: "M760 790 L760 900 M1160 790 L1160 900" }, table);
+  el("rect", { ...D.line, fill: C.paperDeep, x: 690, y: 770, width: 540, height: 30, rx: 6 }, table);
+  const adv = D.guy(g, { vest: C.inkSoft }), cli = D.guy(g, { hair: "f" });
+  const bubble = el("g", {}, g);
+  el("path", { ...D.line, fill: C.face, d: "M-110 -80 L110 -80 Q130 -80 130 -60 L130 50 Q130 70 110 70 L-20 70 L-50 105 L-45 70 L-110 70 Q-130 70 -130 50 L-130 -60 Q-130 -80 -110 -80 Z" }, bubble);
+  const bIcons = ["pie", "contract", "coins"].map(k => { const w = el("g", {}, bubble); D.icons[k](w); return w; });
+  const bubble2 = el("g", {}, g);
+  el("path", { ...D.line, fill: C.face, d: "M-70 -60 L70 -60 Q90 -60 90 -40 L90 30 Q90 50 70 50 L30 50 L45 85 L5 50 L-70 50 Q-90 50 -90 30 L-90 -40 Q-90 -60 -70 -60 Z" }, bubble2);
+  const qm = txt(bubble2, 0, 22, "?", 64, { font: "Serif", weight: 700 });
+  const big = txt(g, 960, 230, "Parlons-en.", 120, { font: "Serif", weight: 500 });
+  const legal = txt(g, 960, 1064, "Informations générales, ne constituant pas un conseil personnalisé. Règles fiscales en vigueur à la date de publication.", 17, { weight: 500, fill: C.inkSoft });
+  return lt => {
+    place(table, 0, 0, 1); table.style.opacity = fade(lt, 0.1);
+    const sa = pop(lt, 0.3), sc = pop(lt, 0.5);
+    adv.pose(105, lt > 1.6 ? -10 + 8 * Math.sin(lt * 4) : 75).place(640, 900, sa * 0.85); adv.g.style.opacity = sa > 0 ? 1 : 0;
+    cli.pose(105, 75).place(1280, 900, sc * 0.85, true); cli.g.style.opacity = sc > 0 ? 1 : 0;
+    place(bubble2, 1330, 430, pop(lt, 1.0) * (1 - ease(prog(lt, 6.8, 7.2))));
+    qm.textContent = lt > 5.6 ? "✓" : "?";
+    place(bubble, 610, 410, pop(lt, 1.8));
+    const which = Math.min(2, Math.floor(Math.max(0, lt - 1.8) / 1.6));
+    bIcons.forEach((w, i) => place(w, 0, -5, i === which ? 0.75 * pop(lt, 1.8 + i * 1.6, 0.35) : 0));
+    show(big, fade(lt, 4.5, 0.6));
+    legal.style.opacity = fade(lt, 1.0);
+  };
+} },
+];
+
+// ---------- moteur : enchaînement des scènes + transitions ----------
+let T = 0;
+const RUN = [];
+window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fonts.load("700 100px Serif"), document.fonts.load("600 20px Sans")]).then(() => {
+  for (const sc of SCENES) {
+    const g = el("g", {}, root), T0 = T;
+    const draw = (p, a, b) => D.drawOn(p, T0 + a, T0 + b);
+    RUN.push({ g, T0, dur: sc.dur, render: sc.build(g, T0, draw) });
+    T += sc.dur - OV;
+  }
+  window.DURATION = T + OV;
+  for (const c of captions) {
+    c.t = txt(capRoot, 960, 1010, c.str, 34, { weight: 500, fill: C.ink });
+  }
+  D.paper(svg);
+});
+
+window.render = function (t) {
+  D.updateDraws(t);
+  RUN.forEach((r, i) => {
+    const lt = t - r.T0;
+    if (lt < 0 || lt > r.dur) { r.g.style.display = "none"; return; }
+    r.g.style.display = "";
+    const inK = i === 0 ? 1 : ease(prog(lt, 0, OV)), outK = i === RUN.length - 1 ? 0 : ease(prog(lt, r.dur - OV, r.dur));
+    r.g.setAttribute("transform", `translate(${(1 - inK) * 260 - outK * 260} 0)`);
+    r.g.style.opacity = Math.min(inK, 1 - outK);
+    r.render(lt);
+  });
+  for (const c of captions) c.t.style.opacity = Math.min(prog(t, c.a, c.a + 0.2), 1 - prog(t, c.b - 0.2, c.b));
+};
+window.ready.then(() => render(0));
+</script>
+</body></html>
