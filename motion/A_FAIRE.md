@@ -25,3 +25,12 @@ Même chose pour l'outro : une variante par catégorie.
 - [ ] **Voix off** : l'utilisateur enregistre le script (ou passe par un outil de synthèse vocale de qualité) → recaler l'animation dessus
 - [ ] Faire valider les chiffres par l'utilisateur (abattements 4 600 / 9 200 €, 152 500 € par bénéficiaire avant 70 ans)
 - [ ] Musique de fond discrète (à fournir ou choisir)
+
+## Vidéo longue « L'assurance vie » (18 min, `videos/assurance-vie-long/`)
+- [x] Voix extraite de la vidéo de l'utilisateur (`voix.m4a`), 18 chapitres calés sur le transcript horodaté et les slides
+- [ ] Retours de l'utilisateur sur le rythme / les scènes
+- [ ] Points à faire vérifier :
+      - « taux réduit » après abattement : la voix dit 18,6 % ; la slide parle de prélèvements sociaux (l'impôt sur le revenu
+        de 7,5 % peut aussi s'appliquer selon les cas) → l'écran affiche seulement « à un taux réduit »
+      - S&P 500 « 12,2 % par an » (chiffre de la slide), courbe reconstruite à partir des rendements annuels publics
+      - Logos des assureurs partenaires non repris (marques) : réseau dessiné de façon générique
