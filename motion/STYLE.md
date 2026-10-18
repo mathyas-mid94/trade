@@ -65,3 +65,9 @@ Pour une nouvelle vidéo, on le recale pour que son impact (à 7,4 s dans le fic
   - **réseaux sociaux** (`outro/outro_abonnement.mp4`, 10,5 s) : + « Abonnez-vous » et bouton S'abonner cliqué.
     Rendu : `node render.mjs "outro/outro.html?abonnement" ...`
 - Textes modifiables dans `CONFIG`. Son : référence MIC décalée de 1,15 s.
+
+## Variantes par catégorie
+- Intro et outro acceptent `?theme=<catégorie>` (objet `THEMES` en haut de chaque fichier) :
+  icônes, étiquettes, mention de la catégorie sous le logo.
+- Intro : la loupe s'arrête toujours sur l'icône du milieu (index 2) → le timing et le son ne bougent pas.
+- Thèmes existants : `generique`, `defiscalisation` (icône « % » qui rétrécit sous la loupe ; outro : parapluie contre la pluie d'impôts).

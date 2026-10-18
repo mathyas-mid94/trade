@@ -24,6 +24,14 @@ const CONFIG = {
   // version site (par défaut) : pas d'appel à s'abonner, fin plus courte
   subscribe: new URLSearchParams(location.search).has("abonnement"),
 };
+// Variantes par catégorie : outro.html?theme=defiscalisation (combinable avec &abonnement)
+const THEMES = {
+  generique: { label: "", fruits: ["house", "pie", "coins", "contract", "curve"], shift: 0, cam: [1000, 600, 1.0] },
+  // le nuage "IMPÔTS" pleut sur l'arbre, le personnage ouvre un parapluie au-dessus : on protège ce qu'on a fait pousser
+  defiscalisation: { label: "DÉFISCALISATION", fruits: ["house", "percent", "coins", "contract", "pie"], shift: 1.3, cam: [1000, 480, 0.92], rain: true },
+};
+const THEME = THEMES[new URLSearchParams(location.search).get("theme")] || THEMES.generique;
+const S = THEME.shift;   // tout ce qui suit l'arbre est décalé de S secondes
 const { C, el, prog, ease, easeOut, back, lerp } = D;
 const svg = document.getElementById("s");
 const world = document.getElementById("world"), card = document.getElementById("card");
@@ -45,7 +53,7 @@ const BLOBS = [[-160, 20, 85], [165, 0, 90], [-80, -90, 100], [85, -100, 105], [
 const blobs = BLOBS.map(([dx, dy, r], i) => ({ c: el("circle", { ...D.line, fill: i === 4 || i === 6 ? C.ink : C.inkSoft, cx: TX + dx, cy: CY + dy, r }, canopy),
   x: TX + dx, y: CY + dy, a: 2.75 + i * 0.07 }));
 // les fruits = les instruments du patrimoine
-const FRUITS = [["house", -150, 10], ["pie", 160, -5], ["coins", -75, -110], ["contract", 85, -120], ["curve", 0, -20]];
+const FRUITS = THEME.fruits.map((k, i) => [k, ...[[-150, 10], [160, -5], [-75, -110], [85, -120], [0, -20]][i]]);
 const fruits = FRUITS.map(([k, dx, dy], i) => { const g = el("g", {}, canopy);
   el("circle", { ...D.line, fill: C.paper, cx: 0, cy: 0, r: 95 }, g); D.icons[k](g);
   return { g, x: TX + dx, y: CY + dy, a: 3.45 + i * 0.17 }; });
@@ -59,43 +67,93 @@ el("ellipse", { ...D.line, fill: C.accentSoft, cx: 0, cy: 0, rx: 26, ry: 9 }, co
 const mound = el("path", { ...D.line, fill: C.paperDeep, d: `M${TX - 55} ${GROUND + 2} Q${TX} ${GROUND - 34} ${TX + 55} ${GROUND + 2} Z` }, world);
 world.insertBefore(mound, tree);
 
+// ---------- défiscalisation : nuage, pluie, parapluie ----------
+let cloud, umb, drops = [];
+const UX = TX + 10, UY = 255, UROT = 15, SHAFT = 330, USC = 0.78;
+if (THEME.rain) {
+  cloud = el("g", {}, world);
+  el("path", { ...D.line, fill: C.inkSoft, d: "M-170 40 Q-205 40 -202 8 Q-200 -30 -150 -35 Q-140 -92 -70 -85 Q-30 -132 30 -100 Q92 -122 122 -60 Q192 -62 192 0 Q195 40 160 40 Z" }, cloud);
+  const ct = el("text", { x: 0, y: 14, "text-anchor": "middle", "font-family": "Sans", "font-weight": 700, "font-size": 34, "letter-spacing": 6, fill: C.paper }, cloud);
+  ct.textContent = "IMPÔTS";
+  const rain = el("g", {}, world);
+  for (let i = 0; i < 30; i++) drops.push({ x: TX - 300 + (i * 211) % 600, ph: (i * 0.37) % 1,
+    p: el("path", { ...D.line, stroke: C.inkSoft, "stroke-width": 4, d: "M0 0 L-6 30" }, rain) });
+  umb = el("g", {}, world);
+  el("path", { ...D.line, "stroke-width": 7, d: `M0 -130 L0 ${SHAFT} Q0 ${SHAFT + 40} -30 ${SHAFT + 40} Q-55 ${SHAFT + 40} -55 ${SHAFT + 15}` }, umb);
+  const top = el("g", {}, umb); umb.top = top;
+  el("path", { ...D.line, fill: C.accent, d: "M-330 40 Q-300 -122 0 -132 Q300 -122 330 40 Q247 10 165 40 Q82 10 0 40 Q-82 10 -165 40 Q-247 10 -330 40 Z" }, top);
+  for (const x of [-165, 0, 165]) el("path", { ...D.line, "stroke-width": 3, d: `M0 -130 Q${x * 0.55} -60 ${x} 40` }, top);
+  el("path", { ...D.line, "stroke-width": 6, d: "M0 -132 L0 -158" }, top);
+}
+
 // ---------- écran de fin ----------
 const LX = 1390, LY = 360, LR = 150;
 let M, title, cta, btn, btnRect, btnText, cursor;
 window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fonts.load("600 20px Sans")]).then(() => {
   M = D.micLogo(card, LX, LY, LR);
-  D.drawOn(M.outer, 5.45, 6.0); D.drawOn(M.inner, 5.65, 6.15);
-  D.drawOn(M.ruleL, 6.15, 6.45); D.drawOn(M.ruleR, 6.15, 6.45);
-  title = el("text", { x: LX, y: CONFIG.subscribe ? 640 : 670, "text-anchor": "middle", "font-family": "Serif", "font-weight": 500, "font-size": 70, fill: C.ink }, card);
+  D.drawOn(M.outer, S + 5.45, S + 6.0); D.drawOn(M.inner, S + 5.65, S + 6.15);
+  D.drawOn(M.ruleL, S + 6.15, S + 6.45); D.drawOn(M.ruleR, S + 6.15, S + 6.45);
+  if (THEME.label) { M.cat = el("text", { x: LX, y: LY + LR + 72, "text-anchor": "middle", "font-family": "Sans", "font-weight": 700, "font-size": 30, "letter-spacing": 10, fill: C.inkSoft }, card); M.cat.textContent = THEME.label; }
+  title = el("text", { x: LX, y: (CONFIG.subscribe ? 640 : 670) + (THEME.label ? 40 : 0), "text-anchor": "middle", "font-family": "Serif", "font-weight": 500, "font-size": 70, fill: C.ink }, card);
   title.textContent = CONFIG.title;
   if (!CONFIG.subscribe) { D.paper(svg); return; }
-  cta = el("text", { x: LX, y: 705, "text-anchor": "middle", "font-family": "Sans", "font-weight": 500, "font-size": 22, "letter-spacing": 6, fill: C.inkSoft }, card);
+  cta = el("text", { x: LX, y: 705 + (THEME.label ? 40 : 0), "text-anchor": "middle", "font-family": "Sans", "font-weight": 500, "font-size": 22, "letter-spacing": 6, fill: C.inkSoft }, card);
   cta.textContent = CONFIG.cta;
   btn = el("g", {}, card);
-  btnRect = el("rect", { ...D.line, fill: C.ink, x: LX - 150, y: 770, width: 300, height: 70, rx: 35 }, btn);
-  btnText = el("text", { x: LX, y: 815, "text-anchor": "middle", "font-family": "Sans", "font-weight": 600, "font-size": 24, "letter-spacing": 5, fill: C.paper }, btn);
+  btnRect = el("rect", { ...D.line, fill: C.ink, x: LX - 150, y: 770 + (THEME.label ? 30 : 0), width: 300, height: 70, rx: 35 }, btn);
+  btnText = el("text", { x: LX, y: 815 + (THEME.label ? 30 : 0), "text-anchor": "middle", "font-family": "Sans", "font-weight": 600, "font-size": 24, "letter-spacing": 5, fill: C.paper }, btn);
   btnText.textContent = CONFIG.button;
   for (let i = 0; i < 8; i++) {
     const a = i / 8 * Math.PI * 2, rx = 190, ry = 70;
-    D.drawOn(el("path", { ...D.line, "stroke-width": 3.5, d: `M${LX + rx * Math.cos(a)} ${805 + ry * Math.sin(a)} L${LX + (rx + 28) * Math.cos(a)} ${805 + (ry + 22) * Math.sin(a)}` }, card), 8.3, 8.5);
+    D.drawOn(el("path", { ...D.line, "stroke-width": 3.5, d: `M${LX + rx * Math.cos(a)} ${805 + ry * Math.sin(a)} L${LX + (rx + 28) * Math.cos(a)} ${805 + (ry + 22) * Math.sin(a)}` }, card), S + 8.3, S + 8.5);
   }
   cursor = el("path", { ...D.line, "stroke-width": 3.5, fill: C.face, d: "M0 0 L0 46 L12 35 L21 55 L30 51 L21 31 L37 31 Z" }, card);
   D.paper(svg);
 });
 
 // ---------- rendu ----------
-window.DURATION = CONFIG.subscribe ? 10.5 : 8.5;
+function renderRain(t) {
+  // nuage : arrive, gronde un peu, puis se dissipe
+  const cin = back(prog(t, 3.75, 4.15)), cout = ease(prog(t, 5.45, 5.9));
+  const cs = cin * (1 - cout), jig = t > 4.1 && t < 5.4 ? Math.sin(t * 40) * 3 : 0;
+  cloud.setAttribute("transform", `translate(${TX + jig} ${20 - 60 * cout}) scale(${cs * 0.9})`);
+  cloud.style.opacity = cs > 0.01 ? 1 : 0;
+  // parapluie : le bras va le chercher, il s'ouvre au-dessus de l'arbre
+  const uin = ease(prog(t, 4.35, 4.6)), uopen = back(prog(t, 4.55, 4.95));
+  umb.style.opacity = uin > 0 ? 1 : 0;
+  const uy = lerp(UY + 260, UY, uin);
+  umb.setAttribute("transform", `translate(${UX} ${uy}) rotate(${UROT}) scale(${(0.4 + 0.6 * uin) * USC})`);
+  umb.top.setAttribute("transform", `scale(${Math.max(0.08, uopen)} ${0.6 + 0.4 * Math.min(1, uopen)})`);
+  if (uin > 0) {
+    const a = UROT * Math.PI / 180, k = (0.4 + 0.6 * uin) * USC;
+    const hx = UX - Math.sin(a) * SHAFT * k, hy = uy + Math.cos(a) * SHAFT * k;
+    guy.reach(1, (hx - GX) / GS, (hy - GROUND) / GS, 40);
+  }
+  // pluie : tombe sur le feuillage, puis rebondit sur le parapluie
+  const on = t > 4.0 && t < 5.6, open = t > 4.75;
+  for (const d of drops) {
+    const u = (t / 0.42 + d.ph) % 1, y = 70 + u * 520, dx = d.x - UX;
+    const stopY = open && Math.abs(dx) < 320 * USC ? UY + dx * Math.tan(UROT * Math.PI / 180) - 130 * USC * (1 - (dx / (330 * USC)) ** 2) + 15
+                                             : CY - 230 + Math.abs(d.x - TX) * 0.35;
+    const vis = on && y < stopY && (t < 5.3 || u < 0.5);
+    d.p.style.opacity = vis ? 1 : 0;
+    d.p.setAttribute("transform", `translate(${d.x - u * 20} ${y})`);
+  }
+}
+
+window.DURATION = (CONFIG.subscribe ? 10.5 : 8.5) + S;
 window.render = function (t) {
   D.updateDraws(t);
   const sg = back(prog(t, 0.15, 0.55));
   guy.g.style.opacity = sg > 0 ? 1 : 0;
 
   // bras : tient la pièce, la lance, puis lève les bras en voyant l'arbre
-  const lift = ease(prog(t, 0.45, 0.75)), toss = ease(prog(t, 0.75, 0.95)), cheer = ease(prog(t, 4.1, 4.5));
+  const lift = ease(prog(t, 0.45, 0.75)), toss = ease(prog(t, 0.75, 0.95)), cheer = ease(prog(t, 4.1 + S, 4.5 + S));
   const rest = ease(prog(t, 1.2, 1.7));
   const angR = lerp(lerp(lerp(lerp(75, -35, lift), 5, toss), 75, rest), -60, cheer);
   const angL = lerp(105, -120, cheer);
   guy.pose(angL, angR).place(GX, GROUND, GS * sg);
+  if (THEME.rain) renderRain(t);
   const hand = [GX + guy.hand.R[0] * GS, GROUND + guy.hand.R[1] * GS];
 
   // la pièce : dans la main, vole, rebondit, s'enfonce
@@ -119,13 +177,16 @@ window.render = function (t) {
   canopy.setAttribute("transform", `rotate(${sway} ${TX} ${GROUND})`);
 
   // caméra : légère poussée, puis glisse à gauche pour révéler l'écran de fin
-  const pan = ease(prog(t, 4.7, 5.8));
-  const z = lerp(lerp(1, 1.05, ease(prog(t, 0, 4.7))), 0.78, pan);
-  const cx = lerp(1000, 1540, pan), cy = lerp(600, 600, pan);
+  const [c0x, c0y, z0] = THEME.cam;
+  const pan = ease(prog(t, 4.7 + S, 5.8 + S));
+  const z = lerp(lerp(z0, z0 * 1.05, ease(prog(t, 0, 4.7 + S))), 0.78, pan);
+  const cx = lerp(c0x, 1540, pan), cy = lerp(c0y, 600, pan);
   world.setAttribute("transform", `translate(960 ${lerp(560, 620, pan)}) scale(${z}) translate(${-cx} ${-cy})`);
 
   // écran de fin
-  card.style.opacity = t > 5.3 ? 1 : 0;
+  card.style.opacity = t > 5.3 + S ? 1 : 0;
+  t -= S;   // la suite de l'écran de fin est écrite en temps "générique"
+  if (M.cat) { const k = easeOut(prog(t, 6.25, 6.7)); M.cat.style.opacity = k; M.cat.setAttribute("transform", `translate(0 ${16 * (1 - k)})`); }
   M.letters.forEach((L, i) => { const k = easeOut(prog(t, 5.85 + i * 0.1, 6.25 + i * 0.1));
     L.t.style.opacity = k; L.t.setAttribute("transform", `translate(0 ${30 * (1 - k)})`); });
   const tk = easeOut(prog(t, 6.4, 6.9)); title.style.opacity = tk; title.setAttribute("transform", `translate(0 ${24 * (1 - tk)})`);

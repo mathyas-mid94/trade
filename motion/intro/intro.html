@@ -18,6 +18,13 @@ svg{display:block}
 <script src="../lib/dalio.js"></script>
 <script>
 const CONFIG = { tagline: "" };
+// Variantes par catégorie : intro.html?theme=defiscalisation (la loupe s'arrête toujours sur l'icône du milieu)
+const THEMES = {
+  generique: { label: "", kinds: ["house", "pie", "coins", "contract", "curve"], labels: ["IMMOBILIER", "ALLOCATION", "ÉPARGNE", "CONTRATS", "MARCHÉS"] },
+  defiscalisation: { label: "DÉFISCALISATION", kinds: ["house", "coins", "percent", "contract", "curve"],
+    labels: ["IMMOBILIER", "RETRAITE", "IMPÔTS", "CONTRATS", "PLACEMENTS"] },
+};
+const THEME = THEMES[new URLSearchParams(location.search).get("theme")] || THEMES.generique;
 const { C, el, prog, ease, easeOut, back, lerp } = D;
 const svg = document.getElementById("s");
 const world = document.getElementById("world"), logo = document.getElementById("logo");
@@ -27,9 +34,9 @@ const easeIn = x => x * x * x;
 const GX = 330, GY = 930, GS = 1.08;
 const guy = D.guy(world);
 
-const ROW_Y = 520, KINDS = ["house", "pie", "coins", "contract", "curve"];
+const ROW_Y = 520, KINDS = THEME.kinds;
 const ROW_X = [760, 1000, 1240, 1480, 1720];
-const LABELS = ["IMMOBILIER", "ALLOCATION", "ÉPARGNE", "CONTRATS", "MARCHÉS"];
+const LABELS = THEME.labels;
 // une rangée = 5 icônes + étiquettes ; construite deux fois (normale + vue grossie dans la loupe)
 function makeRow(parent) {
   return KINDS.map((k, i) => {
@@ -48,7 +55,9 @@ const rowB = makeRow(zoomed);
 const hole = document.getElementById("lensHole");
 
 const mag = D.magnifier(world, 115);
-const TARGET = 2;   // l'icône sur laquelle la loupe s'arrête (épargne)
+const TARGET = 2;   // l'icône sur laquelle la loupe s'arrête (celle du thème)
+// sous la loupe, l'icône cible réagit : le "%" rétrécit et sa flèche pousse vers le bas (on fait baisser l'impôt)
+const focus = rowB[TARGET].g, focusText = focus.querySelector("text"), focusArrow = [...focus.querySelectorAll("path")].pop();
 const sparks = [];
 for (let i = 0; i < 8; i++) {
   const a = -Math.PI * 0.95 + i * 0.25, r0 = 140, r1 = 175 + (i % 2) * 18;
@@ -84,6 +93,8 @@ window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fon
   M.tag = el("text", { x: LX, y: LY + LR + 110, "text-anchor": "middle", "font-size": 34, "font-family": "Sans", "font-weight": 500,
     fill: C.inkSoft, "letter-spacing": 9 }, logo);
   M.tag.textContent = CONFIG.tagline.toUpperCase();
+  if (THEME.label) { M.cat = el("text", { x: LX, y: LY + LR + 80, "text-anchor": "middle", "font-family": "Sans", "font-weight": 700,
+    "font-size": 30, "letter-spacing": 10, fill: C.inkSoft }, logo); M.cat.textContent = THEME.label; }
   D.paper(svg);
 });
 
@@ -147,6 +158,12 @@ window.render = function (t) {
   logo.setAttribute("transform", `translate(${Math.sin(t * 90) * amp} ${Math.cos(t * 71) * amp})`);
   const tk = ease(prog(t, 6.1, 6.6));
   M.tag.style.opacity = tk; M.tag.setAttribute("transform", `translate(0 ${18 * (1 - tk)})`);
+  if (M.cat) { const k = easeOut(prog(t, 5.7, 6.2)); M.cat.style.opacity = k; M.cat.setAttribute("transform", `translate(0 ${16 * (1 - k)})`); }
+  if (THEME.kinds[TARGET] === "percent") {
+    const k = back(prog(t, 2.85, 3.25));
+    focusText.setAttribute("transform", `translate(-8 -2) scale(${1 - 0.35 * k}) translate(8 2)`);
+    focusArrow.setAttribute("transform", `translate(0 ${8 * k})`);
+  }
 };
 window.ready.then(() => render(0));
 </script>

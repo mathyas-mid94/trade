@@ -199,6 +199,14 @@ const D = (() => {
       el("circle", { ...line, fill: C.accent, cx: 28, cy: 42, r: 13 }, g);
       return g;
     },
+    percent(parent) {   // taux d'imposition qui baisse
+      const g = el("g", {}, parent);
+      el("path", { ...line, fill: C.paperDeep, d: "M-52 -56 L52 -56 L52 56 L-52 56 Z" }, g);
+      const t = el("text", { x: -8, y: 30, "text-anchor": "middle", "font-family": "Serif", "font-weight": 600, "font-size": 92, fill: C.ink }, g);
+      t.textContent = "%";
+      el("path", { ...line, stroke: C.accent, "stroke-width": 7, d: "M36 -36 L36 34 M22 20 L36 36 L50 20" }, g);
+      return g;
+    },
     curve(parent) {
       const g = el("g", {}, parent);
       el("path", { ...line, fill: C.paperDeep, d: "M-58 -52 L58 -52 L58 52 L-58 52 Z" }, g);
