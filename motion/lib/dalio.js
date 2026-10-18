@@ -133,12 +133,15 @@ const D = (() => {
   };
 
   // grain de papier par-dessus tout
+  // Grain papier : texture calculée une seule fois (bruit pseudo-aléatoire à graine fixe, identique d'une image à l'autre)
+  // puis posée en image — bien plus rapide à rendre qu'un filtre SVG recalculé à chaque image.
   function paper(svg, w = 1920, h = 1080) {
-    const defs = el("defs", {}, svg);
-    const f = el("filter", { id: "grain", x: 0, y: 0, width: "100%", height: "100%" }, defs);
-    el("feTurbulence", { type: "fractalNoise", baseFrequency: 0.9, numOctaves: 2, seed: 3 }, f);
-    el("feColorMatrix", { values: "0 0 0 0 0.35  0 0 0 0 0.3  0 0 0 0 0.2  0 0 0 0.07 0" }, f);
-    return el("rect", { width: w, height: h, filter: "url(#grain)", "pointer-events": "none" }, svg);
+    const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+    const ctx = cv.getContext("2d"), img = ctx.createImageData(w, h);
+    let seed = 12345; const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+    for (let i = 0; i < w * h; i++) { const v = rnd(); img.data[i * 4] = 89; img.data[i * 4 + 1] = 77; img.data[i * 4 + 2] = 51; img.data[i * 4 + 3] = Math.round(v * v * 13); }
+    ctx.putImageData(img, 0, 0);
+    return el("image", { href: cv.toDataURL("image/png"), width: w, height: h, "pointer-events": "none" }, svg);
   }
 
   // Logo MIC redessiné en vectoriel (double cercle, "MIC" en serif, filet dessous), centré en cx,cy, rayon R

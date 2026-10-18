@@ -1,0 +1,76 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Serif;src:url(../../fonts/CormorantGaramond.ttf);font-weight:300 700}
+@font-face{font-family:Sans;src:url(../../fonts/Inter.ttf);font-weight:100 900}
+html,body{margin:0;background:#FBF7EC;overflow:hidden}
+svg{display:block}
+</style></head>
+<body>
+<!-- « L'assurance vie » — version longue (18 min) sur la voix de Mathyas (voix.m4a).
+     Chaque scène démarre à un instant précis de la voix (secondes, d'après le transcript horodaté).
+     Le corps commence à 7,9 s : les 8 premières secondes de la voix sont silencieuses, l'intro MIC y prend place. -->
+<svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect width="1920" height="1080" fill="#FBF7EC"/>
+  <g id="scenes"></g>
+</svg>
+<script src="../../lib/dalio.js"></script>
+<script src="../../lib/kit.js"></script>
+<script>
+const { C, el, prog, ease, easeOut, back, lerp } = D;
+const { pop, fade, out, place, show, txt, pill, card, coin, stack, envelope, padlock, vault, heart, shield, bank, icon, calendar, bars, chart, fmt, chapter } = K;
+const svg = document.getElementById("s"), root = document.getElementById("scenes");
+const START = 7.9, END = 1085.3, OV = 0.6;
+const SCENES = [];
+// SC(début en secondes dans la voix, numéro, titre du chapitre, build(g, at) -> render(t))  — t = temps absolu de la voix
+const SC = (at, num, title, build) => SCENES.push({ at, num, title, build });
+const draw = (p, a, b) => D.drawOn(p, a, b);
+// personnage : Mathyas = gilet teal
+const MATHYAS = { vest: C.inkSoft };
+function person(g, opts = {}) { return D.guy(g, opts); }
+function stand(guy, t, a, x, y, s = 1, flip = false, armL = 105, armR = 75) {
+  const k = pop(t, a);
+  guy.pose(armL, armR).place(x, y + Math.sin(t * 2.2 + x) * 2, s * k, flip);
+  guy.g.style.opacity = k > 0 ? 1 : 0;
+  return k;
+}
+function check(parent, ok = true) {
+  const g = el("g", {}, parent);
+  el("circle", { ...D.line, fill: ok ? C.accent : C.face, r: 30 }, g);
+  el("path", { ...D.line, "stroke-width": 7, d: ok ? "M-13 0 L-3 11 L15 -11" : "M-11 -11 L11 11 M11 -11 L-11 11" }, g);
+  return g;
+}
+function title(g, y, str, size = 54) { return txt(g, 960, y, str, size, { font: "Serif", weight: 500 }); }
+</script>
+<script src="scenes-a.js"></script>
+<script src="scenes-b.js"></script>
+<script src="scenes-c.js"></script>
+<script>
+// ---------- moteur ----------
+const RUN = [];
+window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fonts.load("700 100px Serif"), document.fonts.load("600 20px Sans"), document.fonts.load("800 20px Sans")]).then(() => {
+  SCENES.sort((a, b) => a.at - b.at);
+  SCENES.forEach((sc, i) => {
+    const end = i + 1 < SCENES.length ? SCENES[i + 1].at : END;
+    const g = el("g", {}, root);
+    chapter(g, sc.num, sc.title);
+    RUN.push({ g, at: sc.at, end, render: sc.build(g, sc.at) });
+  });
+  D.paper(svg);
+});
+window.DURATION = END - START;
+window.render = function (rt) {
+  const t = rt + START;
+  D.updateDraws(t);
+  RUN.forEach((r, i) => {
+    if (t < r.at || t > r.end + OV) { r.g.style.display = "none"; return; }
+    r.g.style.display = "";
+    const inK = i === 0 ? 1 : ease(prog(t, r.at, r.at + OV)), outK = i === RUN.length - 1 ? 0 : ease(prog(t, r.end, r.end + OV));
+    r.g.setAttribute("transform", `translate(${(1 - inK) * 260 - outK * 260} 0)`);
+    r.g.style.opacity = Math.min(inK, 1 - outK);
+    r.render(t);
+  });
+};
+window.ready.then(() => render(0));
+</script>
+</body></html>

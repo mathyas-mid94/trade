@@ -13,7 +13,8 @@ await page.goto("file://" + path.resolve(file) + (query !== undefined ? "?" + qu
 await page.evaluate(async () => { await document.fonts.ready; if (window.ready) await window.ready; });
 for (const t of times) {
   await page.evaluate(t => window.render(t), Number(t));
-  await page.screenshot({ path: path.join(outDir, `t${String(t).padStart(6, "0")}.png`) });
+  const jpg = process.env.FORMAT === "jpeg";
+  await page.screenshot(jpg ? { path: path.join(outDir, `t${String(t).padStart(6, "0")}.jpg`), type: "jpeg", quality: 95 } : { path: path.join(outDir, `t${String(t).padStart(6, "0")}.png`) });
 }
 await browser.close();
 console.log("ok", times.length, "captures");

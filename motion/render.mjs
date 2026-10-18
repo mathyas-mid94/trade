@@ -12,7 +12,9 @@ const fps = Number(fpsArg || 30);
 const WORKERS = Number(process.env.WORKERS || 4);
 const frames = path.join(path.dirname(out), ".frames");
 mkdirSync(frames, { recursive: true });
-const frameFile = i => path.join(frames, String(i).padStart(5, "0") + ".png");
+const FMT = process.env.FORMAT || "jpeg";   // jpeg (rapide) ou png
+const EXT = FMT === "png" ? "png" : "jpg";
+const frameFile = i => path.join(frames, String(i).padStart(5, "0") + "." + EXT);
 
 const [file, query] = src.split("?");
 const url = "file://" + path.resolve(file) + (query !== undefined ? "?" + query : "");
@@ -39,14 +41,14 @@ await Promise.all(pages.map(async page => {
     const i = todo[next++];
     await page.evaluate(t => window.render(t), i / fps);
     // écrit dans un fichier temporaire puis renomme : une image interrompue n'est jamais prise pour une image finie
-    const tmp = frameFile(i) + ".tmp.png";
-    await page.screenshot({ path: tmp });
+    const tmp = frameFile(i) + ".tmp." + EXT;
+    await page.screenshot(FMT === "png" ? { path: tmp } : { path: tmp, type: "jpeg", quality: 95 });
     execFileSync("mv", [tmp, frameFile(i)]);
     if (++done % 300 === 0) console.log(`${done}/${todo.length}`);
   }
 }));
 await browser.close();
-execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", String(fps), "-i", path.join(frames, "%05d.png"),
+execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", String(fps), "-i", path.join(frames, "%05d." + EXT),
   "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", out]);
 rmSync(frames, { recursive: true, force: true });
 console.log(`ok : ${out} (${n} images)`);
