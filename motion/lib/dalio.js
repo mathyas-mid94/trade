@@ -207,6 +207,29 @@ const D = (() => {
       el("path", { ...line, stroke: C.accent, "stroke-width": 7, d: "M36 -36 L36 34 M22 20 L36 36 L50 20" }, g);
       return g;
     },
+    receipt(parent) {   // ticket de caisse (dépenses)
+      const g = el("g", {}, parent);
+      let zz = ""; for (let i = 0; i <= 8; i++) zz += ` L${(40 - i * 10).toFixed(0)} ${i % 2 ? 50 : 60}`;
+      el("path", { ...line, fill: C.face, d: `M-40 -62 L40 -62 L40 60${zz} Z` }, g);
+      for (const [y, w] of [[-42, 50], [-26, 40], [-10, 50], [6, 32]]) el("path", { ...line, "stroke-width": 3, stroke: C.inkSoft, d: `M-26 ${y} L${-26 + w} ${y}` }, g);
+      el("path", { ...line, "stroke-width": 3, d: "M-26 24 L26 24" }, g);
+      const t = el("text", { x: 22, y: 45, "text-anchor": "middle", "font-family": "Serif", "font-weight": 700, "font-size": 26, fill: C.ink }, g);
+      t.textContent = "€";
+      return g;
+    },
+    piggy(parent) {     // tirelire (épargne)
+      const g = el("g", {}, parent);
+      el("path", { ...line, d: "M-56 -2 C-74 -6 -76 -24 -64 -26" }, g);                         // queue
+      el("path", { ...line, fill: C.accent, d: "M-24 32 L-24 52 L-8 52 L-8 34 Z M14 34 L14 52 L30 52 L30 32 Z" }, g);
+      el("ellipse", { ...line, fill: C.accent, cx: 0, cy: 0, rx: 58, ry: 42 }, g);
+      el("path", { ...line, fill: C.accent, d: "M-6 -38 L4 -62 L20 -36 Z" }, g);              // oreille
+      el("path", { ...line, fill: C.accentSoft, d: "M52 -14 Q72 -14 72 2 Q72 18 52 16 Z" }, g); // groin
+      el("circle", { cx: 30, cy: -12, r: 4.5, fill: C.ink }, g);
+      el("path", { ...line, "stroke-width": 5, d: "M-18 -30 L10 -30" }, g);                     // fente
+      const c = el("g", {}, g);                                                                  // pièce au-dessus
+      el("ellipse", { ...line, fill: C.accentSoft, cx: -4, cy: -58, rx: 16, ry: 6 }, c);
+      return g;
+    },
     curve(parent) {
       const g = el("g", {}, parent);
       el("path", { ...line, fill: C.paperDeep, d: "M-58 -52 L58 -52 L58 52 L-58 52 Z" }, g);

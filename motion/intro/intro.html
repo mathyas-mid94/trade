@@ -22,7 +22,16 @@ const CONFIG = { tagline: "" };
 const THEMES = {
   generique: { label: "", kinds: ["house", "pie", "coins", "contract", "curve"], labels: ["IMMOBILIER", "ALLOCATION", "ÉPARGNE", "CONTRATS", "MARCHÉS"] },
   defiscalisation: { label: "DÉFISCALISATION", kinds: ["house", "coins", "percent", "contract", "curve"],
-    labels: ["IMMOBILIER", "RETRAITE", "IMPÔTS", "CONTRATS", "PLACEMENTS"] },
+    labels: ["IMMOBILIER", "RETRAITE", "IMPÔTS", "CONTRATS", "PLACEMENTS"],
+    // sous la loupe : le "%" rétrécit et sa flèche pousse vers le bas (on fait baisser l'impôt)
+    react(f, k) { f.querySelector("text").setAttribute("transform", `translate(-8 -2) scale(${1 - 0.35 * k}) translate(8 2)`);
+      [...f.querySelectorAll("path")].pop().setAttribute("transform", `translate(0 ${8 * k})`); } },
+  budget: { label: "BUDGET", kinds: ["coins", "receipt", "pie", "piggy", "house"],
+    labels: ["REVENUS", "DÉPENSES", "BUDGET", "ÉPARGNE", "LOGEMENT"],
+    // sous la loupe : le camembert tourne et une part se détache (on découpe le budget)
+    react(f, k, t) { const parts = f.querySelectorAll("path"), a = 2.51;
+      f.firstElementChild.setAttribute("transform", `rotate(${120 * k})`);
+      parts[1].setAttribute("transform", `translate(${22 * k * Math.cos(a)} ${22 * k * Math.sin(a)})`); } },
 };
 const THEME = THEMES[new URLSearchParams(location.search).get("theme")] || THEMES.generique;
 const { C, el, prog, ease, easeOut, back, lerp } = D;
@@ -56,8 +65,7 @@ const hole = document.getElementById("lensHole");
 
 const mag = D.magnifier(world, 115);
 const TARGET = 2;   // l'icône sur laquelle la loupe s'arrête (celle du thème)
-// sous la loupe, l'icône cible réagit : le "%" rétrécit et sa flèche pousse vers le bas (on fait baisser l'impôt)
-const focus = rowB[TARGET].g, focusText = focus.querySelector("text"), focusArrow = [...focus.querySelectorAll("path")].pop();
+const focus = rowB[TARGET].g;   // sous la loupe, l'icône cible réagit (THEME.react)
 const sparks = [];
 for (let i = 0; i < 8; i++) {
   const a = -Math.PI * 0.95 + i * 0.25, r0 = 140, r1 = 175 + (i % 2) * 18;
@@ -159,11 +167,7 @@ window.render = function (t) {
   const tk = ease(prog(t, 6.1, 6.6));
   M.tag.style.opacity = tk; M.tag.setAttribute("transform", `translate(0 ${18 * (1 - tk)})`);
   if (M.cat) { const k = easeOut(prog(t, 5.7, 6.2)); M.cat.style.opacity = k; M.cat.setAttribute("transform", `translate(0 ${16 * (1 - k)})`); }
-  if (THEME.kinds[TARGET] === "percent") {
-    const k = back(prog(t, 2.85, 3.25));
-    focusText.setAttribute("transform", `translate(-8 -2) scale(${1 - 0.35 * k}) translate(8 2)`);
-    focusArrow.setAttribute("transform", `translate(0 ${8 * k})`);
-  }
+  if (THEME.react) THEME.react(focus, back(prog(t, 2.85, 3.25)), t);
 };
 window.ready.then(() => render(0));
 </script>

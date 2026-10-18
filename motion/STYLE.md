@@ -70,4 +70,8 @@ Pour une nouvelle vidéo, on le recale pour que son impact (à 7,4 s dans le fic
 - Intro et outro acceptent `?theme=<catégorie>` (objet `THEMES` en haut de chaque fichier) :
   icônes, étiquettes, mention de la catégorie sous le logo.
 - Intro : la loupe s'arrête toujours sur l'icône du milieu (index 2) → le timing et le son ne bougent pas.
-- Thèmes existants : `generique`, `defiscalisation` (icône « % » qui rétrécit sous la loupe ; outro : parapluie contre la pluie d'impôts).
+- Thèmes existants :
+  - `generique`
+  - `defiscalisation` : le « % » rétrécit sous la loupe ; outro : parapluie contre la pluie d'impôts
+  - `budget` : revenus, dépenses, budget, épargne, logement ; sous la loupe le camembert tourne et une part se détache
+- Ajouter un thème = une entrée dans `THEMES` (icônes, étiquettes, mention, et `react(f, k)` pour l'effet sous la loupe).

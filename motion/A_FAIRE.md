@@ -4,7 +4,7 @@
 L'intro générique (`intro/intro.html`, la loupe) doit être déclinée par thème :
 la loupe s'arrête sur l'icône du thème, et les étiquettes peuvent changer.
 - [ ] Immobilier
-- [ ] Budget
+- [x] Budget — intro faite (`intro/budget/intro_budget.mp4`)
 - [ ] Location
 - [ ] Épargne
 - [x] Défiscalisation — intro faite (`intro/defiscalisation/intro_defiscalisation.mp4`)
