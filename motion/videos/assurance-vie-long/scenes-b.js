@@ -24,11 +24,11 @@ SC(262, "07", "LA FISCALITÉ", (g, at) => {
     const sk = prog(t, 269.6, 270.0); place(stamp, 1300, lerp(380, 600, ease(sk)), (t > 269.4 ? 1 : 0) * p1 * (sk < 1 ? 1 : 1 + 0.1 * Math.sin(prog(t, 270, 270.3) * Math.PI)));
     place(free.g, free.x, free.y, pop(t, 270.6) * p1); place(taxed.g, taxed.x, taxed.y, pop(t, 271.4) * p1);
     const p2 = t > 272.6;
-    const wa = (X8 - X0 - 10) * ease(prog(t, 274.0, 275.4)), wb = (X1 - X8) * ease(prog(t, 277.6, 279.0));
+    const wa = (X8 - X0 - 10) * ease(prog(t, 274.0, 275.4)), wb = (X1 - X8) * ease(prog(t, 279.0, 280.4));
     segA.setAttribute("width", wa); segA.style.opacity = p2 && wa > 1 ? 1 : 0; segB.setAttribute("width", wb); segB.style.opacity = p2 && wb > 1 ? 1 : 0;
-    tA.style.opacity = p2 ? fade(t, 275.2) : 0; tB.style.opacity = p2 ? fade(t, 278.8) : 0;
-    show(hA, p2 ? fade(t, 275.6) : 0); show(hB, p2 ? fade(t, 279.4) : 0); y0.style.opacity = p2 ? fade(t, 274) : 0; y8.style.opacity = p2 ? fade(t, 277.6) : 0;
-    place(flat.g, flat.x, flat.y, p2 ? pop(t, 287.0) : 0); place(abat.g, abat.x, abat.y, p2 ? pop(t, 299.4) : 0);
+    tA.style.opacity = p2 ? fade(t, 275.2) : 0; tB.style.opacity = p2 ? fade(t, 280.2) : 0;
+    show(hA, p2 ? fade(t, 275.6) : 0); show(hB, p2 ? fade(t, 280.6) : 0); y0.style.opacity = p2 ? fade(t, 274) : 0; y8.style.opacity = p2 ? fade(t, 279.0) : 0;
+    place(flat.g, flat.x, flat.y, p2 ? pop(t, 277.0) : 0); place(abat.g, abat.x, abat.y, p2 ? pop(t, 282.4) : 0);
     // on peut entrer et sortir : c'est l'âge du contrat qui compte
     const ru = ease(prog(t, 302.0, 306.0)) * 0.62 + ease(prog(t, 307.4, 309.4)) * 0.38;
     place(runner, lerp(X0, X8, ru), Y - 160 + 0 * ru, t > 301.6 ? pop(t, 301.6) : 0, 0);

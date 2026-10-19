@@ -24,7 +24,13 @@ const START = 7.9, END = 1085.3, OV = 0.6;
 const SCENES = [];
 // SC(début en secondes dans la voix, numéro, titre du chapitre, build(g, at) -> render(t))  — t = temps absolu de la voix
 const SC = (at, num, title, build) => SCENES.push({ at, num, title, build });
-const draw = (p, a, b) => D.drawOn(p, a, b);
+// tracés progressifs rangés par scène (chaque scène a son propre temps, déformé pour suivre la voix)
+let DRAWS = null;
+const draw = (p, a, b) => { DRAWS.push({ p, a, b, len: p.getTotalLength() + 2 }); return p; };
+function updateDraws(list, t) {
+  for (const d of list) { const k = ease(prog(t, d.a, d.b));
+    d.p.setAttribute("stroke-dasharray", d.len); d.p.setAttribute("stroke-dashoffset", d.len * (1 - k)); d.p.style.opacity = k > 0 ? 1 : 0; }
+}
 // personnage : Mathyas = gilet teal
 const MATHYAS = { vest: C.inkSoft };
 function person(g, opts = {}) { return D.guy(g, opts); }
@@ -42,33 +48,54 @@ function check(parent, ok = true) {
 }
 function title(g, y, str, size = 54) { return txt(g, 960, y, str, size, { font: "Serif", weight: 500 }); }
 </script>
+<script src="anchors.js"></script>
+<script src="timing.js" onerror="window.TIMING = null"></script>
 <script src="scenes-a.js"></script>
 <script src="scenes-b.js"></script>
 <script src="scenes-c.js"></script>
 <script>
 // ---------- moteur ----------
+// Sans timing.js : temps de la voix d'origine (voix.m4a, le corps commence à 7,9 s).
+// Avec timing.js : chaque scène est calée sur la voix du script ; t = secondes dans la voix nettoyée.
 const RUN = [];
+const TIM = window.TIMING || null;
 window.ready = Promise.all([document.fonts.load("500 100px Serif"), document.fonts.load("700 100px Serif"), document.fonts.load("600 20px Sans"), document.fonts.load("800 20px Sans")]).then(() => {
   SCENES.sort((a, b) => a.at - b.at);
   SCENES.forEach((sc, i) => {
-    const end = i + 1 < SCENES.length ? SCENES[i + 1].at : END;
+    const oldEnd = i + 1 < SCENES.length ? SCENES[i + 1].at : END;
     const g = el("g", {}, root);
     chapter(g, sc.num, sc.title);
-    RUN.push({ g, at: sc.at, end, render: sc.build(g, sc.at) });
+    DRAWS = [];
+    const render = sc.build(g, sc.at);
+    let ns = sc.at - START, ne = oldEnd - START, pts = [[ns, sc.at], [ne, oldEnd]];
+    if (TIM) {
+      const part = TIM.parts[i], next = TIM.parts[i + 1];
+      ns = i === 0 ? 0 : part.start - 0.35; ne = next ? next.start - 0.35 : TIM.total;
+      pts = [[ns, sc.at]];
+      ANCHORS[i].forEach((o, k) => { const n = part.markers[k];
+        if (n != null && o > pts[pts.length - 1][1] && n > pts[pts.length - 1][0] + 0.05 && o < oldEnd && n < ne) pts.push([n, o]); });
+      pts.push([ne, Math.max(oldEnd, pts[pts.length - 1][1] + 0.5)]);
+    }
+    // temps "nouveau" (voix) -> temps "ancien" (écrit dans la scène), linéaire par morceaux
+    const warp = t => { if (t <= pts[0][0]) return pts[0][1] + (t - pts[0][0]);
+      for (let k = 1; k < pts.length; k++) if (t <= pts[k][0]) { const [n0, o0] = pts[k - 1], [n1, o1] = pts[k]; return o0 + (o1 - o0) * (t - n0) / (n1 - n0); }
+      const [n1, o1] = pts[pts.length - 1]; return o1 + (t - n1); };
+    RUN.push({ g, ns, ne, warp, render, draws: DRAWS });
   });
+  window.DURATION = TIM ? TIM.total + 1.0 : END - START;
   D.paper(svg);
 });
 window.DURATION = END - START;
-window.render = function (rt) {
-  const t = rt + START;
-  D.updateDraws(t);
+window.render = function (t) {
   RUN.forEach((r, i) => {
-    if (t < r.at || t > r.end + OV) { r.g.style.display = "none"; return; }
+    if (t < r.ns || t > r.ne + OV) { r.g.style.display = "none"; return; }
     r.g.style.display = "";
-    const inK = i === 0 ? 1 : ease(prog(t, r.at, r.at + OV)), outK = i === RUN.length - 1 ? 0 : ease(prog(t, r.end, r.end + OV));
+    const inK = i === 0 ? 1 : ease(prog(t, r.ns, r.ns + OV)), outK = i === RUN.length - 1 ? 0 : ease(prog(t, r.ne, r.ne + OV));
     r.g.setAttribute("transform", `translate(${(1 - inK) * 260 - outK * 260} 0)`);
     r.g.style.opacity = Math.min(inK, 1 - outK);
-    r.render(t);
+    const to = r.warp(t);
+    updateDraws(r.draws, to);
+    r.render(to);
   });
 };
 window.ready.then(() => render(0));

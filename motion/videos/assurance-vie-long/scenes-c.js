@@ -83,7 +83,7 @@ SC(710, "12", "UN RÉSEAU D'ASSUREURS", (g, at) => {
   return t => {
     place(logo, 960, 540, pop(t, 710.4, 0.5));
     nodes.forEach(n => place(n.b, n.x, n.y + 30, pop(t, n.a) * 0.42));
-    place(code.g, code.x, code.y, pop(t, 715.6) * out(t, 744.6)); place(lux.g, lux.x, lux.y, pop(t, 735.6));
+    place(code.g, code.x, code.y, pop(t, 715.6) * out(t, 744.6)); place(lux.g, lux.x, lux.y, pop(t, 713.0));
     place(isr, 1500, 860, pop(t, 747.0) * 1.0); place(isrL.g, isrL.x, isrL.y, pop(t, 747.4));
   };
 });
@@ -213,7 +213,7 @@ SC(914, "15", "LE CAP : LE S&P 500", (g, at) => {
     place(ch.g, X, Y, p2 ? pop(t, 933.0, 0.5) : 0);
     place(pct.g, pct.x, pct.y, p2 ? pop(t, 937.4) : 0);
     crash.forEach(c => place(c.p.g, c.p.x, c.p.y, p2 ? pop(t, c.a) : 0));
-    show(up, p2 ? fade(t, 947.4) : 0); note.style.opacity = p2 ? 1 : 0;
+    show(up, p2 ? fade(t, 952.4) : 0); note.style.opacity = p2 ? 1 : 0;
   };
 });
 
