@@ -42,3 +42,6 @@ Même chose pour l'outro : une variante par catégorie.
         de 7,5 % peut aussi s'appliquer selon les cas) → l'écran affiche seulement « à un taux réduit »
       - S&P 500 « 12,2 % par an » (chiffre de la slide), courbe reconstruite à partir des rendements annuels publics
       - Logos des assureurs partenaires non repris (marques) : réseau dessiné de façon générique
+
+- [ ] Script v2 « plus parlé » (`SCRIPT.md`, mêmes 30 parties et repères ; v1 conservée dans `SCRIPT_v1.md`,
+      c'est celle de la vidéo v2 et de timing.js). Si l'utilisateur réenregistre : transcribe.py puis align.py avec SCRIPT.md, puis build.sh.

@@ -1,208 +1,207 @@
-# L'assurance vie — version longue · script voix off
+# L'assurance vie — version longue · script voix off (v2, plus parlé)
 
-Ton : posé, chaleureux, pédagogue, phrases courtes (style Ray Dalio). Vouvoiement.
-Débit visé : ~150 mots/min → ~15 min de voix.
-Les repères `[n]` indiquent le mot sur lequel l'image correspondante doit apparaître ;
-ils ne sont pas lus. Après génération de la voix (avec horodatage des mots), l'animation se cale dessus.
+Ton : comme une conversation avec un ami, posé et souriant. Vouvoiement, mais chaleureux.
+Les repères `[n]` indiquent le mot sur lequel l'image correspondante apparaît ; ils ne sont pas lus.
+Même structure que la v1 : 30 parties, mêmes repères dans le même ordre (les animations ne changent pas).
 
 ---
 
 ## 00 · Introduction
-« Quel est le meilleur contrat pour investir ? » [1]
-Le PEA [2] ? Le compte-titres [3] ? L'assurance vie [4] ?
-La vérité, c'est qu'aucun n'est meilleur que les autres. [5] Chacun a sa raison d'être dans un patrimoine.
-Aujourd'hui, on se concentre sur l'un d'eux : l'assurance vie. [6]
-Vous en avez peut-être déjà une, ouverte dans votre banque [7] ou chez votre assureur. [8]
-Ensemble, on va voir comment elle fonctionne vraiment, ce qui va… [9] et ce qui ne va pas [10] dans votre contrat actuel.
-C'est un produit riche, alors on lui consacrera plusieurs épisodes. [11]
-Dans ce premier épisode : son fonctionnement, simplement. [12]
+On me pose souvent la question : « Mathyas, c'est quoi, le meilleur contrat pour investir ? » [1]
+Le PEA ? [2] Le compte-titres ? [3] L'assurance vie ? [4]
+Et ma réponse, c'est toujours la même : il n'y en a pas un meilleur que les autres. [5] Chacun a son rôle dans un patrimoine.
+Aujourd'hui, on va parler de celui que tout le monde connaît… mais que peu de gens comprennent vraiment : l'assurance vie. [6]
+D'ailleurs, vous en avez peut-être déjà une. Ouverte à la banque, [7] ou chez votre assureur. [8]
+Alors on va regarder ensemble comment ça marche, ce qui est bien… [9] et ce qui l'est moins [10] dans votre contrat.
+Il y a beaucoup à dire, donc on va découper ça en plusieurs vidéos. [11]
+Dans celle-ci, on pose les bases : comment ça fonctionne, tout simplement. [12]
 
 ## 01 · Les 3 objectifs
-L'assurance vie répond à trois grands objectifs.
-Faire fructifier une épargne qui dort. [1]
-Protéger ses proches. [2]
-Et profiter d'une fiscalité avantageuse. [3]
+Une assurance vie, ça sert à trois choses.
+Faire travailler une épargne qui dort. [1]
+Protéger les gens qu'on aime. [2]
+Et payer moins d'impôts sur ce qu'on gagne. [3]
 
 ## 02 · Faire fructifier son épargne
-Commençons par le premier.
-Aujourd'hui, la plupart des Français laissent leur épargne sur des livrets : [1] livret A, LDD, PEL, CEL. [2]
-C'est sécurisé, mais la rentabilité est faible. [3]
-L'assurance vie, elle, permet de passer [4] à une rentabilité bien plus attractive. [5]
-C'est un véritable véhicule d'investissement. [6]
-Votre épargne, jusqu'ici inactive, [7] devient une épargne active. [8]
-Et vous choisissez votre façon de faire : une gestion passive, [9] où l'on vous accompagne sans que vous ayez à intervenir… ou une gestion active, [10] où l'on ajuste les placements au fil du temps : ce sont les arbitrages.
+Commençons par le premier point.
+Aujourd'hui, la plupart des Français gardent leur épargne sur des livrets : [1] le livret A, le LDD, le PEL, le CEL… [2]
+C'est rassurant, oui. Mais ça rapporte très peu. [3]
+L'assurance vie, elle, vous permet de passer à la vitesse supérieure, [4] avec une rentabilité bien plus intéressante. [5]
+C'est un vrai véhicule d'investissement. [6]
+En clair : votre argent qui dormait [7] se met enfin au travail. [8]
+Et vous choisissez comment. Soit vous laissez faire, c'est la gestion passive, [9] on s'occupe de tout pour vous. Soit vous voulez que ça bouge, c'est la gestion active : [10] on ajuste vos placements au fil du temps. C'est ce qu'on appelle les arbitrages.
 
 ## 03 · Alimenter l'enveloppe
-Concrètement, l'assurance vie est une enveloppe. [1]
-Vous pouvez l'alimenter par des versements réguliers, [2] chaque mois par exemple…
-ou par des versements libres, [3] quand vous le souhaitez.
-Le principe est simple : vos revenus, [4] moins vos dépenses, [5] c'est ce qui reste. [6]
-Et ce reste, au lieu de dormir, vous le placez dans l'enveloppe. [7]
-Ce capital [8] va générer des intérêts. [9] Et ces intérêts, en restant investis, vont à leur tour en générer d'autres. [10]
-Mais l'assurance vie a aussi des avantages que les livrets n'ont pas. [11]
+Concrètement, une assurance vie, c'est une enveloppe. [1]
+Vous pouvez y mettre de l'argent tous les mois, de façon automatique, [2]
+ou quand vous voulez, quand vous avez un peu de côté. [3]
+C'est comme votre budget : il y a ce qui rentre, [4] il y a ce qui sort, [5] et il y a ce qui reste. [6]
+Eh bien ce qui reste, au lieu de le laisser traîner sur un compte, vous le mettez dans l'enveloppe. [7]
+Cet argent, c'est votre capital. [8] Il va produire des intérêts. [9] Et ces intérêts, à leur tour, vont en produire d'autres. [10]
+Mais l'assurance vie, ce n'est pas qu'un livret qui rapporte plus. Elle a d'autres atouts. [11]
 
 ## 04 · Disponible à tout moment
-Premier avantage, et contrairement à une idée reçue : votre argent n'est pas bloqué. [1]
-Vous pouvez verser [2] et retirer [3] quand vous le voulez.
-C'est un peu moins rapide qu'un livret A, c'est vrai : [4] comptez en général de trois à dix jours [5] pour récupérer vos fonds, parfois un mois chez certains assureurs. [6]
-Mais il n'y a aucune condition particulière : [7] l'épargne reste disponible.
+Premier atout, et c'est une idée reçue qui a la vie dure : non, votre argent n'est pas bloqué. [1]
+Vous pouvez en mettre [2] et en retirer [3] quand vous le souhaitez.
+D'accord, c'est un peu moins rapide qu'un livret A : [4] comptez entre trois et dix jours pour récupérer vos fonds, [5] parfois un mois chez les assureurs les plus lents. [6]
+Mais il n'y a aucune condition, aucune pénalité : [7] cet argent reste le vôtre, disponible.
 
 ## 05 · Hors droits de succession
-Deuxième avantage : la succession. [1]
+Deuxième atout, et pas des moindres : la transmission. [1]
 L'assurance vie est l'une des rares épargnes qui échappe en grande partie aux droits de succession. [2]
-Au décès, les bénéficiaires que vous avez désignés [3] peuvent recevoir, pour les versements faits avant 70 ans, jusqu'à 152 500 euros [4] chacun, [5] sans payer de droits de succession.
-C'est un véritable coup de pouce pour vos proches. [6]
+Le jour où vous partez, les personnes que vous avez choisies [3] peuvent recevoir jusqu'à 152 500 euros, [4] chacune, [5] sans payer de droits — pour tout ce que vous avez versé avant vos 70 ans.
+Pour vos proches, ça change tout. [6]
 
 ## 05 · Insaisissable
-Troisième avantage : l'assurance vie est, en principe, insaisissable. [1]
-Si demain vous rencontrez une difficulté avec un créancier, [2] cette épargne est protégée. [3]
-Personne ne peut venir y piocher. [4] C'est votre capital privé.
+Troisième atout, moins connu : en principe, l'assurance vie est insaisissable. [1]
+Si un jour vous avez un souci avec un créancier, [2] cet argent est protégé. [3]
+Personne ne peut venir se servir. [4] C'est votre capital, point.
 
 ## 06 · Le nantissement
-Et pourtant, vous pouvez vous en servir comme garantie. C'est le nantissement. [1]
-Imaginons que vous ayez un projet : acheter votre résidence principale, [2] investir dans l'immobilier, [3] ou lancer une entreprise. [4]
-Vous allez voir votre banque, [5] et vous lui proposez de nantir votre assurance vie : [6] elle est déposée en garantie. [7]
+Et pourtant, vous pouvez vous en servir pour obtenir un crédit. Ça s'appelle le nantissement. [1]
+Imaginons : vous voulez acheter votre résidence principale, [2] faire un investissement immobilier, [3] ou lancer votre entreprise. [4]
+Vous allez voir votre banque, [5] et vous lui proposez de nantir votre assurance vie. [6] En clair, vous la mettez en garantie. [7]
 
 ## 06 · Le nantissement · le crédit
-Résultat : l'accès au crédit est facilité. [1]
-Le dossier est plus simple à monter, et l'apport demandé [2] peut être réduit. [3]
-Pendant ce temps, votre assurance vie continue de travailler. [4] Vous pouvez toujours verser, et vos placements continuent de tourner. [5]
-Seule condition : si vous ne remboursez plus votre crédit, [6] la banque peut alors la saisir. [7]
+Et là, tout devient plus facile : la banque est rassurée, le crédit passe mieux. [1]
+Votre dossier est plus solide, et on vous demande souvent un apport [2] beaucoup plus petit. [3]
+Pendant ce temps, votre assurance vie continue de vivre. [4] Vous pouvez toujours verser dedans, vos placements continuent de tourner. [5]
+La seule règle : si un jour vous ne remboursez plus votre crédit, [6] la banque peut récupérer cette garantie. [7]
 
 ## 07 · La fiscalité
-Parlons fiscalité. Dans une assurance vie, ce n'est pas votre capital qui est imposé, [1] ce sont seulement les intérêts, [2] et uniquement au moment où vous retirez. [3]
-Il existe deux régimes. [4]
-Avant 8 ans, [5] c'est la fiscalité classique : [6] la flat tax, soit 31,4 % sur les intérêts retirés. [7]
-Après 8 ans, [8] la fiscalité devient avantageuse : [9] vos intérêts bénéficient d'un abattement chaque année. [10]
-Et c'est l'âge du contrat qui compte, pas celui de chaque versement. [11] Un contrat ouvert tôt prend de la valeur avec le temps. [12]
+Parlons impôts, maintenant. Bonne nouvelle : votre capital, lui, n'est jamais taxé. [1] Ce sont seulement les intérêts [2] qui le sont, et uniquement quand vous les retirez. [3]
+Et là, il y a deux cas. [4]
+Si votre contrat a moins de 8 ans, [5] c'est la fiscalité classique : [6] la flat tax, 31,4 % sur les intérêts que vous retirez. [7]
+S'il a plus de 8 ans, [8] ça devient beaucoup plus doux : [9] chaque année, une partie de vos intérêts n'est pas taxée du tout. C'est l'abattement. [10]
+Et attention, c'est l'âge du contrat qui compte, pas celui de vos versements. [11] Donc un contrat ouvert tôt, même avec trois fois rien, c'est un contrat qui prend de la valeur. [12]
 
 ## 07 · L'abattement · exemple
-Prenons un exemple. [1]
-Vous avez investi 20 000 euros. [2] Ils ont généré 10 000 euros d'intérêts. [3]
-Après 8 ans, vous bénéficiez d'un abattement annuel : 4 600 euros pour une personne seule, [4] 9 200 euros pour un couple marié ou pacsé. [5]
-Pour un couple, on retire donc 9 200 euros des 10 000 euros d'intérêts. [6]
-Il ne reste que 800 euros imposables, [7] à un taux réduit. [8]
+Prenons un exemple concret. [1]
+Vous avez mis 20 000 euros. [2] Avec le temps, ils ont rapporté 10 000 euros d'intérêts. [3]
+Après 8 ans, vous avez droit à un abattement chaque année : 4 600 euros si vous êtes seul, [4] 9 200 euros si vous êtes marié ou pacsé. [5]
+Pour un couple, on enlève donc 9 200 euros de ces 10 000 euros d'intérêts. [6]
+Résultat : il ne reste que 800 euros sur lesquels payer quelque chose, [7] et à un taux réduit. [8]
 
 ## 08 · Deux poches
-Comment votre argent est-il investi ? Imaginez un jean, avec deux poches. [1]
-Dans la poche de gauche : le fonds euros. [2]
-Votre capital y est garanti par l'assureur, [3] le plus souvent à 100 %.
-Il est investi principalement en obligations et en immobilier, [4] pour un rendement généralement compris entre 2 et 4 % par an. [5]
-Dans la poche de droite : les unités de compte. [6]
-C'est elles qui font fructifier votre épargne, [7] avec un large choix de placements : obligations, [8] immobilier, ETF, actions, SCPI, produits structurés, OPCVM, ou encore capital-investissement. [9]
-Une poche pour sécuriser, [10] une poche pour faire fructifier. Et pour atteindre ses objectifs, [11] il est souvent intéressant de pencher du côté qui fait fructifier.
+Mais au fait, où va votre argent, à l'intérieur ? Imaginez un jean, avec deux poches. [1]
+Dans la poche de gauche, il y a le fonds euros. [2]
+Là, votre argent est garanti par l'assureur, [3] le plus souvent à 100 %.
+Il est placé surtout en obligations et en immobilier, [4] et rapporte en général entre 2 et 4 % par an. [5]
+Dans la poche de droite, il y a les unités de compte. [6]
+C'est la poche qui fait grandir votre épargne, [7] avec énormément de choix : des obligations, [8] de l'immobilier, des ETF, des actions, des SCPI, des produits structurés, des OPCVM, du capital-investissement… [9]
+Une poche pour dormir tranquille, [10] une poche pour avancer. Et si vous avez des projets, [11] mon conseil, c'est souvent de mettre un peu plus dans la poche qui avance.
 
 ## 09 · De votre vivant
-Résumons les atouts de l'assurance vie. De votre vivant, [1] elle est disponible : [2] vous pouvez retirer à tout moment.
-Elle n'a pas de plafond, [3] contrairement au livret A, limité à 22 950 euros. [4]
-Et elle combine sécurité et potentiel, [5] grâce au fonds euros et aux unités de compte.
+Faisons le point. De votre vivant, [1] l'assurance vie, c'est de l'argent disponible : [2] vous pouvez retirer quand vous voulez.
+C'est une épargne sans plafond, [3] alors que le livret A, lui, s'arrête à 22 950 euros. [4]
+Et c'est à la fois de la sécurité et du potentiel, [5] grâce à ses deux poches.
 
 ## 09 · Au décès
-Au moment du décès, [1] elle joue aussi un rôle précieux.
-Jusqu'à 152 500 euros par bénéficiaire, hors droits de succession, [2] et un capital versé rapidement, en général sous un mois. [3]
-Surtout, vous choisissez librement vos bénéficiaires : [4] un cousin, [5] un frère, une tante… [6] peu importe le lien de parenté. Enfin, presque : pas votre chien. [7]
-Et si vous le souhaitez, c'est aussi un moyen d'écarter quelqu'un de cette épargne. [8]
+Et le jour où vous n'êtes plus là, [1] elle continue de protéger les vôtres.
+Jusqu'à 152 500 euros par personne, sans droits de succession, [2] et un argent versé vite, en général en moins d'un mois. [3]
+Surtout, c'est vous qui choisissez qui reçoit : [4] un cousin, [5] un frère, une tante… [6] qui vous voulez. Bon, enfin, pas votre chien. [7]
+Et si vous préférez que quelqu'un ne touche pas à cet argent, c'est possible aussi. [8]
 
 ## 09 · Et les livrets bancaires ?
-Comparez avec un livret bancaire. [1]
-Au décès, il suit les règles classiques de la succession : [2] les fonds restent bloqués [3] jusqu'au règlement chez le notaire, [4] ce qui peut prendre des mois. [5]
-Mieux vaut prévenir que guérir. [6]
+Comparez avec un livret à la banque. [1]
+Au décès, il suit la succession classique : [2] l'argent est bloqué [3] jusqu'à ce que tout soit réglé chez le notaire, [4] et ça peut prendre des mois. [5]
+Comme on dit : mieux vaut prévenir que guérir. [6]
 
 ## 10 · Simulations
-Passons aux chiffres. [1]
-Imaginons que vous investissiez 250 euros par mois, [2] pendant 20 ans, [3] avec un rendement de 5 % par an, [4] ce qui reste une hypothèse prudente.
-Au bout de 20 ans, [5] votre capital atteint environ 101 800 euros, [6] dont plus de 41 000 euros d'intérêts. [7]
-Avec 500 euros par mois, [8] c'est le double : plus de 203 000 euros, [9] dont 83 000 euros d'intérêts.
+Allez, on passe aux chiffres. [1]
+Imaginez que vous mettez 250 euros par mois, [2] pendant 20 ans, [3] avec un rendement de 5 % par an, [4] ce qui reste raisonnable.
+Au bout de ces 20 ans, [5] vous avez un peu plus de 100 000 euros, [6] dont plus de 41 000 euros d'intérêts, juste grâce au temps. [7]
+Et si vous mettez 500 euros par mois, [8] c'est le double : plus de 200 000 euros, [9] dont 83 000 euros d'intérêts.
 
 ## 10 · Simulations · capital de départ
-Et si vous partez d'une somme déjà épargnée ? Disons 15 000 euros. [1]
-Placés à 5 % pendant 20 ans, sans rien ajouter, [2] ils génèrent plus de 24 000 euros d'intérêts. [3]
-Votre capital atteint alors près de 39 800 euros. [4]
-Même sur 4 ans, [5] c'est déjà plus de 3 000 euros de gagnés.
-Plus le rendement est élevé, [6] plus les intérêts sont importants.
-Et en combinant un capital de départ avec des versements réguliers, 15 000 euros puis 400 euros par mois, [7] vous allez beaucoup plus vite vers vos objectifs. [8]
+Et si vous avez déjà un peu d'argent de côté ? Mettons 15 000 euros. [1]
+Vous les placez à 5 % pendant 20 ans, et vous n'y touchez plus. [2] Ces 15 000 euros vont produire plus de 24 000 euros d'intérêts. [3]
+Vous vous retrouvez avec près de 40 000 euros, [4] sans avoir rien rajouté.
+Et même sur 4 ans seulement, [5] vous gagnez déjà plus de 3 000 euros.
+Bien sûr, plus le rendement est élevé, [6] plus ça grimpe vite.
+Et si vous combinez les deux, 15 000 euros au départ puis 400 euros par mois, [7] là, vous allez beaucoup plus vite vers vos projets. [8]
 
 ## 10 · Compte-titres ou assurance vie ?
-Un point d'attention. [1] Beaucoup de personnes investissent sur un compte-titres, [2] alors qu'elles pourraient détenir les mêmes ETF et les mêmes actions [3] dans une assurance vie, avec une fiscalité bien plus avantageuse. [4]
-Soyez vigilant sur ce point. [5]
+Petit point d'attention au passage. [1] Beaucoup de gens investissent sur un compte-titres, [2] alors qu'ils pourraient avoir exactement les mêmes ETF, les mêmes actions [3] dans une assurance vie… et payer beaucoup moins d'impôts. [4]
+Donc vraiment, regardez bien ça. [5]
 
 ## 11 · Les frais
-Un autre élément pèse lourd : les frais. [1]
-Les contrats proposés en banque [2] en comportent souvent beaucoup. [3]
-Et ces frais grignotent votre performance année après année. [4]
-C'est pourquoi la politique de frais doit être simple et claire. [5]
+Autre sujet important, et on n'en parle pas assez : les frais. [1]
+Les contrats qu'on trouve en banque [2] en ont souvent beaucoup. [3]
+Et ces frais, année après année, mangent une bonne partie de votre performance. [4]
+Pour moi, une politique de frais, ça doit être simple et clair. [5]
 
 ## 11 · La politique de frais MIC
-Chez MIC, [1] les frais rémunèrent un vrai service : une gestion libre ou pilotée, [2] un conseil en allocation sur mesure, [3] et une assistance fiscale et administrative. [4]
-En contrepartie : zéro frais d'entrée, [5] zéro frais de dossier, [6] zéro frais d'arbitrage. [7]
+Chez MIC, [1] les frais, ils servent à payer un vrai service : une gestion libre ou pilotée, [2] des conseils sur mesure pour répartir votre argent, [3] et un coup de main sur la fiscalité et la paperasse. [4]
+Et à côté de ça : zéro frais d'entrée, [5] zéro frais de dossier, [6] zéro frais d'arbitrage. [7]
 
 ## 11 · Les frais de gestion
-Seuls restent les frais de gestion, autour de 1 % par an. [1]
-C'est le frais le plus juste, [2] car il rémunère la gestion qui crée la performance.
-Par exemple, si votre contrat génère 10 % de performance, [3] 1 % est prélevé, [4] et il vous reste 9 % nets. [5]
-Ce 1 % est partagé entre l'assureur et le conseiller. [6]
+Il ne reste que les frais de gestion, autour de 1 % par an. [1]
+Et ça, honnêtement, c'est le frais le plus juste, [2] parce qu'il paie la gestion, celle qui fait la performance.
+Par exemple, si votre contrat fait 10 % sur l'année, [3] on prélève 1 %, [4] et il vous reste 9 % nets. [5]
+Et ce 1 % est partagé entre l'assureur et le conseiller. [6]
 
 ## 12 · Un réseau d'assureurs
-Pour vous proposer les meilleurs contrats, MIC travaille avec un large réseau d'assureurs, [1] de grandes compagnies françaises, [2] et même luxembourgeoises. [3]
-Pourquoi des assureurs plutôt que des banques ? [4] Parce que les contrats relèvent du code des assurances, [5] qui offre de nombreux avantages.
-L'objectif : trouver le contrat le plus adapté à vos besoins, [6] y compris si vous souhaitez privilégier l'investissement responsable. [7]
+Pour trouver le bon contrat, MIC travaille avec tout un réseau d'assureurs : [1] de grandes compagnies françaises, [2] et même des contrats luxembourgeois. [3]
+Pourquoi des assureurs plutôt que des banques ? [4] Parce que leurs contrats dépendent du code des assurances, [5] qui est souvent plus avantageux pour vous.
+L'idée, c'est de trouver le contrat qui vous correspond, à vous, [6] y compris si vous tenez à investir de façon responsable. [7]
 
 ## 13 · Deux façons d'investir · le versement unique
-Il existe deux façons d'investir. [1]
-Le versement unique, [2] ou les versements programmés. [3]
-Avec le versement unique, aussi appelé lump sum, [4] tout votre capital est investi d'un seul coup. [5]
-Il travaille dès le premier jour. [6]
-Mais si le marché baisse juste après votre entrée, [7] vous la subissez immédiatement.
-Sur le long terme, pourtant, les marchés montent : [8] l'être humain innove, se réinvente, et les entreprises progressent. [9]
+Maintenant, comment on investit ? Il y a deux façons de faire. [1]
+Tout mettre d'un coup, [2] ou y aller petit à petit. [3]
+Tout mettre d'un coup, c'est ce qu'on appelle le lump sum : [4] votre capital entre sur les marchés en une seule fois. [5]
+L'avantage, c'est qu'il travaille dès le premier jour. [6]
+L'inconvénient, c'est que si les marchés baissent juste après, [7] vous le sentez tout de suite.
+Mais sur le long terme, les marchés montent : [8] l'être humain invente, se réinvente, et les entreprises avancent. [9]
 
 ## 13 · Deux façons d'investir · le DCA
-Les versements programmés, eux, permettent de lisser tout cela. [1]
-C'est la méthode DCA : vous investissez le même montant, [2] à intervalles réguliers, [3] quel que soit le prix du marché.
-Votre prix d'achat est lissé, [4] et les baisses ont moins d'impact. [5]
-Alors, laquelle choisir ? [6] Statistiquement, le versement unique est un peu plus rentable. [7] Mais les deux fonctionnent. [8]
-Une bonne approche consiste à combiner les deux : [9] un versement ponctuel chaque trimestre, [10] et un versement programmé chaque mois. [11]
+L'autre méthode, c'est d'y aller petit à petit, pour lisser tout ça. [1]
+Ça s'appelle le DCA : vous investissez la même somme, [2] à intervalles réguliers, [3] peu importe que les marchés soient en haut ou en bas.
+Résultat, votre prix d'achat se lisse, [4] et les baisses font beaucoup moins mal. [5]
+Alors, laquelle est la meilleure ? [6] Sur le papier, le lump sum rapporte un peu plus. [7] Mais franchement, les deux marchent très bien. [8]
+Ce que j'aime bien, c'est de mélanger les deux : [9] un versement plus gros chaque trimestre, [10] et un petit versement automatique chaque mois. [11]
 
 ## 14 · Votre profil investisseur
-Tout dépend de votre profil investisseur. [1] Vous pouvez d'ailleurs le découvrir grâce au test proposé sur le site de MIC. [2]
-Prudent, [3] vous privilégiez la stabilité, avec une majorité de fonds euros.
-Équilibré, [4] vous cherchez le juste milieu.
-Dynamique, [5] vous visez la performance, avec une majorité d'unités de compte.
+Après, tout dépend de vous, de votre profil d'investisseur. [1] Vous pouvez d'ailleurs faire le test sur le site de MIC, ça prend deux minutes. [2]
+Si vous êtes prudent, [3] vous privilégiez la sécurité, avec surtout du fonds euros.
+Si vous êtes équilibré, [4] vous cherchez le juste milieu.
+Et si vous êtes dynamique, [5] vous visez la performance, avec surtout des unités de compte.
 
 ## 14 · Déléguer ou garder la main ?
-Reste à choisir votre mode de gestion. [1]
-La gestion pilotée par l'assureur, [2] la gestion sous mandat, [3] confiée à une société de gestion partenaire, ou la gestion libre, [4] où vous gardez la main, [5] avec un conseil pour choisir les bons supports et faire les bons arbitrages.
-La gestion libre offre une grande liberté, [6] mais elle demande du temps et du sang-froid. [7]
+Reste une question : est-ce que vous déléguez, ou est-ce que vous gardez la main ? [1]
+Vous pouvez confier la gestion à l'assureur, c'est la gestion pilotée, [2] ou à une société de gestion partenaire, c'est la gestion sous mandat. [3] Ou alors, la gestion libre, [4] où c'est vous qui décidez, [5] et moi je vous conseille pour choisir les bons placements au bon moment.
+La gestion libre, c'est beaucoup de liberté, [6] mais il faut du temps… et un peu de sang-froid. [7]
 
 ## 15 · Le cap : le S&P 500
-Quelle que soit la gestion, un repère guide les choix : le S&P 500. [1]
-C'est l'indice qui regroupe les 500 plus grandes entreprises américaines. [2]
-Sur les 20 dernières années, il a progressé d'environ 12 % par an en moyenne. [3]
-Malgré les crises, [4] malgré les krachs, moins 38 % au début des années 2000, [5] moins 37 % en 2008, [6] il a toujours fini par se relever. [7]
-Parce que l'économie innove, et avance. [8]
+Quelle que soit la gestion, j'ai un repère en tête : le S&P 500. [1]
+C'est l'indice des 500 plus grandes entreprises américaines. [2]
+Sur les vingt dernières années, il a fait en moyenne autour de 12 % par an. [3]
+Et ça, malgré les crises, [4] malgré les krachs : moins 38 % au début des années 2000, [5] moins 37 % en 2008. [6] À chaque fois, il s'est relevé. [7]
+Tout simplement parce que l'économie continue d'avancer. [8]
 
 ## 16 · Les intérêts composés
-Le principe qui rend tout cela possible, ce sont les intérêts composés. [1]
-Une idée que l'on prête souvent à Einstein, qui les aurait appelés « la huitième merveille du monde ». [2]
-C'est un effet boule de neige : [3] plus elle roule, plus elle grossit.
-Placez 10 000 euros à 5 % : la première année, ils rapportent 500 euros. [4] La deuxième, 525 euros. [5] Et la trentième année, plus de 2 000 euros, [6] sans rien ajouter.
+Et ce qui rend tout ça si puissant, ce sont les intérêts composés. [1]
+On prête à Einstein cette phrase : « c'est la huitième merveille du monde ». [2]
+C'est comme une boule de neige : [3] plus elle roule, plus elle grossit.
+Vous placez 10 000 euros à 5 %. La première année, ça vous rapporte 500 euros. [4] La deuxième, 525 euros. [5] Et la trentième année, plus de 2 000 euros, [6] sans rien ajouter.
 Au bout de 30 ans, [7] vos 10 000 euros sont devenus 43 219 euros. [8]
-Les intérêts produisent des intérêts, [9] qui produisent à leur tour des intérêts.
+Vos intérêts produisent des intérêts, [9] qui produisent eux-mêmes des intérêts.
 
 ## 16 · Le temps, premier ingrédient
-Et le temps est l'ingrédient clé. [1]
-Imaginons deux personnes qui investissent chacune 400 euros par mois, [2] à 5 % par an, jusqu'à 65 ans.
+Et l'ingrédient secret, c'est le temps. [1]
+Prenons deux personnes. Toutes les deux mettent 400 euros par mois, [2] à 5 % par an, jusqu'à 65 ans.
 La première commence à 25 ans, [3] la seconde à 35 ans. [4]
-À l'arrivée : 610 000 euros [5] pour l'une… 333 000 euros pour l'autre. [6]
-Dix ans d'avance changent tout. [7]
-Le meilleur moment pour commencer, c'est aujourd'hui. [8]
-Et il n'est jamais trop tard : [9] à 40, à 50 ou même à 70 ans, [10] le temps reste votre meilleur allié.
+À la fin, la première a 610 000 euros… [5] la seconde, 333 000 euros. [6]
+Juste dix ans d'écart, et presque deux fois plus à l'arrivée. [7]
+Donc le meilleur moment pour commencer, c'est maintenant. [8]
+Et si vous vous dites que c'est trop tard, non : [9] à 40, 50 ou même 70 ans, [10] le temps reste votre meilleur allié.
 
 ## 17 · Conclusion
-L'assurance vie est un outil indispensable. [1]
-Elle permet d'augmenter la rentabilité de votre épargne, [2] de protéger vos proches, [3] de préparer votre retraite, [4] de financer votre résidence principale, [5] les études de vos enfants, [6] ou tout autre projet. [7]
-Si vous en avez déjà une, prenez le temps de la revoir et de l'ajuster. [8]
-Dans le prochain épisode, nous verrons comment l'optimiser. [9]
-À très vite.
+Vous l'avez compris, l'assurance vie, c'est un outil indispensable. [1]
+Pour faire grandir votre épargne, [2] protéger vos proches, [3] préparer votre retraite, [4] acheter votre résidence principale, [5] financer les études de vos enfants, [6] ou n'importe quel autre projet. [7]
+Si vous en avez déjà une, prenez le temps de la regarder et de l'ajuster. [8]
+Et justement, dans la prochaine vidéo, on verra comment l'optimiser. [9]
+À très vite !
 
 ---
 *Informations générales, ne constituant pas un conseil personnalisé. Fiscalité en vigueur à la date de publication.
