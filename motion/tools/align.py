@@ -43,6 +43,22 @@ while i < len(words):
         continue
     i += 1
 
+# ---------- 1 bis. reprises sans « banane » : même suite de 6 mots répétée peu après -> on garde la dernière ----------
+N = 6
+i = 0
+while i + N <= len(words):
+    g = [w["n"] for w in words[i:i + N]]
+    found = None
+    for j in range(i + N, min(len(words) - N + 1, i + 160)):
+        if [w["n"] for w in words[j:j + N]] == g: found = j; break
+    if found is not None:
+        a, b = words[i]["a"] - 0.05, words[found]["a"] - 0.08
+        cuts.append([a, b])
+        report.append(f"reprise sans banane à {a:7.2f}s : supprimé « {' '.join(w['w'] for w in words[i:found])} »")
+        del words[i:found]
+        continue
+    i += 1
+
 # ---------- 2. silences trop longs ----------
 for k in range(1, len(words)):
     gap = words[k]["a"] - words[k - 1]["b"]
@@ -110,6 +126,7 @@ for p in range(len(sections)):
     report.append(f"partie {p + 1:2d} : début {start:7.2f}s, repères {['%.1f' % m for m in marks if m is not None]}")
 cov = len(tok2w) / len(tokens)
 report.insert(0, f"voix nettoyée : {total:.1f}s (brut {dur:.1f}s) · mots du script retrouvés : {cov:.0%}")
+json.dump([{"w": w["w"], "t": round(remap(w["a"]), 2)} for w in words], open(os.path.join(out, ".mots_nettoyes.json"), "w"), ensure_ascii=False)
 open(os.path.join(out, "timing.js"), "w").write("window.TIMING = " + json.dumps(timing) + ";\n")
 open(os.path.join(out, "montage.txt"), "w").write("\n".join(report) + "\n")
 print("\n".join(report[:3])); print("…", len(report), "lignes dans montage.txt")
