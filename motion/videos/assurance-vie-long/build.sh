@@ -27,5 +27,6 @@ fi
 ffmpeg -y -loglevel error -i $OUT/.intro.mp4 -i $OUT/.body.mp4 -i outro/outro.mp4 \
   -filter_complex "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a]" -map "[v]" -map "[a]" \
   -c:v libx264 -crf 20 -preset medium -pix_fmt yuv420p -c:a aac -b:a 192k $OUT/assurance-vie-long.mp4
-rm -f $OUT/.intro.mp4 $OUT/.body_silent.mp4 $OUT/.body.mp4
+# on garde .intro.mp4 et .body_silent.mp4 : changer la voix ou la musique ne demande alors que l'assemblage audio
+rm -f $OUT/.body.mp4
 echo "ok : $OUT/assurance-vie-long.mp4"

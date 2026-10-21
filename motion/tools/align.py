@@ -88,10 +88,36 @@ def remap(t):   # temps brut -> temps dans la voix nettoyée
 total = sum(b - a for a, b in keep)
 
 # ---------- audio nettoyé ----------
-parts = "".join(f"[0:a]atrim={a:.3f}:{b:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.02,afade=t=out:st={max(0, b - a - 0.03):.3f}:d=0.03[s{k}];" for k, (a, b) in enumerate(keep))
-fc = parts + "".join(f"[s{k}]" for k in range(len(keep))) + f"concat=n={len(keep)}:v=0:a=1,highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=11[o]"
-subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio, "-filter_complex", fc, "-map", "[o]", "-ar", "48000", "-ac", "2",
-                "-c:a", "aac", "-b:a", "192k", os.path.join(out, "voix_script.m4a")], check=True)
+# Chaque raccord est un fondu enchaîné à puissance constante de 40 ms (pas de passage par le silence -> pas de clic).
+# Les segments débordent de 20 ms de chaque côté dans la zone coupée : la durée totale (et donc le calage) ne change pas.
+import numpy as np, tempfile
+SR, XF = 48000, 0.04
+raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", audio, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"], capture_output=True, check=True).stdout
+x = np.frombuffer(raw, np.float32)
+h = int(XF * SR / 2)
+ramp = np.sin(np.linspace(0, np.pi / 2, 2 * h)) ** 2
+outbuf = np.zeros(int(total * SR) + 2 * h + SR, np.float32)
+pos = 0
+for k, (a, b) in enumerate(keep):
+    ia, ib = int(a * SR), int(b * SR)
+    seg = x[max(0, ia - h):min(len(x), ib + h)].copy()
+    if k > 0: seg[:2 * h] *= ramp[:len(seg[:2 * h])]
+    if k < len(keep) - 1: seg[-2 * h:] *= ramp[::-1][-len(seg[-2 * h:]):]
+    start = max(0, pos - h)
+    outbuf[start:start + len(seg)] += seg
+    pos += ib - ia
+outbuf = outbuf[:pos + h]
+tmp = tempfile.NamedTemporaryFile(suffix=".f32", delete=False); tmp.write(outbuf.tobytes()); tmp.close()
+# traitement voix : coupe des graves inutiles, débruitage léger, « s » adoucis, compression douce, volume constant (2 passes)
+chain = "highpass=f=80,afftdn=nr=6:nf=-55,deesser=i=0.3,acompressor=threshold=-22dB:ratio=2.5:attack=8:release=160"
+meas = subprocess.run(["ffmpeg", "-hide_banner", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", tmp.name, "-af", chain + ",loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json",
+                       "-f", "null", "-"], capture_output=True, text=True).stderr
+mj = json.loads(meas[meas.rindex("{"):meas.rindex("}") + 1])
+ln = (f"loudnorm=I=-16:TP=-1.5:LRA=11:linear=true:measured_I={mj['input_i']}:measured_TP={mj['input_tp']}"
+      f":measured_LRA={mj['input_lra']}:measured_thresh={mj['input_thresh']}:offset={mj['target_offset']}")
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", tmp.name, "-af", chain + "," + ln,
+                "-ar", str(SR), "-ac", "2", "-c:a", "aac", "-b:a", "256k", os.path.join(out, "voix_script.m4a")], check=True)
+os.unlink(tmp.name)
 
 # ---------- 3. alignement script <-> transcription ----------
 body = open(script_md).read().split("---")[1]
