@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Studio de doublage MIC</title>
+<style>
+:root{--paper:#FBF7EC;--deep:#F0E8D2;--ink:#234E48;--soft:#3F6F68;--accent:#CAA97A;--accentSoft:#ECE0C5;--rec:#B4553F}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,"Segoe UI",Inter,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:14px 24px;border-bottom:1px solid var(--accentSoft)}
+header h1{font:600 22px Georgia,"Cormorant Garamond",serif;margin:0}
+header .sub{color:var(--soft);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;padding:20px 24px;height:calc(100vh - 64px)}
+@media (max-width:1100px){main{grid-template-columns:1fr;height:auto}}
+.stage{display:flex;flex-direction:column;gap:12px;min-height:0}
+video{width:100%;aspect-ratio:16/9;background:#e9e2cf;border-radius:10px;border:1px solid var(--accentSoft)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button,.file{font:600 15px inherit;font-family:inherit;padding:11px 18px;border-radius:999px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer}
+button.primary{background:var(--ink);color:var(--paper)}
+button.rec{background:var(--rec);border-color:var(--rec);color:#fff}
+button:disabled{opacity:.4;cursor:default}
+.file input{display:none}
+.status{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--soft)}
+.dot{width:12px;height:12px;border-radius:50%;background:#bbb}
+.dot.on{background:var(--rec);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.3}}
+.meter{width:120px;height:8px;border-radius:4px;background:var(--deep);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--accent)}
+.prompter{display:flex;flex-direction:column;min-height:0;background:#fff;border:1px solid var(--accentSoft);border-radius:12px;padding:22px 26px}
+.prompter .label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.prompter .now{font:500 30px/1.45 Georgia,"Cormorant Garamond",serif;margin:10px 0 0;overflow:auto;flex:1;white-space:pre-line}
+.prompter .bar{height:6px;background:var(--deep);border-radius:3px;margin:14px 0}
+.prompter .bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:3px}
+.prompter .next{font-size:15px;color:var(--soft)}
+.prompter .next b{color:var(--ink)}
+.help{font-size:13px;color:var(--soft);line-height:1.5}
+.help b{color:var(--ink)}
+a.dl{display:none;font-weight:700;color:var(--ink)}
+</style></head>
+<body>
+<header><h1>Studio de doublage</h1><span class="sub" id="vtitle"></span></header>
+<main>
+  <section class="stage">
+    <video id="v" playsinline muted></video>
+    <div class="controls">
+      <label class="file">1. Choisir la vidéo muette<input type="file" id="file" accept="video/*"></label>
+      <button class="primary" id="go" disabled>2. Démarrer l'enregistrement</button>
+      <button id="pause" disabled>Pause</button>
+      <button id="stop" disabled>3. Terminer</button>
+      <a class="dl" id="dl">⬇ Télécharger mon audio</a>
+    </div>
+    <div class="status"><span class="dot" id="dot"></span><span id="st">Choisis la vidéo pour commencer.</span><span class="meter"><i id="lvl"></i></span></div>
+    <p class="help">
+      L'enregistrement démarre <b>en même temps</b> que la vidéo : ta voix restera synchronisée avec les images.<br>
+      <b>Pause</b> arrête la vidéo et le micro ensemble (aucun décalage). Une erreur ? Dis <b>« banane »</b> et reprends ta phrase.<br>
+      Utilise <b>Chrome</b>, et autorise le micro quand il te le demande. Tout reste sur ton ordinateur.
+    </p>
+  </section>
+  <section class="prompter">
+    <span class="label" id="ptitle">Prompteur</span>
+    <div class="now" id="now">Le texte de chaque scène s'affichera ici, au rythme de la vidéo. Tu peux le dire à ta façon.</div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="next" id="next"></div>
+  </section>
+</main>
+<script>
+const DATA = __DATA__;
+const $ = id => document.getElementById(id);
+const v = $("v");
+$("vtitle").textContent = DATA.title;
+let rec = null, chunks = [], stream = null, started = false, ctx = null, analyser = null, tick = null, elapsed = 0, lastT = 0;
+
+$("file").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  v.src = URL.createObjectURL(f); v.currentTime = 0;
+  $("go").disabled = false; $("st").textContent = "Vidéo chargée. Clique sur « Démarrer » quand tu es prêt.";
+};
+
+function cueAt(t) { let i = 0; while (i + 1 < DATA.cues.length && DATA.cues[i + 1].t <= t) i++; return i; }
+let shown = -1;
+function updatePrompter() {
+  const t = v.currentTime, i = cueAt(t), c = DATA.cues[i], n = DATA.cues[i + 1];
+  if (i !== shown) { shown = i; $("ptitle").textContent = `Scène ${i + 1} / ${DATA.cues.length} · ${c.title}`; $("now").textContent = c.text; $("now").scrollTop = 0;
+    $("next").innerHTML = n ? `Ensuite : <b>${n.title}</b>` : "Dernière scène."; }
+  const end = n ? n.t : (v.duration || c.t + 30);
+  $("prog").style.width = Math.min(100, 100 * (t - c.t) / Math.max(0.1, end - c.t)) + "%";
+}
+v.addEventListener("timeupdate", updatePrompter);
+v.addEventListener("seeked", updatePrompter);
+
+function fmt(s) { s = Math.floor(s); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
+
+$("go").onclick = async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+  } catch (e) { $("st").textContent = "Micro refusé ou indisponible : autorise le micro dans la barre d'adresse, puis réessaie."; return; }
+  ctx = new AudioContext(); analyser = ctx.createAnalyser(); analyser.fftSize = 1024;
+  ctx.createMediaStreamSource(stream).connect(analyser);
+  const buf = new Float32Array(analyser.fftSize);
+  const meter = () => { analyser.getFloatTimeDomainData(buf); let m = 0; for (const x of buf) m = Math.max(m, Math.abs(x));
+    $("lvl").style.width = Math.min(100, m * 140) + "%"; requestAnimationFrame(meter); };
+  meter();
+  const type = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm"].find(t => MediaRecorder.isTypeSupported(t)) || "";
+  rec = new MediaRecorder(stream, type ? { mimeType: type, audioBitsPerSecond: 128000 } : {});
+  chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = () => {
+    const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+    const ext = (rec.mimeType || "").includes("mp4") ? "m4a" : "webm";
+    const a = $("dl"); a.href = URL.createObjectURL(blob); a.download = `doublage_${DATA.title.replace(/\W+/g, "_")}.${ext}`;
+    a.style.display = "inline"; a.textContent = `⬇ Télécharger mon audio (${(blob.size / 1e6).toFixed(1)} Mo)`;
+    $("st").textContent = "Terminé ! Télécharge ton audio et envoie-le-moi."; $("dot").classList.remove("on");
+    stream.getTracks().forEach(t => t.stop());
+  };
+  v.currentTime = 0;
+  try { await v.play(); } catch (e) { $("st").textContent = "Impossible de lire cette vidéo dans ce navigateur : essaie avec Google Chrome."; stream.getTracks().forEach(t => t.stop()); return; }
+  rec.start(1000);
+  started = true; lastT = performance.now();
+  $("go").disabled = true; $("pause").disabled = false; $("stop").disabled = false; $("file").disabled = true;
+  $("dot").classList.add("on");
+  tick = setInterval(() => { if (rec.state === "recording") { const now = performance.now(); elapsed += (now - lastT) / 1000; lastT = now; }
+    $("st").textContent = `${rec.state === "recording" ? "Enregistrement" : "En pause"} · ${fmt(elapsed)} · vidéo ${fmt(v.currentTime)}`; }, 250);
+};
+
+$("pause").onclick = async () => {
+  if (!rec) return;
+  if (rec.state === "recording") { v.pause(); rec.pause(); $("pause").textContent = "Reprendre"; $("dot").classList.remove("on"); }
+  else { lastT = performance.now(); rec.resume(); await v.play(); $("pause").textContent = "Pause"; $("dot").classList.add("on"); }
+};
+// si la vidéo s'arrête toute seule (fin), on termine
+v.addEventListener("ended", () => { if (rec && rec.state !== "inactive") $("stop").click(); });
+
+$("stop").onclick = () => {
+  if (!rec || rec.state === "inactive") return;
+  v.pause(); rec.stop(); clearInterval(tick);
+  $("pause").disabled = true; $("stop").disabled = true;
+};
+// raccourci : barre d'espace = pause / reprendre
+document.addEventListener("keydown", e => { if (e.code === "Space" && started && !$("pause").disabled) { e.preventDefault(); $("pause").click(); } });
+</script>
+</body></html>
