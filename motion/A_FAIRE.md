@@ -45,3 +45,10 @@ Même chose pour l'outro : une variante par catégorie.
 
 - [ ] Script v2 « plus parlé » (`SCRIPT.md`, mêmes 30 parties et repères ; v1 conservée dans `SCRIPT_v1.md`,
       c'est celle de la vidéo v2 et de timing.js). Si l'utilisateur réenregistre : transcribe.py puis align.py avec SCRIPT.md, puis build.sh.
+
+## Doublage en direct (essai en cours)
+- L'utilisateur parle librement en regardant `doublage_muet.mp4` (corps de la v3 sans son, précédé d'un compte à rebours).
+  Repère de synchro : « TOP » s'affiche à 3,6 s ; l'animation démarre à 4,6 s (= t 0 du corps v3, timing.js actuel).
+- Traitement prévu : transcrire → trouver « top » → décaler ; supprimer les « banane » (+ phrase reprise) ;
+  la vidéo doit suivre les coupes : refaire le rendu avec une déformation temporelle globale lissée
+  (chaque mot gardé conserve l'image qu'il commentait), sans repères de script.
