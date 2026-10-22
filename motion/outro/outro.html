@@ -28,6 +28,7 @@ const CONFIG = {
 const THEMES = {
   generique: { label: "", fruits: ["house", "pie", "coins", "contract", "curve"], shift: 0, cam: [1000, 600, 1.0] },
   // le nuage "IMPÔTS" pleut sur l'arbre, le personnage ouvre un parapluie au-dessus : on protège ce qu'on a fait pousser
+  enfants: { label: "ENFANTS", fruits: ["house", "sprout", "coins", "contract", "curve"], shift: 0, cam: [1000, 600, 1.0] },
   defiscalisation: { label: "DÉFISCALISATION", fruits: ["house", "percent", "coins", "contract", "pie"], shift: 1.3, cam: [1000, 480, 0.92], rain: true },
 };
 const THEME = THEMES[new URLSearchParams(location.search).get("theme")] || THEMES.generique;

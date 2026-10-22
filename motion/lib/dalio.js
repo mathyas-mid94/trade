@@ -235,6 +235,18 @@ const D = (() => {
       el("ellipse", { ...line, fill: C.accentSoft, cx: -4, cy: -58, rx: 16, ry: 6 }, c);
       return g;
     },
+    sprout(parent) {    // piles de pièces qui grandissent + une pousse (capital des enfants) ; la pousse = dernier <g>
+      const g = el("g", {}, parent);
+      [[-40, 2], [-4, 3], [32, 5]].forEach(([x, n]) => { for (let i = 0; i < n; i++) {
+        const y = 52 - i * 15;
+        el("path", { ...line, "stroke-width": 3, fill: C.accent, d: `M${x - 16} ${y} L${x - 16} ${y + 8} A16 6 0 0 0 ${x + 16} ${y + 8} L${x + 16} ${y}` }, g);
+        el("ellipse", { ...line, "stroke-width": 3, fill: C.accentSoft, cx: x, cy: y, rx: 16, ry: 6 }, g); } });
+      const s = el("g", {}, g);
+      el("path", { ...line, "stroke-width": 4, d: "M32 -16 C32 -30 30 -42 32 -52" }, s);
+      el("path", { ...line, "stroke-width": 3, fill: C.inkSoft, d: "M32 -40 C14 -40 6 -54 8 -64 C22 -64 32 -54 32 -40 Z" }, s);
+      el("path", { ...line, "stroke-width": 3, fill: C.inkSoft, d: "M32 -48 C46 -48 58 -60 56 -72 C42 -72 32 -62 32 -48 Z" }, s);
+      return g;
+    },
     curve(parent) {
       const g = el("g", {}, parent);
       el("path", { ...line, fill: C.paperDeep, d: "M-58 -52 L58 -52 L58 52 L-58 52 Z" }, g);

@@ -30,6 +30,10 @@ const THEMES = {
     labels: ["IMMOBILIER", "ÉPARGNE", "ASSURANCE-VIE", "RETRAITE", "PLACEMENTS"],
     // sous la loupe : le sceau du contrat grossit, comme un tampon
     react(f, k) { f.querySelector("circle").setAttribute("transform", `translate(28 42) scale(${1 + 0.8 * k}) translate(-28 -42)`); } },
+  enfants: { label: "ENFANTS", kinds: ["house", "coins", "sprout", "contract", "curve"],
+    labels: ["IMMOBILIER", "ÉPARGNE", "ENFANTS", "ASSURANCE-VIE", "PLACEMENTS"],
+    // sous la loupe : la pousse sort des pièces et grandit (le capital de l'enfant)
+    react(f, k) { f.firstElementChild.lastElementChild.setAttribute("transform", `translate(32 -16) scale(${1 + 0.7 * k}) translate(-32 16)`); } },
   budget: { label: "BUDGET", kinds: ["coins", "receipt", "pie", "piggy", "house"],
     labels: ["REVENUS", "DÉPENSES", "BUDGET", "ÉPARGNE", "LOGEMENT"],
     // sous la loupe : le camembert tourne et une part se détache (on découpe le budget)
