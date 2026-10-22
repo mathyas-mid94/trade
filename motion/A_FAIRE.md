@@ -26,6 +26,13 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
   → il le passe dans ElevenLabs → transcribe.py + `PAUSE=1.2` align.py → rendu.
 - Produits AVEC vidéo existante : à décider avec lui (repartir de sa vidéo = transcript + slides → script propre → ElevenLabs,
   plutôt que garder sa voix improvisée, qui collait mal la première fois).
+- **Vidéos déjà tournées (consigne de l'utilisateur, 22/10)** : PAS de version avec sa voix. Livrables, dans l'ordre :
+  1. le transcript brut de sa vidéo (Whisper) ;
+  2. un script cohérent, naturel, simple (repères [n]), à passer dans ElevenLabs ;
+  3. une vidéo MUETTE pour valider les images : nouvelles images pour le nouveau thème, intro et outro adaptées,
+     minutage estimé au débit de sa voix ElevenLabs (~215 mots/min + 1,2 s de respiration entre parties).
+  Ensuite seulement : MP3 ElevenLabs → recalage exact → version finale.
+  Prochaines : 2 vidéos, suites de l'assurance vie.
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
 ## Vidéo « L'assurance-vie en 2 min 30 » (`videos/assurance-vie/`)
