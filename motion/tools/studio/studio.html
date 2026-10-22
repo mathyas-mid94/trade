@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Studio de doublage MIC</title>
+<style>
+:root{--paper:#FBF7EC;--deep:#F0E8D2;--ink:#234E48;--soft:#3F6F68;--accent:#CAA97A;--accentSoft:#ECE0C5;--rec:#B4553F}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,"Segoe UI",Inter,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:14px 24px;border-bottom:1px solid var(--accentSoft)}
+header h1{font:600 22px Georgia,"Cormorant Garamond",serif;margin:0}
+header .sub{color:var(--soft);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;padding:18px 24px;height:calc(100vh - 62px)}
+@media (max-width:1100px){main{grid-template-columns:1fr;height:auto}}
+.stage{display:flex;flex-direction:column;gap:10px;min-height:0;overflow:auto}
+video{width:100%;aspect-ratio:16/9;background:#e9e2cf;border-radius:10px;border:1px solid var(--accentSoft)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,.file{font:600 14px inherit;font-family:inherit;padding:10px 16px;border-radius:999px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;white-space:nowrap}
+button.primary{background:var(--ink);color:var(--paper)}
+button.small{padding:7px 12px;font-size:13px;border-width:1.5px}
+button:disabled,.file.off{opacity:.4;cursor:default;pointer-events:none}
+.file input{display:none}
+.file.done{background:var(--accentSoft)}
+.status{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--soft)}
+.dot{width:12px;height:12px;border-radius:50%;background:#bbb;flex:none}
+.dot.on{background:var(--rec);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.3}}
+.meter{width:110px;height:8px;border-radius:4px;background:var(--deep);overflow:hidden;flex:none}
+.meter i{display:block;height:100%;width:0;background:var(--accent)}
+.prompter{display:flex;flex-direction:column;min-height:0;background:#fff;border:1px solid var(--accentSoft);border-radius:12px;padding:20px 24px}
+.prompter .label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.prompter .now{font:500 30px/1.45 Georgia,"Cormorant Garamond",serif;margin:10px 0 0;overflow:auto;flex:1;white-space:pre-line}
+.prompter .bar{height:6px;background:var(--deep);border-radius:3px;margin:12px 0}
+.prompter .bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:3px}
+.prompter .next{font-size:15px;color:var(--soft)}
+.prompter .next b{color:var(--ink)}
+.help{font-size:13px;color:var(--soft);line-height:1.55;margin:4px 0 0}
+.help b{color:var(--ink)}
+kbd{font:600 11px inherit;border:1px solid var(--accent);border-radius:4px;padding:1px 5px;background:#fff}
+a.dl{display:none;font-weight:700;color:var(--ink);font-size:15px}
+.takes{font-size:12px;color:var(--soft)}
+</style></head>
+<body>
+<header><h1>Studio de doublage</h1><span class="sub" id="vtitle">MIC</span></header>
+<main>
+  <section class="stage">
+    <video id="v" playsinline muted></video>
+    <div class="row">
+      <label class="file" id="fileV">1. Vidéo muette<input type="file" id="inV" accept="video/*"></label>
+      <label class="file" id="fileT">2. Texte (prompteur)<input type="file" id="inT" accept=".json,.md,.txt,text/*,application/json"></label>
+      <button class="primary" id="go" disabled>3. Démarrer</button>
+      <button id="pause" disabled>Pause</button>
+      <button id="stop" disabled>4. Terminer</button>
+    </div>
+    <div class="row">
+      <button class="small" id="back5" disabled>⟲ 5 s</button>
+      <button class="small" id="backScene" disabled>⟲ Début de la scène</button>
+      <button class="small" id="prevScene" disabled>⏮ Scène précédente</button>
+      <button class="small" id="nextPart" disabled>Partie suivante ⏭</button>
+      <span class="takes" id="takes"></span>
+    </div>
+    <div class="status"><span class="dot" id="dot"></span><span id="st">Choisis la vidéo et le texte pour commencer.</span><span class="meter"><i id="lvl"></i></span></div>
+    <a class="dl" id="dl"></a>
+    <p class="help">
+      Le micro enregistre <b>en même temps</b> que la vidéo. <b>Pause</b> <kbd>espace</kbd> arrête les deux ensemble.<br>
+      Raté un passage ? <b>⟲ 5 s</b> <kbd>←</kbd>, <b>début de la scène</b> ou <b>scène précédente</b> : la vidéo recule, tu reprends,
+      et ta <b>dernière prise</b> remplacera l'ancienne. Une phrase ratée ? Dis <b>« banane »</b> et reprends.<br>
+      Texte en <b>.json</b> (fourni pour chaque vidéo) : le prompteur suit la vidéo. Texte en <b>.md / .txt</b> : <kbd>→</kbd> passe à la partie suivante.<br>
+      Utilise <b>Google Chrome</b> et autorise le micro. Tout reste sur ton ordinateur.
+    </p>
+  </section>
+  <section class="prompter">
+    <span class="label" id="ptitle">Prompteur</span>
+    <div class="now" id="now">Charge le texte de la vidéo (bouton 2). Il s'affichera ici, scène par scène.</div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="next" id="next"></div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const v = $("v");
+let DATA = null;          // { title, timed, cues:[{t?, title, text}] }
+let manualIdx = 0;        // partie courante si le texte n'est pas minuté
+let rec = null, stream = null, chunks = [], tick = null;
+let recElapsed = 0, lastT = 0;              // durée réellement enregistrée (hors pauses)
+const log = [];                             // journal de synchro : {rec, video, kind}
+const parts = [];                           // changements de partie (texte non minuté) : {rec, video, part}
+let videoName = "", scriptName = "";
+
+// ---------- chargement ----------
+$("inV").onchange = e => { const f = e.target.files[0]; if (!f) return;
+  videoName = f.name; v.src = URL.createObjectURL(f); v.currentTime = 0;
+  $("fileV").classList.add("done"); $("fileV").firstChild.textContent = "✓ " + f.name; ready(); };
+
+$("inT").onchange = async e => { const f = e.target.files[0]; if (!f) return;
+  scriptName = f.name; const raw = await f.text();
+  try { DATA = parseScript(raw, f.name); } catch (err) { $("st").textContent = "Texte illisible : " + err.message; return; }
+  $("vtitle").textContent = DATA.title; $("fileT").classList.add("done"); $("fileT").firstChild.textContent = "✓ " + f.name;
+  manualIdx = 0; shown = -1; updatePrompter(); ready(); };
+
+function parseScript(raw, name) {
+  if (/\.json$/i.test(name) || raw.trim().startsWith("{")) {
+    const d = JSON.parse(raw);
+    if (!Array.isArray(d.cues) || !d.cues.length) throw new Error("pas de scènes");
+    return { title: d.title || name, timed: d.cues.every(c => typeof c.t === "number"), cues: d.cues };
+  }
+  // Markdown / texte : une partie par titre (#, ##, ###) ; repères [n] et consignes retirés
+  const lines = raw.replace(/\r/g, "").split("\n"); const cues = []; let title = name.replace(/\.\w+$/, ""), cur = null;
+  for (const l of lines) {
+    const h = l.match(/^#{1,3}\s+(.*)$/);
+    if (h) { if (/^#\s/.test(l) && !cues.length && !cur) { title = h[1]; continue; }
+      if (cur && cur.text.trim()) cues.push(cur); cur = { title: h[1].replace(/^Partie\s*\d+\s*[—-]\s*/i, ""), text: "" }; continue; }
+    if (/^\s*[-*]\s|^---|^\*\(/.test(l)) continue;
+    if (!cur) cur = { title: "Texte", text: "" };
+    cur.text += l.replace(/\s*\[\d+\]/g, "") + "\n";
+  }
+  if (cur && cur.text.trim()) cues.push(cur);
+  if (!cues.length) throw new Error("aucune partie trouvée");
+  cues.forEach(c => c.text = c.text.trim());
+  return { title, timed: false, cues };
+}
+
+function ready() { if (v.src && DATA) { $("go").disabled = false; $("st").textContent = "Prêt. Clique sur « Démarrer » quand tu veux."; } }
+
+// ---------- prompteur ----------
+let shown = -1;
+function cueIndex() {
+  if (!DATA) return 0;
+  if (!DATA.timed) return manualIdx;
+  const t = v.currentTime; let i = 0; while (i + 1 < DATA.cues.length && DATA.cues[i + 1].t <= t) i++; return i;
+}
+function updatePrompter() {
+  if (!DATA) return;
+  const i = cueIndex(), c = DATA.cues[i], n = DATA.cues[i + 1];
+  if (i !== shown) { shown = i; $("ptitle").textContent = `Partie ${i + 1} / ${DATA.cues.length} · ${c.title}`; $("now").textContent = c.text; $("now").scrollTop = 0;
+    $("next").innerHTML = n ? `Ensuite : <b>${n.title.replace(/</g, "&lt;")}</b>` : "Dernière partie."; }
+  if (DATA.timed) { const end = n ? n.t : (v.duration || c.t + 30); $("prog").style.width = Math.min(100, 100 * (v.currentTime - c.t) / Math.max(0.1, end - c.t)) + "%"; }
+  else $("prog").style.width = (100 * (i + 1) / DATA.cues.length) + "%";
+}
+v.addEventListener("timeupdate", updatePrompter);
+v.addEventListener("seeked", updatePrompter);
+function nextPart(step = 1) { if (!DATA || DATA.timed) return; manualIdx = Math.max(0, Math.min(DATA.cues.length - 1, manualIdx + step));
+  parts.push({ rec: +recNow().toFixed(3), video: +v.currentTime.toFixed(3), part: manualIdx }); updatePrompter(); }
+
+// ---------- enregistrement ----------
+const recNow = () => recElapsed + (rec && rec.state === "recording" ? (performance.now() - lastT) / 1000 : 0);
+const fmt = s => { s = Math.max(0, Math.floor(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+function setBusy(on) { ["pause", "stop", "back5", "backScene", "prevScene"].forEach(id => $(id).disabled = !on); $("nextPart").disabled = !on || !DATA || DATA.timed;
+  $("fileV").classList.toggle("off", on); $("fileT").classList.toggle("off", on); }
+
+async function startMic() {
+  stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+  const ctx = new AudioContext(), an = ctx.createAnalyser(); an.fftSize = 1024; ctx.createMediaStreamSource(stream).connect(an);
+  const buf = new Float32Array(an.fftSize);
+  (function meter() { an.getFloatTimeDomainData(buf); let m = 0; for (const x of buf) m = Math.max(m, Math.abs(x));
+    $("lvl").style.width = Math.min(100, m * 140) + "%"; requestAnimationFrame(meter); })();
+}
+
+$("go").onclick = async () => {
+  try { await startMic(); } catch (e) { $("st").textContent = "Micro refusé ou indisponible : autorise le micro dans la barre d'adresse, puis réessaie."; return; }
+  const type = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm"].find(t => MediaRecorder.isTypeSupported(t)) || "";
+  rec = new MediaRecorder(stream, type ? { mimeType: type, audioBitsPerSecond: 128000 } : {});
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = finish;
+  v.currentTime = 0;
+  try { await v.play(); } catch (e) { $("st").textContent = "Impossible de lire cette vidéo : essaie avec Google Chrome."; stream.getTracks().forEach(t => t.stop()); return; }
+  rec.start(1000); lastT = performance.now();
+  log.push({ rec: 0, video: 0, kind: "début" });
+  if (!DATA.timed) parts.push({ rec: 0, video: 0, part: manualIdx });
+  $("go").disabled = true; setBusy(true); $("dot").classList.add("on");
+  tick = setInterval(showStatus, 250);
+};
+function showStatus() {
+  const n = log.filter(l => l.kind !== "début").length;
+  $("st").textContent = `${rec.state === "recording" ? "Enregistrement" : "En pause"} · ${fmt(recNow())} enregistrées · vidéo ${fmt(v.currentTime)}`;
+  $("takes").textContent = n ? `${n} retour${n > 1 ? "s" : ""} en arrière` : "";
+}
+function pauseAll() { if (rec.state === "recording") { recElapsed = recNow(); rec.pause(); } v.pause();
+  $("pause").textContent = "Reprendre"; $("dot").classList.remove("on"); }
+async function resumeAll() { if (rec.state !== "paused") return;
+  lastT = performance.now(); rec.resume(); await v.play(); $("pause").textContent = "Pause"; $("dot").classList.add("on"); }
+$("pause").onclick = () => rec && (rec.state === "recording" ? pauseAll() : resumeAll());
+
+// retour en arrière : on fige tout, on recule la vidéo, on note où l'enregistrement reprendra
+async function seekBack(target, kind) {
+  if (!rec || rec.state === "inactive") return;
+  const wasRec = rec.state === "recording"; pauseAll();
+  v.currentTime = Math.max(0, target);
+  await new Promise(r => v.addEventListener("seeked", r, { once: true }));
+  log.push({ rec: +recElapsed.toFixed(3), video: +v.currentTime.toFixed(3), kind });
+  if (!DATA.timed) parts.push({ rec: +recElapsed.toFixed(3), video: +v.currentTime.toFixed(3), part: manualIdx });
+  showStatus();
+  if (wasRec) await resumeAll();
+}
+const sceneStart = i => DATA.timed ? DATA.cues[i].t : 0;
+$("back5").onclick = () => seekBack(v.currentTime - 5, "-5 s");
+$("backScene").onclick = () => DATA.timed ? seekBack(sceneStart(cueIndex()), "début de scène") : seekBack(v.currentTime - 10, "-10 s");
+$("prevScene").onclick = () => DATA.timed ? seekBack(sceneStart(Math.max(0, cueIndex() - 1)), "scène précédente") : (nextPart(-1), seekBack(v.currentTime - 10, "-10 s"));
+$("nextPart").onclick = () => nextPart(1);
+
+v.addEventListener("ended", () => { if (rec && rec.state !== "inactive") $("stop").click(); });
+$("stop").onclick = () => { if (!rec || rec.state === "inactive") return; recElapsed = recNow(); v.pause(); rec.stop(); clearInterval(tick); setBusy(false); $("dot").classList.remove("on"); };
+
+async function finish() {
+  stream.getTracks().forEach(t => t.stop());
+  const mime = rec.mimeType || "audio/webm", ext = mime.includes("mp4") ? "m4a" : "webm";
+  const audio = new Uint8Array(await new Blob(chunks, { type: mime }).arrayBuffer());
+  const sync = { version: 1, video: videoName, script: scriptName, title: DATA.title, recorded_seconds: +recElapsed.toFixed(3),
+    note: "Chaque entrée : à 'rec' secondes de l'enregistrement, la vidéo (re)part de 'video' secondes. La dernière prise d'un passage remplace les précédentes.",
+    segments: log, parts: DATA.timed ? [] : parts };
+  const zip = makeZip([{ name: `voix.${ext}`, data: audio }, { name: "synchro.json", data: new TextEncoder().encode(JSON.stringify(sync, null, 1)) }]);
+  const blob = new Blob([zip], { type: "application/zip" });
+  const a = $("dl"); a.href = URL.createObjectURL(blob); a.download = `doublage_${DATA.title.replace(/[^\wÀ-ÿ]+/g, "_")}.zip`;
+  a.style.display = "inline"; a.textContent = `⬇ Télécharger mon doublage (${(blob.size / 1e6).toFixed(1)} Mo) : un seul fichier .zip à m'envoyer`;
+  $("st").textContent = `Terminé : ${fmt(recElapsed)} enregistrées, ${log.length - 1} retour(s) en arrière.`;
+}
+
+// ---------- petit .zip (sans compression) : audio + synchro ----------
+function crc32(d) { let c, t = crc32.t || (crc32.t = Array.from({ length: 256 }, (_, n) => { c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; }));
+  let x = 0xFFFFFFFF; for (let i = 0; i < d.length; i++) x = t[(x ^ d[i]) & 0xFF] ^ (x >>> 8); return (x ^ 0xFFFFFFFF) >>> 0; }
+function makeZip(files) {
+  const enc = new TextEncoder(), out = [], cd = []; let off = 0;
+  for (const f of files) {
+    const nm = enc.encode(f.name), crc = crc32(f.data), h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(8, 0, true); h.setUint32(14, crc, true);
+    h.setUint32(18, f.data.length, true); h.setUint32(22, f.data.length, true); h.setUint16(26, nm.length, true);
+    out.push(new Uint8Array(h.buffer), nm, f.data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint32(16, crc, true);
+    c.setUint32(20, f.data.length, true); c.setUint32(24, f.data.length, true); c.setUint16(28, nm.length, true); c.setUint32(42, off, true);
+    cd.push(new Uint8Array(c.buffer), nm); off += 30 + nm.length + f.data.length;
+  }
+  const cdSize = cd.reduce((s, x) => s + x.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cdSize, true); e.setUint32(16, off, true);
+  return new Blob([...out, ...cd, new Uint8Array(e.buffer)]);
+}
+
+// ---------- clavier ----------
+document.addEventListener("keydown", e => {
+  if (!rec || rec.state === "inactive") return;
+  if (e.code === "Space") { e.preventDefault(); $("pause").click(); }
+  if (e.code === "ArrowLeft") { e.preventDefault(); $("back5").click(); }
+  if (e.code === "ArrowRight" && DATA && !DATA.timed) { e.preventDefault(); nextPart(1); }
+});
+</script>
+</body></html>

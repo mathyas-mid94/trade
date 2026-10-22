@@ -47,6 +47,10 @@ Même chose pour l'outro : une variante par catégorie.
       c'est celle de la vidéo v2 et de timing.js). Si l'utilisateur réenregistre : transcribe.py puis align.py avec SCRIPT.md, puis build.sh.
 
 ## Doublage en direct (essai en cours)
+- Studio unique : `motion/tools/studio/studio.html` (vidéo muette + texte .json minuté ou .md/.txt libre, retours en arrière, export .zip).
+  Pour chaque vidéo, fournir : la vidéo muette + son `<sujet>.json` (cues {t, title, text}, t = secondes dans la vidéo muette).
+- Réception du .zip : `python3 motion/tools/doublage.py doublage.zip voix_timeline.wav` (dernière prise gardée, calée sur la vidéo),
+  puis transcribe.py, suppression des « banane » avec déformation de la vidéo (à écrire), rendu.
 - L'utilisateur parle librement en regardant `doublage_muet.mp4` (corps de la v3 sans son, précédé d'un compte à rebours).
   Repère de synchro : « TOP » s'affiche à 3,6 s ; l'animation démarre à 4,6 s (= t 0 du corps v3, timing.js actuel).
 - Traitement prévu : transcrire → trouver « top » → décaler ; supprimer les « banane » (+ phrase reprise) ;
