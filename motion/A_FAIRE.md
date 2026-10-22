@@ -20,6 +20,14 @@ Même chose pour l'outro : une variante par catégorie.
       reste le rendu final + son : `node render.mjs "outro/outro.html?theme=defiscalisation" ...`
       (son : référence MIC avec `adelay=150`). Version abonnement : ajouter `&abonnement`.
 
+## Méthode validée pour toutes les vidéos (l'utilisateur : « c'est exactement ce qu'on va faire pour chacune »)
+Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone de l'utilisateur), images calées mot à mot.
+- Produits SANS vidéo existante : l'utilisateur envoie les slides → j'écris le script (très naturel, simple, avec repères [n])
+  → il le passe dans ElevenLabs → transcribe.py + `PAUSE=1.2` align.py → rendu.
+- Produits AVEC vidéo existante : à décider avec lui (repartir de sa vidéo = transcript + slides → script propre → ElevenLabs,
+  plutôt que garder sa voix improvisée, qui collait mal la première fois).
+- Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
+
 ## Vidéo « L'assurance-vie en 2 min 30 » (`videos/assurance-vie/`)
 - [x] Script voix off (`SCRIPT.md`) + animation complète (8 scènes) + intro thème assurance-vie + outro site
 - [ ] **Voix off** : l'utilisateur enregistre le script (ou passe par un outil de synthèse vocale de qualité) → recaler l'animation dessus

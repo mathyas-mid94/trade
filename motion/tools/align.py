@@ -113,14 +113,52 @@ def time_of(ti, end=True):
             if tj in tok2w:
                 w = words[tok2w[tj]]; return remap(w["b"] if end else w["a"])
     return None
+# ---------- audio nettoyé ----------
+# Chaque raccord est un fondu enchaîné à puissance constante de 40 ms (pas de passage par le silence -> pas de clic).
+# Les segments débordent de 20 ms de chaque côté dans la zone coupée : la durée totale (et donc le calage) ne change pas.
+import numpy as np, tempfile
+SR, XF = 48000, 0.04
+raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", audio, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"], capture_output=True, check=True).stdout
+xr = np.frombuffer(raw, np.float32)
+h = int(XF * SR / 2)
+ramp = np.sin(np.linspace(0, np.pi / 2, 2 * h)) ** 2
+outbuf = np.zeros(int(total * SR) + 2 * h + SR, np.float32)
+pos = 0
+for k, (a, b) in enumerate(keep):
+    ia, ib = int(a * SR), int(b * SR)
+    seg = xr[max(0, ia - h):min(len(xr), ib + h)].copy()
+    if k > 0: seg[:2 * h] *= ramp[:len(seg[:2 * h])]
+    if k < len(keep) - 1: seg[-2 * h:] *= ramp[::-1][-len(seg[-2 * h:]):]
+    o = max(0, pos - h)
+    outbuf[o:o + len(seg)] += seg
+    pos += ib - ia
+outbuf = outbuf[:pos + h]
 PAUSE = float(os.environ.get("PAUSE", "0"))
+_f = int(0.02 * SR); _n = len(outbuf) // _f
+_db = 10 * np.log10(np.mean(outbuf[:_n * _f].reshape(_n, _f) ** 2, axis=1) + 1e-12)
+SIL_DB = np.percentile(_db, 95) - 35   # « silence » : 35 dB sous le niveau de la voix
 ins, ins_of = [], {}   # instants (voix nettoyée) où insérer une respiration : au milieu du blanc entre deux parties
 if PAUSE > 0:
     for p in range(1, len(sections)):
         first = part_of.index(p)
         e, s0 = time_of(first - 1), time_of(first, end=False)
         if e is not None and s0 is not None:
-            x = (e + s0) / 2 if s0 > e else e + 0.08   # chevauchement (minutage Whisper approximatif) : juste après le dernier mot
+            # le minutage Whisper des mots en début de phrase est peu fiable (« Parlons | impôts ») : on cherche le vrai blanc
+            # dans le son, autour de la frontière : la plus longue suite de tranches de 20 ms silencieuses
+            lo, hi = max(0, min(e, s0) - 0.7), max(e, s0) + 0.7; mid = (e + s0) / 2
+            seg = outbuf[int(lo * SR):int(hi * SR)]; n20 = int(0.02 * SR); nf = len(seg) // n20
+            db = 10 * np.log10(np.mean(seg[:nf * n20].reshape(nf, n20) ** 2, axis=1) + 1e-12)
+            quiet = db < SIL_DB
+            best, k = None, 0
+            while k < nf:
+                if quiet[k]:
+                    k1 = k
+                    while k1 < nf and quiet[k1]: k1 += 1
+                    sc = (k1 - k) * 0.02 - 0.4 * abs(lo + (k + k1) * 0.01 - mid)   # long blanc, proche de la frontière
+                    if best is None or sc > best[2]: best = (k, k1, sc)
+                    k = k1
+                else: k += 1
+            x = lo + (best[0] + best[1]) / 2 * 0.02 if best else ((e + s0) / 2 if s0 > e else e + 0.08)
             ins.append(x); ins_of[p] = x
 def shift(t): return None if t is None else t + PAUSE * sum(1 for x in ins if x < t)
 timing = {"total": round(total + PAUSE * len(ins), 2), "parts": []}
@@ -132,30 +170,11 @@ for p in range(len(sections)):
     report.append(f"partie {p + 1:2d} : début {start:7.2f}s, repères {['%.1f' % m for m in marks if m is not None]}")
 cov = len(tok2w) / len(tokens)
 report.insert(0, f"voix nettoyée : {total + PAUSE * len(ins):.1f}s ({len(ins)} respirations de {PAUSE}s) (brut {dur:.1f}s) · mots du script retrouvés : {cov:.0%}")
-# ---------- audio nettoyé ----------
-# Chaque raccord est un fondu enchaîné à puissance constante de 40 ms (pas de passage par le silence -> pas de clic).
-# Les segments débordent de 20 ms de chaque côté dans la zone coupée : la durée totale (et donc le calage) ne change pas.
-import numpy as np, tempfile
-SR, XF = 48000, 0.04
-raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", audio, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"], capture_output=True, check=True).stdout
-x = np.frombuffer(raw, np.float32)
-h = int(XF * SR / 2)
-ramp = np.sin(np.linspace(0, np.pi / 2, 2 * h)) ** 2
-outbuf = np.zeros(int(total * SR) + 2 * h + SR, np.float32)
-pos = 0
-for k, (a, b) in enumerate(keep):
-    ia, ib = int(a * SR), int(b * SR)
-    seg = x[max(0, ia - h):min(len(x), ib + h)].copy()
-    if k > 0: seg[:2 * h] *= ramp[:len(seg[:2 * h])]
-    if k < len(keep) - 1: seg[-2 * h:] *= ramp[::-1][-len(seg[-2 * h:]):]
-    start = max(0, pos - h)
-    outbuf[start:start + len(seg)] += seg
-    pos += ib - ia
-outbuf = outbuf[:pos + h]
 if ins:   # respirations : silence inséré dans le blanc entre deux parties, fondus de 15 ms de part et d'autre
     f = int(0.015 * SR); pieces, last = [], 0
     for x in ins:
-        k = int(x * SR); seg = outbuf[last:k].copy()
+        k = int(x * SR)
+        seg = outbuf[last:k].copy()
         if len(seg) > f: seg[-f:] *= np.linspace(1, 0, f)
         if last and len(seg) > f: seg[:f] *= np.linspace(0, 1, f)
         pieces += [seg, np.zeros(int(PAUSE * SR), np.float32)]; last = k
