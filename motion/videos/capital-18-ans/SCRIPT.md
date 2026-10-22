@@ -242,7 +242,7 @@ Plus 31 865 euros en don d'argent, [3] quand l'enfant est majeur et que tu as mo
 152 500 euros par bénéficiaire au décès, [4] avec l'assurance vie, pour ce qui est versé avant 70 ans.
 Et 4 600 euros de gains sans impôt par an après 8 ans, [5] 9 200 pour un couple. Je te renvoie à la vidéo assurance vie.
 Et au moment des retraits : si l'enfant est rattaché à ton foyer, [6] ses gains sont imposés chez toi.
-S'il est autonome, il a son propre abattement, [7] et en début de vie, souvent, c'est zéro euro d'impôt. [8]
+S'il est autonome, il a son propre abattement, [7] et en début de vie, souvent, [8] c'est zéro euro d'impôt.
 
 ## 27 · Une carte cadeau qui se recharge
 Petit point sur les 100 000 euros. [1] Imagine une carte cadeau qui se recharge tous les 15 ans. [2]

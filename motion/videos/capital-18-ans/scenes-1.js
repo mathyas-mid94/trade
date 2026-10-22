@@ -208,7 +208,7 @@ SC("07", "SCHÉMA A · AU NOM DE L'ENFANT", (g, A) => {
     show(head, fade(t, m(1) - 0.5));
     const sw = ease(prog(t, m(8) - 0.6, m(8))), age18 = ease(prog(t, m(8) - 0.4, m(8) + 0.6));
     leo.at(t, m(2) - 0.4, 560, 900, { scale: 1 + 0.25 * age18, armR: t > m(9) && t < m(10) ? -20 : 75 });
-    place(ct.g, 800, 600, pop(t, m(2)));
+    place(ct.g, 860, 640, pop(t, m(2)));
     place(gift, 300, 640, pop(t, m(3) - 0.3) * out(t, m(4) + 1)); place(don.g, 300, 500, pop(t, m(3)) * out(t, m(4) + 1));
     fl(t, m(4) - 0.4, m(4) + 0.6, 300, 640, 740, 620);
     // la tentation : la main de papa s'allonge vers le contrat, puis recule

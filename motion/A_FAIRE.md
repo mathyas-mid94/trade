@@ -38,8 +38,7 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 ## Vidéo « Un capital pour ses 18 ans » (`videos/capital-18-ans/`, suite de l'assurance vie)
 - [x] Transcript brut des 2 parties (`TRANSCRIPT.md`) → script unique, tutoiement, ton Mathyas (`SCRIPT.md`, 32 parties, ~21 min estimées)
 - [x] Version muette sur minutage estimé (`tools/estime.py` → `estimation.js`), intro + outro thème « enfants »
-- [ ] Validation des images par l'utilisateur
-- [ ] Voix ElevenLabs (`elevenlabs/texte_a_coller_1.txt` puis `_2.txt`) → transcribe.py + `PAUSE=1.2` align.py → timing.js → build.sh
+- [x] Voix ElevenLabs reçue (3 MP3), calage `REPRISES=0 PAUSE=1.2 align.py` (REPRISES=0 : sinon les tournures répétées exprès sont coupées)
 - [ ] Points juridiques à faire valider par le notaire (récompense, succession du conjoint non souscripteur, co-souscription)
 
 ## Vidéo « L'assurance-vie en 2 min 30 » (`videos/assurance-vie/`)

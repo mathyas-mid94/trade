@@ -5,6 +5,7 @@ usage : python3 motion/tools/align.py <audio_brut> <transcription.json> <SCRIPT.
 1. « banane » = code de reprise : on supprime la phrase ratée (depuis le début de la phrase reprise) et le mot « banane ».
 2. Les silences de plus de 0,9 s sont ramenés à 0,7 s (les pauses de 3 s entre parties ne sont plus nécessaires).
 3. Le texte du script est aligné mot à mot sur la transcription : chaque repère [n] prend l'instant de fin du mot qui le précède.
+Option : REPRISES=0 désactive la suppression des passages répétés (voix ElevenLabs).
 Option : PAUSE=1.2 (variable d'environnement) ajoute une respiration de 1,2 s entre deux parties
 (utile pour une voix de synthèse qui enchaîne tout : chaque scène garde ainsi sa dernière image à l'écran).
 Sorties : voix_script.m4a (voix nettoyée, volume normalisé), timing.js (window.TIMING), montage.txt (rapport).
@@ -46,8 +47,9 @@ while i < len(words):
     i += 1
 
 # ---------- 1 bis. reprises sans « banane » : même suite de 6 mots répétée peu après -> on garde la dernière ----------
+# désactivé avec REPRISES=0 (voix de synthèse : pas de reprise, et le script peut répéter une tournure exprès)
 N = 6
-i = 0
+i = 0 if os.environ.get("REPRISES", "1") != "0" else len(words)
 while i + N <= len(words):
     g = [w["n"] for w in words[i:i + N]]
     found = None
