@@ -5,6 +5,8 @@ usage : python3 motion/tools/align.py <audio_brut> <transcription.json> <SCRIPT.
 1. « banane » = code de reprise : on supprime la phrase ratée (depuis le début de la phrase reprise) et le mot « banane ».
 2. Les silences de plus de 0,9 s sont ramenés à 0,7 s (les pauses de 3 s entre parties ne sont plus nécessaires).
 3. Le texte du script est aligné mot à mot sur la transcription : chaque repère [n] prend l'instant de fin du mot qui le précède.
+Option : PAUSE=1.2 (variable d'environnement) ajoute une respiration de 1,2 s entre deux parties
+(utile pour une voix de synthèse qui enchaîne tout : chaque scène garde ainsi sa dernière image à l'écran).
 Sorties : voix_script.m4a (voix nettoyée, volume normalisé), timing.js (window.TIMING), montage.txt (rapport).
 """
 import json, re, subprocess, sys, unicodedata, difflib, os
@@ -87,38 +89,6 @@ def remap(t):   # temps brut -> temps dans la voix nettoyée
     return acc
 total = sum(b - a for a, b in keep)
 
-# ---------- audio nettoyé ----------
-# Chaque raccord est un fondu enchaîné à puissance constante de 40 ms (pas de passage par le silence -> pas de clic).
-# Les segments débordent de 20 ms de chaque côté dans la zone coupée : la durée totale (et donc le calage) ne change pas.
-import numpy as np, tempfile
-SR, XF = 48000, 0.04
-raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", audio, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"], capture_output=True, check=True).stdout
-x = np.frombuffer(raw, np.float32)
-h = int(XF * SR / 2)
-ramp = np.sin(np.linspace(0, np.pi / 2, 2 * h)) ** 2
-outbuf = np.zeros(int(total * SR) + 2 * h + SR, np.float32)
-pos = 0
-for k, (a, b) in enumerate(keep):
-    ia, ib = int(a * SR), int(b * SR)
-    seg = x[max(0, ia - h):min(len(x), ib + h)].copy()
-    if k > 0: seg[:2 * h] *= ramp[:len(seg[:2 * h])]
-    if k < len(keep) - 1: seg[-2 * h:] *= ramp[::-1][-len(seg[-2 * h:]):]
-    start = max(0, pos - h)
-    outbuf[start:start + len(seg)] += seg
-    pos += ib - ia
-outbuf = outbuf[:pos + h]
-tmp = tempfile.NamedTemporaryFile(suffix=".f32", delete=False); tmp.write(outbuf.tobytes()); tmp.close()
-# traitement voix : coupe des graves inutiles, débruitage léger, « s » adoucis, compression douce, volume constant (2 passes)
-chain = "highpass=f=80,afftdn=nr=6:nf=-55,deesser=i=0.3,acompressor=threshold=-22dB:ratio=2.5:attack=8:release=160"
-meas = subprocess.run(["ffmpeg", "-hide_banner", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", tmp.name, "-af", chain + ",loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json",
-                       "-f", "null", "-"], capture_output=True, text=True).stderr
-mj = json.loads(meas[meas.rindex("{"):meas.rindex("}") + 1])
-ln = (f"loudnorm=I=-16:TP=-1.5:LRA=11:linear=true:measured_I={mj['input_i']}:measured_TP={mj['input_tp']}"
-      f":measured_LRA={mj['input_lra']}:measured_thresh={mj['input_thresh']}:offset={mj['target_offset']}")
-subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", tmp.name, "-af", chain + "," + ln,
-                "-ar", str(SR), "-ac", "2", "-c:a", "aac", "-b:a", "256k", os.path.join(out, "voix_script.m4a")], check=True)
-os.unlink(tmp.name)
-
 # ---------- 3. alignement script <-> transcription ----------
 body = open(script_md).read().split("---")[1]
 sections = re.split(r"^## ", body, flags=re.M)[1:]
@@ -143,16 +113,68 @@ def time_of(ti, end=True):
             if tj in tok2w:
                 w = words[tok2w[tj]]; return remap(w["b"] if end else w["a"])
     return None
-timing = {"total": round(total, 2), "parts": []}
+PAUSE = float(os.environ.get("PAUSE", "0"))
+ins, ins_of = [], {}   # instants (voix nettoyée) où insérer une respiration : au milieu du blanc entre deux parties
+if PAUSE > 0:
+    for p in range(1, len(sections)):
+        first = part_of.index(p)
+        e, s0 = time_of(first - 1), time_of(first, end=False)
+        if e is not None and s0 is not None:
+            x = (e + s0) / 2 if s0 > e else e + 0.08   # chevauchement (minutage Whisper approximatif) : juste après le dernier mot
+            ins.append(x); ins_of[p] = x
+def shift(t): return None if t is None else t + PAUSE * sum(1 for x in ins if x < t)
+timing = {"total": round(total + PAUSE * len(ins), 2), "parts": []}
 for p in range(len(sections)):
     first = part_of.index(p)
-    start = time_of(first, end=False)
-    marks = [time_of(ti) for ti in marker_after.get(p, [])]
+    start = shift(max(time_of(first, end=False), ins_of.get(p, -1) + 1e-3))
+    marks = [shift(time_of(ti)) for ti in marker_after.get(p, [])]
     timing["parts"].append({"start": round(start, 2), "markers": [round(m, 2) if m is not None else None for m in marks]})
     report.append(f"partie {p + 1:2d} : début {start:7.2f}s, repères {['%.1f' % m for m in marks if m is not None]}")
 cov = len(tok2w) / len(tokens)
-report.insert(0, f"voix nettoyée : {total:.1f}s (brut {dur:.1f}s) · mots du script retrouvés : {cov:.0%}")
-json.dump([{"w": w["w"], "t": round(remap(w["a"]), 2)} for w in words], open(os.path.join(out, ".mots_nettoyes.json"), "w"), ensure_ascii=False)
+report.insert(0, f"voix nettoyée : {total + PAUSE * len(ins):.1f}s ({len(ins)} respirations de {PAUSE}s) (brut {dur:.1f}s) · mots du script retrouvés : {cov:.0%}")
+# ---------- audio nettoyé ----------
+# Chaque raccord est un fondu enchaîné à puissance constante de 40 ms (pas de passage par le silence -> pas de clic).
+# Les segments débordent de 20 ms de chaque côté dans la zone coupée : la durée totale (et donc le calage) ne change pas.
+import numpy as np, tempfile
+SR, XF = 48000, 0.04
+raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", audio, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"], capture_output=True, check=True).stdout
+x = np.frombuffer(raw, np.float32)
+h = int(XF * SR / 2)
+ramp = np.sin(np.linspace(0, np.pi / 2, 2 * h)) ** 2
+outbuf = np.zeros(int(total * SR) + 2 * h + SR, np.float32)
+pos = 0
+for k, (a, b) in enumerate(keep):
+    ia, ib = int(a * SR), int(b * SR)
+    seg = x[max(0, ia - h):min(len(x), ib + h)].copy()
+    if k > 0: seg[:2 * h] *= ramp[:len(seg[:2 * h])]
+    if k < len(keep) - 1: seg[-2 * h:] *= ramp[::-1][-len(seg[-2 * h:]):]
+    start = max(0, pos - h)
+    outbuf[start:start + len(seg)] += seg
+    pos += ib - ia
+outbuf = outbuf[:pos + h]
+if ins:   # respirations : silence inséré dans le blanc entre deux parties, fondus de 15 ms de part et d'autre
+    f = int(0.015 * SR); pieces, last = [], 0
+    for x in ins:
+        k = int(x * SR); seg = outbuf[last:k].copy()
+        if len(seg) > f: seg[-f:] *= np.linspace(1, 0, f)
+        if last and len(seg) > f: seg[:f] *= np.linspace(0, 1, f)
+        pieces += [seg, np.zeros(int(PAUSE * SR), np.float32)]; last = k
+    seg = outbuf[last:].copy()
+    if len(seg) > f: seg[:f] *= np.linspace(0, 1, f)
+    outbuf = np.concatenate(pieces + [seg]).astype(np.float32)
+tmp = tempfile.NamedTemporaryFile(suffix=".f32", delete=False); tmp.write(outbuf.tobytes()); tmp.close()
+# traitement voix : coupe des graves inutiles, débruitage léger, « s » adoucis, compression douce, volume constant (2 passes)
+chain = "highpass=f=80,afftdn=nr=6:nf=-55,deesser=i=0.3,acompressor=threshold=-22dB:ratio=2.5:attack=8:release=160"
+meas = subprocess.run(["ffmpeg", "-hide_banner", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", tmp.name, "-af", chain + ",loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json",
+                       "-f", "null", "-"], capture_output=True, text=True).stderr
+mj = json.loads(meas[meas.rindex("{"):meas.rindex("}") + 1])
+ln = (f"loudnorm=I=-16:TP=-1.5:LRA=11:linear=true:measured_I={mj['input_i']}:measured_TP={mj['input_tp']}"
+      f":measured_LRA={mj['input_lra']}:measured_thresh={mj['input_thresh']}:offset={mj['target_offset']}")
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", tmp.name, "-af", chain + "," + ln,
+                "-ar", str(SR), "-ac", "2", "-c:a", "aac", "-b:a", "256k", os.path.join(out, "voix_script.m4a")], check=True)
+os.unlink(tmp.name)
+
+json.dump([{"w": w["w"], "t": round(shift(remap(w["a"])), 2)} for w in words], open(os.path.join(out, ".mots_nettoyes.json"), "w"), ensure_ascii=False)
 open(os.path.join(out, "timing.js"), "w").write("window.TIMING = " + json.dumps(timing) + ";\n")
 open(os.path.join(out, "montage.txt"), "w").write("\n".join(report) + "\n")
 print("\n".join(report[:3])); print("…", len(report), "lignes dans montage.txt")

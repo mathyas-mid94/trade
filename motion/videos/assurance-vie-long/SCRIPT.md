@@ -1,4 +1,4 @@
-# L'assurance vie — version longue · script voix off (v2, plus parlé)
+# L'assurance vie — version longue · script voix off (v3, texte lu par la voix ElevenLabs)
 
 Ton : comme une conversation avec un ami, posé et souriant. Vouvoiement, mais chaleureux.
 Les repères `[n]` indiquent le mot sur lequel l'image correspondante apparaît ; ils ne sont pas lus.
@@ -29,22 +29,22 @@ C'est rassurant, oui. Mais ça rapporte très peu. [3]
 L'assurance vie, elle, vous permet de passer à la vitesse supérieure, [4] avec une rentabilité bien plus intéressante. [5]
 C'est un vrai véhicule d'investissement. [6]
 En clair : votre argent qui dormait [7] se met enfin au travail. [8]
-Et vous choisissez comment. Soit vous laissez faire, c'est la gestion passive, [9] on s'occupe de tout pour vous. Soit vous voulez que ça bouge, c'est la gestion active : [10] on ajuste vos placements au fil du temps. C'est ce qu'on appelle les arbitrages.
+Et vous choisissez comment. Soit vous laissez une équipe de professionnels faire, c'est la gestion passive, [9] on s'occupe de tout pour vous. Soit vous prenez en main la gestion, c'est la gestion active [10] et on ajuste vos placements au fil du temps. C'est ce qu'on appelle les arbitrages.
 
 ## 03 · Alimenter l'enveloppe
 Concrètement, une assurance vie, c'est une enveloppe. [1]
 Vous pouvez y mettre de l'argent tous les mois, de façon automatique, [2]
-ou quand vous voulez, quand vous avez un peu de côté. [3]
+ou quand vous voulez. [3]
 C'est comme votre budget : il y a ce qui rentre, [4] il y a ce qui sort, [5] et il y a ce qui reste. [6]
 Eh bien ce qui reste, au lieu de le laisser traîner sur un compte, vous le mettez dans l'enveloppe. [7]
-Cet argent, c'est votre capital. [8] Il va produire des intérêts. [9] Et ces intérêts, à leur tour, vont en produire d'autres. [10]
+Cet argent, c'est votre capital. [8] Il va produire des intérêts. [9] Et ces intérêts, à leur tour, en génèrent d'autres. [10]
 Mais l'assurance vie, ce n'est pas qu'un livret qui rapporte plus. Elle a d'autres atouts. [11]
 
 ## 04 · Disponible à tout moment
-Premier atout, et c'est une idée reçue qui a la vie dure : non, votre argent n'est pas bloqué. [1]
-Vous pouvez en mettre [2] et en retirer [3] quand vous le souhaitez.
+Premier atout, et c'est une idée reçue : non, votre argent n'est jamais bloqué. [1]
+Vous pouvez placer votre argent [2] et le retirer [3] quand vous le voulez.
 D'accord, c'est un peu moins rapide qu'un livret A : [4] comptez entre trois et dix jours pour récupérer vos fonds, [5] parfois un mois chez les assureurs les plus lents. [6]
-Mais il n'y a aucune condition, aucune pénalité : [7] cet argent reste le vôtre, disponible.
+Mais il n'y a aucune condition, aucune pénalité : [7] cet argent reste le vôtre et disponible.
 
 ## 05 · Hors droits de succession
 Deuxième atout, et pas des moindres : la transmission. [1]
@@ -55,7 +55,7 @@ Pour vos proches, ça change tout. [6]
 ## 05 · Insaisissable
 Troisième atout, moins connu : en principe, l'assurance vie est insaisissable. [1]
 Si un jour vous avez un souci avec un créancier, [2] cet argent est protégé. [3]
-Personne ne peut venir se servir. [4] C'est votre capital, point.
+Personne ne peut venir se servir. [4] C'est votre capital.
 
 ## 06 · Le nantissement
 Et pourtant, vous pouvez vous en servir pour obtenir un crédit. Ça s'appelle le nantissement. [1]
@@ -63,7 +63,7 @@ Imaginons : vous voulez acheter votre résidence principale, [2] faire un invest
 Vous allez voir votre banque, [5] et vous lui proposez de nantir votre assurance vie. [6] En clair, vous la mettez en garantie. [7]
 
 ## 06 · Le nantissement · le crédit
-Et là, tout devient plus facile : la banque est rassurée, le crédit passe mieux. [1]
+Et là, tout devient plus facile : la banque est rassurée, le crédit est plus accessible. [1]
 Votre dossier est plus solide, et on vous demande souvent un apport [2] beaucoup plus petit. [3]
 Pendant ce temps, votre assurance vie continue de vivre. [4] Vous pouvez toujours verser dedans, vos placements continuent de tourner. [5]
 La seule règle : si un jour vous ne remboursez plus votre crédit, [6] la banque peut récupérer cette garantie. [7]
@@ -72,7 +72,7 @@ La seule règle : si un jour vous ne remboursez plus votre crédit, [6] la banqu
 Parlons impôts, maintenant. Bonne nouvelle : votre capital, lui, n'est jamais taxé. [1] Ce sont seulement les intérêts [2] qui le sont, et uniquement quand vous les retirez. [3]
 Et là, il y a deux cas. [4]
 Si votre contrat a moins de 8 ans, [5] c'est la fiscalité classique : [6] la flat tax, 31,4 % sur les intérêts que vous retirez. [7]
-S'il a plus de 8 ans, [8] ça devient beaucoup plus doux : [9] chaque année, une partie de vos intérêts n'est pas taxée du tout. C'est l'abattement. [10]
+S'il a plus de 8 ans, [8] ça devient beaucoup plus doux : [9] chaque année, une partie de vos intérêts n'est pas taxée du tout. Grâce à un abattement. [10]
 Et attention, c'est l'âge du contrat qui compte, pas celui de vos versements. [11] Donc un contrat ouvert tôt, même avec trois fois rien, c'est un contrat qui prend de la valeur. [12]
 
 ## 07 · L'abattement · exemple
@@ -80,7 +80,7 @@ Prenons un exemple concret. [1]
 Vous avez mis 20 000 euros. [2] Avec le temps, ils ont rapporté 10 000 euros d'intérêts. [3]
 Après 8 ans, vous avez droit à un abattement chaque année : 4 600 euros si vous êtes seul, [4] 9 200 euros si vous êtes marié ou pacsé. [5]
 Pour un couple, on enlève donc 9 200 euros de ces 10 000 euros d'intérêts. [6]
-Résultat : il ne reste que 800 euros sur lesquels payer quelque chose, [7] et à un taux réduit. [8]
+Résultat : il ne reste que 800 euros sur lesquels payer quelque chose, [7] et à un taux réduit [8] d'environ 18,6 %.
 
 ## 08 · Deux poches
 Mais au fait, où va votre argent, à l'intérieur ? Imaginez un jean, avec deux poches. [1]
@@ -99,13 +99,13 @@ Et c'est à la fois de la sécurité et du potentiel, [5] grâce à ses deux poc
 ## 09 · Au décès
 Et le jour où vous n'êtes plus là, [1] elle continue de protéger les vôtres.
 Jusqu'à 152 500 euros par personne, sans droits de succession, [2] et un argent versé vite, en général en moins d'un mois. [3]
-Surtout, c'est vous qui choisissez qui reçoit : [4] un cousin, [5] un frère, une tante… [6] qui vous voulez. Bon, enfin, pas votre chien. [7]
+Surtout, c'est vous qui choisissez qui reçoit : [4] un cousin, [5] un frère, une tante… [6] qui vous voulez. [7]
 Et si vous préférez que quelqu'un ne touche pas à cet argent, c'est possible aussi. [8]
 
 ## 09 · Et les livrets bancaires ?
 Comparez avec un livret à la banque. [1]
 Au décès, il suit la succession classique : [2] l'argent est bloqué [3] jusqu'à ce que tout soit réglé chez le notaire, [4] et ça peut prendre des mois. [5]
-Comme on dit : mieux vaut prévenir que guérir. [6]
+Comme on dit : mieux vaut prévenir plus tôt que guérir. [6]
 
 ## 10 · Simulations
 Allez, on passe aux chiffres. [1]
@@ -132,7 +132,7 @@ Et ces frais, année après année, mangent une bonne partie de votre performanc
 Pour moi, une politique de frais, ça doit être simple et clair. [5]
 
 ## 11 · La politique de frais MIC
-Chez MIC, [1] les frais, ils servent à payer un vrai service : une gestion libre ou pilotée, [2] des conseils sur mesure pour répartir votre argent, [3] et un coup de main sur la fiscalité et la paperasse. [4]
+Chez le Midelton Investment Capital, [1] les frais, ils servent à payer un vrai service : une gestion libre ou pilotée, [2] des conseils sur mesure pour répartir votre argent, [3] et un coup de main sur la fiscalité et la paperasse. [4]
 Et à côté de ça : zéro frais d'entrée, [5] zéro frais de dossier, [6] zéro frais d'arbitrage. [7]
 
 ## 11 · Les frais de gestion
@@ -142,7 +142,7 @@ Par exemple, si votre contrat fait 10 % sur l'année, [3] on prélève 1 %, [4] 
 Et ce 1 % est partagé entre l'assureur et le conseiller. [6]
 
 ## 12 · Un réseau d'assureurs
-Pour trouver le bon contrat, MIC travaille avec tout un réseau d'assureurs : [1] de grandes compagnies françaises, [2] et même des contrats luxembourgeois. [3]
+Pour trouver le bon contrat, le Midelton Investment Capital travaille avec tout un réseau d'assureurs : [1] de grandes compagnies françaises, [2] et même des contrats luxembourgeois. [3]
 Pourquoi des assureurs plutôt que des banques ? [4] Parce que leurs contrats dépendent du code des assurances, [5] qui est souvent plus avantageux pour vous.
 L'idée, c'est de trouver le contrat qui vous correspond, à vous, [6] y compris si vous tenez à investir de façon responsable. [7]
 
@@ -162,8 +162,8 @@ Alors, laquelle est la meilleure ? [6] Sur le papier, le lump sum rapporte un pe
 Ce que j'aime bien, c'est de mélanger les deux : [9] un versement plus gros chaque trimestre, [10] et un petit versement automatique chaque mois. [11]
 
 ## 14 · Votre profil investisseur
-Après, tout dépend de vous, de votre profil d'investisseur. [1] Vous pouvez d'ailleurs faire le test sur le site de MIC, ça prend deux minutes. [2]
-Si vous êtes prudent, [3] vous privilégiez la sécurité, avec surtout du fonds euros.
+Après, tout dépend de vous, de votre profil d'investisseur. [1] Vous pouvez d'ailleurs faire le test sur le site du Midelton Investment Capital, ça prend deux minutes. [2]
+Si vous êtes prudent, [3] vous privilégiez la sécurité, avec pas mal de fonds euros.
 Si vous êtes équilibré, [4] vous cherchez le juste milieu.
 Et si vous êtes dynamique, [5] vous visez la performance, avec surtout des unités de compte.
 

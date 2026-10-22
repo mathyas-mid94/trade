@@ -26,6 +26,7 @@ SC(635, "11", "LES FRAIS", (g, at) => {
 // ---- La politique de frais MIC ----
 SC(656, "11", "LA POLITIQUE DE FRAIS MIC", (g, at) => {
   const logo = el("g", {}, g); const M = D.micLogo(logo, 0, 0, 120);
+  const name = txt(g, 360, 640, "Midelton Investment Capital", 26, { font: "Serif", weight: 600, fill: C.inkSoft });
   const list = [["Gestion libre ou pilotée", 665.2], ["Conseil en allocation sur-mesure", 667.6], ["Assistance fiscale et administrative", 670.0]].map(([s, a], i) => {
     const r = el("g", {}, g); const c = check(r); c.setAttribute("transform", "scale(0.8)"); txt(r, 50, 11, s, 34, { anchor: "start", font: "Serif", weight: 600 }); return { r, a, y: 340 + i * 90 };
   });
@@ -34,7 +35,7 @@ SC(656, "11", "LA POLITIQUE DE FRAIS MIC", (g, at) => {
   });
   return t => {
     M.letters.forEach(L => { L.t.style.opacity = 1; }); M.outer.style.opacity = 1; M.inner.style.opacity = 1;
-    place(logo, 360, 460, pop(t, 657.4) * 1.0);
+    place(logo, 360, 460, pop(t, 657.4) * 1.0); show(name, fade(t, 657.8));
     list.forEach(l => place(l.r, 640, l.y, pop(t, l.a)));
     zeros.forEach(z => place(z.c, z.x, 850, pop(t, z.a)));
   };
@@ -153,7 +154,7 @@ SC(805, "13", "DEUX FAÇONS D'INVESTIR · LE DCA", (g, at) => {
 // ---- Votre profil investisseur ----
 SC(849, "14", "VOTRE PROFIL INVESTISSEUR", (g, at) => {
   const head = title(g, 190, "Une gestion à votre mesure", 60);
-  const test = pill(g, 960, 270, "TEST DE PROFIL INVESTISSEUR SUR LE SITE MIC", { bg: C.face, size: 20 });
+  const test = pill(g, 960, 270, "TEST DE PROFIL SUR LE SITE MIDELTON INVESTMENT CAPITAL", { bg: C.face, size: 20 });
   const P = [["PRUDENT", "Privilégier la stabilité", 70, "2/7", "3 ans et +", 855.6], ["ÉQUILIBRÉ", "Chercher le juste milieu", 50, "3/7", "5 ans et +", 856.4], ["DYNAMIQUE", "Viser la performance", 20, "5/7", "8 ans et +", 857.2]].map(([n, d, eur, sri, hz, a], i) => {
     const c = card(g, 480, 500, { fill: i === 2 ? C.accentSoft : C.face });
     txt(c, 0, -190, n, 36, { weight: 800, ls: 6 }); txt(c, 0, -148, d, 24, { font: "Serif", weight: 600, fill: C.inkSoft });

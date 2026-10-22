@@ -64,9 +64,9 @@ SC(63, "02", "FAIRE FRUCTIFIER SON ÉPARGNE", (g, at) => {
   const lab1 = pill(g, 560, 420, "ÉPARGNE INACTIVE", { bg: C.face }), lab2 = pill(g, 560, 420, "ÉPARGNE ACTIVE", { bg: C.accent });
   const passive = card(g, 400, 240), active = card(g, 400, 240);
   const loop = el("path", { ...D.line, stroke: C.inkSoft, "stroke-width": 7, d: "M-40 -40 A50 50 0 1 1 -60 10 M-70 -10 L-60 12 L-38 2" }, passive); loop.setAttribute("transform", "translate(0 -10)");
-  txt(passive, 0, 80, "GESTION PASSIVE", 26, { weight: 800, ls: 4 });
+  txt(passive, 0, 80, "GESTION PASSIVE", 26, { weight: 800, ls: 4 }); txt(passive, 0, 112, "une équipe de professionnels", 22, { weight: 500, fill: C.inkSoft });
   el("path", { ...D.line, stroke: C.accent, "stroke-width": 7, d: "M-70 -50 L60 -50 M40 -68 L62 -50 L40 -32 M70 0 L-60 0 M-40 -18 L-62 0 L-40 18" }, active);
-  txt(active, 0, 80, "GESTION ACTIVE", 26, { weight: 800, ls: 4 }); txt(active, 0, 112, "arbitrages", 22, { weight: 500, fill: C.inkSoft });
+  txt(active, 0, 80, "GESTION ACTIVE", 26, { weight: 800, ls: 4 }); txt(active, 0, 112, "vous prenez la main · arbitrages", 22, { weight: 500, fill: C.inkSoft });
   return t => {
     const part1 = out(t, 80.6, 0.5);
     const lh = 120 * ease(prog(t, 64.3, 65.2)); low.setAttribute("y", 760 - lh); low.setAttribute("height", lh); low.style.opacity = (lh > 1 ? 1 : 0) * part1;
@@ -137,7 +137,7 @@ SC(126, "04", "DISPONIBLE À TOUT MOMENT", (g, at) => {
   const lock = padlock(g);
   const env = envelope(g, "");
   const cin = [0, 1, 2].map(() => coin(g)), cout = [0, 1, 2].map(() => coin(g));
-  const l1 = txt(g, 520, 330, "ENTRER", 30, { weight: 800, ls: 8, fill: C.inkSoft }), l2 = txt(g, 1400, 330, "SORTIR", 30, { weight: 800, ls: 8, fill: C.inkSoft });
+  const l1 = txt(g, 520, 330, "PLACER", 30, { weight: 800, ls: 8, fill: C.inkSoft }), l2 = txt(g, 1400, 330, "RETIRER", 30, { weight: 800, ls: 8, fill: C.inkSoft });
   const cmp = el("g", {}, g);
   const ca = card(cmp, 520, 230); txt(ca, 0, -50, "LIVRET A", 30, { weight: 800, ls: 6 }); txt(ca, 0, 40, "immédiat", 52, { font: "Serif", weight: 600 });
   const cb = card(cmp, 520, 230, { fill: C.accentSoft }); txt(cb, 0, -50, "ASSURANCE VIE", 30, { weight: 800, ls: 6 });

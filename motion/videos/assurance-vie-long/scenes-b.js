@@ -47,7 +47,7 @@ SC(312, "07", "L'ABATTEMENT · EXEMPLE", (g, at) => {
   const head = title(g, 190, "Abattement annuel sur les intérêts");
   const minus = txt(g, 1360, 520, "10 000 − 9 200", 50, { font: "Serif", weight: 600, fill: C.inkSoft });
   const rest = pill(g, 1360, 640, "RESTE IMPOSÉ : 800 €", { bg: C.accent, size: 30 });
-  const low = pill(g, 1360, 760, "À UN TAUX RÉDUIT", { bg: C.face, size: 24 });
+  const low = pill(g, 1360, 760, "À UN TAUX RÉDUIT ≈ 18,6 %", { bg: C.face, size: 24 });
   return t => {
     show(head, fade(t, 312.4));
     place(capB, 560, 900, pop(t, 317.6));
@@ -130,10 +130,8 @@ SC(437, "09", "LES ATOUTS · AU DÉCÈS", (g, at) => {
     const c = card(g, 440, 200, { fill: i === 0 ? C.accentSoft : C.face }); txt(c, 0, -6, a1, 50, { font: "Serif", weight: 600 }); txt(c, 0, 48, a2, 24, { weight: 500, fill: C.inkSoft }); return { c, a, x: 460 + i * 500 };
   });
   const people = [["COUSIN", {}], ["FRÈRE", { vest: C.inkSoft }], ["TANTE", { hair: "f" }]].map(([l, o], i) => ({ guy: person(g, o), l: txt(g, 0, 0, l, 22, { weight: 800, ls: 5, fill: C.inkSoft }), x: 520 + i * 260 }));
-  const dog = el("g", {}, g);
-  el("path", { ...D.line, fill: C.accentSoft, d: "M-60 0 Q-60 -40 -10 -40 L40 -40 Q60 -40 62 -60 L90 -66 Q104 -50 92 -34 L80 -24 Q74 0 50 0 L50 40 M-50 0 L-50 40 M-60 -20 Q-90 -40 -84 -66" }, dog);
-  el("circle", { cx: 84, cy: -50, r: 4, fill: C.ink }, dog);
-  const no = check(g, false); const dogL = txt(g, 1440, 1000, "(pas le chien…)", 30, { font: "Serif", weight: 500, fill: C.inkSoft });
+  // « … qui vous voulez » : un 4e bénéficiaire, au choix
+  const anyone = person(g, { vest: C.accent }); const anyL = pill(g, 1400, 1000, "QUI VOUS VOULEZ", { bg: C.accent, size: 22 });
   const out1 = check(g, false); const disin = pill(g, 520, 380, "DÉSHÉRITER, C'EST POSSIBLE AUSSI", { bg: C.face, size: 22 });
   return t => {
     show(head, fade(t, 437.4) * out(t, 461.6));
@@ -142,7 +140,8 @@ SC(437, "09", "LES ATOUTS · AU DÉCÈS", (g, at) => {
     people.forEach((p, i) => { const k = pop(t, 462.2 + i * 0.6); const gone = i === 0 ? ease(prog(t, 469.6, 470.4)) : 0;
       p.guy.pose(105, 75).place(p.x - gone * 300, 900, k * 0.85, false); p.guy.g.style.opacity = (k > 0 ? 1 : 0) * (1 - gone);
       p.l.setAttribute("x", p.x - gone * 300); p.l.setAttribute("y", 960); p.l.style.opacity = fade(t, 462.4 + i * 0.6) * (1 - gone); });
-    place(dog, 1440, 870, pop(t, 464.8)); place(no, 1520, 760, pop(t, 465.4)); show(dogL, fade(t, 465.6));
+    const ka = pop(t, 464.8); anyone.pose(105, 75).place(1400, 900, ka * 0.85, false); anyone.g.style.opacity = ka > 0 ? 1 : 0;
+    place(anyL.g, anyL.x, anyL.y, pop(t, 465.2));
     place(out1, 520, 520, pop(t, 469.2) * out(t, 470.4)); place(disin.g, disin.x, disin.y, pop(t, 469.0));
   };
 });

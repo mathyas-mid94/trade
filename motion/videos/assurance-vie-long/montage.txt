@@ -1,90 +1,31 @@
-voix nettoyée : 636.6s (brut 1210.3s) · mots du script retrouvés : 81%
-reprise à   28.81s : supprimé « Il y a beaucoup de choses à dire, on va découper banana. »
-reprise à   36.85s : supprimé « donc on va découper ça en plusieurs vidéos. Dans celui -ci, on pose les bases banana. »
-reprise à   58.45s : supprimé « 2. Banane. »
-reprise à   60.89s : supprimé « 1. Assurances visse à 3 choses. 1. Travailler une épargne qui dort, protéger les gens qu 'on aime et payer moins d 'impôts sur ce qu 'on gagne. 2. Banane. »
-reprise à  113.05s : supprimé « Commençons par le premier point. Aujourd 'hui la plupart des français gardent des bananes. »
-reprise à  148.99s : supprimé « Banane, »
-reprise à  137.35s : supprimé « Et vous choisissez comment. Soit vous vous laissez faire, c 'est la gestion passive, on s 'occupe de tout pour vous, soit plus naturel. banane. »
-reprise à  201.09s : supprimé « Mais là sur en vie, ce n 'est pas qu 'un livret qui rapporte. Il y en a d 'autres. Banana. »
-reprise à  207.73s : supprimé « Mais là sur en vie, ce n 'est pas qu 'un livret qui rapporte. à la d 'autres âtes bananes. »
-reprise à  224.45s : supprimé « Première attoue, et c 'est une idée reçue qui est banane. »
-reprise à  241.49s : supprimé « Banane. »
-reprise à  260.29s : supprimé « Comptez entre 3 et 10 jours pour récupérer vos fonds. Parfois, un mois chez les assurants les plus lents. Mais il y a une condition, aucune pénalité. Cet argent reste, le vôtre est disponible. Banane. »
-reprise à  281.43s : supprimé « Comptez entre 3 et 10 jours pour récupérer vos fonds. Parfois un mois, je les assurerai les plus lentes. Mais il y a une condition. Banane. »
-reprise à  289.69s : supprimé « Comptez entre 3 et 10 jours pour récupérer vos fonds. Banane. »
-reprise à  293.41s : supprimé « Contraire. banane. »
-reprise à  308.27s : supprimé « 2e atout et pas des moines, la transmission. La surenzie c 'est l 'un des rares bananes. »
-reprise à  351.39s : supprimé « Et pourtant, vous pouvez vous en servir pour obtenir banana. »
-reprise à  417.65s : supprimé « Ce sont les intérêts qui le sont, et uniquement quand vous le réopen. Banane. »
-reprise à  422.63s : supprimé « Ce sont les intérêts qui le sont, et... Banane. »
-reprise à  456.95s : supprimé « Donc, un contrat ouvert tôt, même avec trois fois bananes. »
-reprise à  504.89s : supprimé « Mais au fait, où va votre argent Banane. »
-reprise à  533.23s : supprimé « C 'est la poche qui fait grandir votre épargne avec des énormes bananes. »
-reprise à  584.13s : supprimé « jusqu 'à 150 .500 euros par personne sans droite succession. Et... Banane. »
-reprise à  600.09s : supprimé « Banane, »
-reprise à  591.43s : supprimé « Jusqu 'à 150 .500 euros par personne sans droite succession. Et un argent versé vite. Rien à dire. banane. »
-reprise à  611.51s : supprimé « surtout si vous choisissez qui reçoit un cousin banane »
-reprise à  624.37s : supprimé « banane »
-reprise à  625.03s : supprimé « banane »
-reprise à  625.37s : supprimé « banane »
-reprise à  625.69s : supprimé « banane »
-reprise à  673.45s : supprimé « Comme on dit, mieux vaut prévenir plutôt guérir. Banane. »
-reprise à  723.29s : supprimé « 40 000 euros sans avoir rien à ajouter et c 'est bananes »
-reprise à  732.77s : supprimé « bien sûr plus le rendement est élevé banane »
-reprise à  764.63s : supprimé « Petit point d 'attention au passage, beaucoup de gens investissent sur un compte -titre alors qu 'ils pourraient avoir les mêmes ETF, les mêmes actions dans une action en 8 et payent beaucoup à bananes. »
-reprise à  777.03s : supprimé « Petit point d 'attention au passage, beaucoup de gens bananent. »
-reprise à  805.89s : supprimé « Pour moi, une politique de frais doit être claire et simple. Banane. »
-reprise à  849.39s : supprimé « par exemple si votre contrat fait 10 % de performance sur l 'année, on prélève 1 % et on vous réellent et il vous banane. »
-reprise à  869.65s : supprimé « Pour trouver le bon contrat, le MIC travaille avec un Banane. »
-reprise à  879.13s : supprimé « Pour trouver le bon contrat, le MIC travaille avec tout un Banane. »
-reprise à  891.37s : supprimé « Parce que leur contrat dépend du code des assurances qui est plus avantageux pour vous. Banane. »
-reprise à  898.63s : supprimé « Parce que leur contrat dépend du code des assurances, ce qui est plus souvent banane. »
-reprise à  904.57s : supprimé « Parce que leur contrat dépend des bananes. »
-reprise à  907.05s : supprimé « Parce que leur contrat dépend bananes. »
-reprise à  911.23s : supprimé « Parce que leur tra... banane. »
-reprise à  917.21s : supprimé « l 'idée, c 'est de trouver le contrat qui vous correspond à vous, y compris si vous tenez à investir de façon présolable. Banane. »
-reprise à  932.93s : supprimé « Banane. »
-reprise à  926.21s : supprimé « L 'idée, c 'est de trouver le contrat qui vous correspond. L 'idée. Banane. »
-reprise à  998.35s : supprimé « Ce que j 'aime bien, c 'est de mélanger les deux, un versement plus gros chaque trimestre et un versement automatique chaque mois. Banane. »
-reprise à 1101.89s : supprimé « C 'est comme cette banane. »
-reprise à 1155.45s : supprimé « Donc le meilleur moment pour commencer c 'est maintenant. Et si vous vous foutre, banana. »
-reprise à 1189.41s : supprimé « Si vous en avez déjà une, prenez le temps de regarder de l 'ajusté et l 'ajustement. Banane. »
-reprise sans banane à   83.43s : supprimé « point. Aujourd 'hui la plupart des français, gardent leur épinge, sont des livrets, le livret A, le LDD, le PEL, le CEL, c 'est rassurant oui, mais ça rapporte très peu. La assurance de vie, elle vous permet de passer à une vitesse supérieure, avec une rentabilité bien plus intéressante. C 'est un vrai véhicule d 'investissement. En clair, votre argent qui dormait, se met enfin à travailler, et vous choisissez comment, en fait. Soit vous laissez... ah putain... Manan, manan, manan, manan, manan. Commençons par le premier »
-reprise sans banane à  375.11s : supprimé « Et là, tout devient plus facile. La banque est rassurée, le crédit passe mieux, votre dossier est plus solide et vous demandez banal. »
-reprise sans banane à  447.29s : supprimé « C 'est l 'abattement et attention, c 'est l 'âge du contrat qui compte. »
-reprise sans banane à  486.09s : supprimé « il ne reste que 800€. Sur lequel, payer quelque chose à un taux écrou. »
-reprise sans banane à  617.37s : supprimé « choisissez qui reçoit un cousin inférieur unitante qui vous voulez enfin pas votre chien surtout c 'est vous qui »
-reprise sans banane à  751.79s : supprimé « au passage beaucoup de gens investissent sur un compte quitter alors qu 'ils pourraient avoir exactement les mêmes ETF, les mêmes actions dans une action en 8. Petit point d 'attention »
-reprise sans banane à  950.05s : supprimé « Maintenant comment on investit Il y a deux façons de faire tout mettre d 'un coup »
-reprise sans banane à 1042.27s : supprimé « Restez une question. Est -ce que vous délégez ou est -ce que vous gardez la main Vous pouvez confier la main par manon. »
-partie  1 : début    0.30s, repères ['3.8', '4.9', '5.1', '6.2', '10.0', '17.6', '21.3', '22.1', '24.9', '26.4', '29.3', '32.5']
-partie  2 : début   33.22s, repères ['39.3', '40.5', '41.9']
-partie  3 : début   42.63s, repères ['46.3', '51.2', '51.8', '54.5', '56.5', '58.0', '60.3', '61.9', '67.6', '71.4']
-partie  4 : début   75.95s, repères ['77.8', '80.5', '83.1', '86.5', '87.1', '88.4', '93.0', '94.8', '96.5', '100.7', '104.5']
-partie  5 : début  106.37s, repères ['110.3', '112.5', '114.1', '129.6', '131.1', '132.6', '134.8']
-partie  6 : début  136.23s, repères ['138.7', '142.5', '145.5', '148.1', '148.8', '155.9']
-partie  7 : début  155.82s, repères ['160.5', '162.3', '163.2', '164.5']
-partie  8 : début  165.99s, repères ['172.0', '174.0', '175.3', '177.0', '178.5', '181.3', '182.5']
-partie  9 : début  182.94s, repères ['186.1', '189.1', '189.8', '192.3', '195.4', '198.2', '199.7']
-partie 10 : début  199.52s, repères ['204.6', '206.0', '207.9', '209.8', '211.7', '213.2', '216.2', '219.2', '219.9', '225.7', '228.5', '232.6']
-partie 11 : début  233.55s, repères ['234.6', '235.9', '238.8', '242.3', '244.5', '249.4', '253.1', '254.8']
-partie 12 : début  254.41s, repères ['259.1', '260.8', '263.5', '267.6', '270.9', '274.2', '276.7', '278.6', '285.8', '287.7', '290.4']
-partie 13 : début  294.10s, repères ['296.0', '297.8', '300.2', '303.2', '306.3']
-partie 14 : début  308.36s, repères ['309.7', '314.2', '317.8', '320.3', '320.8', '322.1', '324.0', '326.8']
-partie 15 : début  326.39s, repères ['329.1', '330.5', '331.1', '332.9', '334.1', '336.5']
-partie 16 : début  336.24s, repères ['338.7', '340.2', '341.1', '342.7', '344.9', '347.5', '351.3', '353.3', '355.6']
-partie 17 : début  358.44s, repères ['362.2', '365.0', '368.4', '370.8', '372.6', '376.0', '382.2', '385.0']
-partie 18 : début  385.66s, repères ['386.9', '388.8', '391.0', '393.1', '395.1']
-partie 19 : début  396.21s, repères ['398.2', '399.7', '400.4', '404.2', '407.1']
-partie 20 : début  408.12s, repères ['408.6', '415.5', '417.2', '419.9', '422.4', '423.8', '424.5']
-partie 21 : début  425.76s, repères ['428.4', '430.7', '436.0', '437.4', '438.3', '441.5']
-partie 22 : début  441.90s, repères ['444.6', '446.5', '447.9', '449.7', '451.8', '454.7', '457.0']
-partie 23 : début  457.41s, repères ['460.9', '461.7', '462.3', '465.0', '467.8', '469.8', '472.4', '475.9', '479.5']
-partie 24 : début  478.91s, repères ['483.4', '485.9', '487.0', '491.2', '493.1', '494.7', '497.4', '499.7', '501.8', '503.6', '505.4']
-partie 25 : début  506.10s, repères ['507.6', '511.5', '512.5', '516.4', '518.7']
-partie 26 : début  522.41s, repères ['524.4', '527.5', '530.2', '531.7', '533.1', '537.8', '539.8']
-partie 27 : début  541.11s, repères ['543.3', '545.5', '549.4', '550.8', '553.6', '555.1', '557.0', '558.9']
-partie 28 : début  559.97s, repères ['562.4', '565.1', '566.3', '573.1', '575.2', '577.3', '579.8', '583.0', '584.6']
-partie 29 : début  586.80s, repères ['588.4', '590.8', '594.7', '596.3', '599.0', '601.4', '608.3', '610.8', '612.0', '614.1']
-partie 30 : début  616.29s, repères ['618.6', '619.8', '620.7', '621.9', '623.4', '624.2', '626.6', '631.7', '634.6']
+voix nettoyée : 689.0s (29 respirations de 1.2s) (brut 654.2s) · mots du script retrouvés : 90%
+partie  1 : début    0.00s, repères ['4.0', '4.9', '5.4', '6.6', '10.9', '18.9', '22.5', '23.7', '27.0', '28.1', '31.9', '35.7']
+partie  2 : début   37.48s, repères ['41.2', '42.8', '44.9']
+partie  3 : début   46.58s, repères ['51.2', '54.6', '57.5', '61.2', '63.5', '64.9', '67.7', '69.0', '74.0', '78.4']
+partie  4 : début   84.20s, repères ['86.5', '89.6', '90.5', '93.1', '94.0', '95.2', '99.3', '101.7', '103.4', '106.7', '110.4']
+partie  5 : début  111.68s, repères ['116.2', '117.8', '118.5', '122.5', '124.9', '127.0', '129.8']
+partie  6 : début  133.48s, repères ['136.1', '140.2', '142.7', '145.7', '146.5', '151.9']
+partie  7 : début  153.50s, repères ['157.7', '160.0', '161.5', '163.1']
+partie  8 : début  166.06s, repères ['170.2', '173.3', '174.8', '176.3', '177.7', '180.0', '182.1']
+partie  9 : début  183.66s, repères ['187.8', '191.0', '191.8', '194.7', '198.2', '201.5', '203.5']
+partie 10 : début  204.76s, repères ['209.2', '210.7', '212.9', '214.3', '216.3', '217.8', '221.8', '223.0', '224.4', '228.8', '232.5', '237.0']
+partie 11 : début  238.66s, repères ['239.7', '241.0', '244.7', '249.4', '251.7', '256.9', '259.9', '260.9']
+partie 12 : début  264.04s, repères ['268.7', '271.4', '272.7', '277.4', '280.2', '282.7', '284.9', '287.1', '293.5', '296.3', '299.1']
+partie 13 : début  303.88s, repères ['305.6', '307.8', '311.1', '314.4', '317.2']
+partie 14 : début  319.90s, repères ['321.1', '326.9', '329.7', '332.2', '332.9', '334.2', '335.3', '339.0']
+partie 15 : début  340.28s, repères ['342.1', '344.5', '345.5', '347.4', '348.7', '351.3']
+partie 16 : début  352.58s, repères ['355.1', '357.0', '358.0', '359.9', '362.3', '364.0', '367.3', '369.4', '371.6']
+partie 17 : début  375.32s, repères ['378.2', '381.5', '384.7', '387.4', '390.4', '394.3', '399.4', '401.9']
+partie 18 : début  403.46s, repères ['404.6', '406.4', '410.6', '413.1', '415.2']
+partie 19 : début  416.74s, repères ['419.7', '421.2', '422.2', '425.9', '429.5']
+partie 20 : début  431.16s, repères ['432.6', '437.1', '439.6', '441.7', '444.0', '445.7', '446.5']
+partie 21 : début  448.58s, repères ['451.5', '453.9', '459.5', '461.1', '462.5', '466.3']
+partie 22 : début  467.82s, repères ['471.7', '473.9', '475.3', '477.3', '479.9', '485.1', '488.0']
+partie 23 : début  489.54s, repères ['492.4', '493.6', '494.8', '497.3', '500.3', '502.9', '505.6', '509.1', '512.7']
+partie 24 : début  514.00s, repères ['517.4', '521.2', '522.8', '527.0', '528.7', '530.4', '533.2', '535.4', '537.7', '539.8', '541.9']
+partie 25 : début  543.62s, repères ['545.6', '550.9', '552.0', '556.3', '559.1']
+partie 26 : début  563.82s, repères ['567.2', '570.6', '574.0', '575.8', '577.1', '582.2', '584.4']
+partie 27 : début  586.44s, repères ['589.6', '592.7', '596.4', '598.1', '601.3', '603.0', '605.0', '607.1']
+partie 28 : début  609.18s, repères ['612.1', '615.6', '617.0', '623.2', '625.2', '627.7', '629.9', '633.2', '635.4']
+partie 29 : début  638.82s, repères ['640.5', '643.8', '647.9', '649.5', '651.8', '654.2', '657.5', '660.5', '662.7', '665.4']
+partie 30 : début  669.00s, repères ['672.0', '673.7', '674.8', '676.2', '677.9', '679.4', '680.9', '684.1', '687.3']

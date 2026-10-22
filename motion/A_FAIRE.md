@@ -37,9 +37,15 @@ Même chose pour l'outro : une variante par catégorie.
          → voix_script.m4a + timing.js (+ montage.txt à relire : reprises supprimées, repères)
       4. vérifier quelques scènes (`snap.mjs`), adapter build.sh (voix_script.m4a, sans décalage de 7,9 s), rendre
 - [ ] Musique de fond : l'utilisateur doit fournir une piste libre de droits → mixer sous la voix avec atténuation automatique
+- [x] Voix ElevenLabs (clone pro de l'utilisateur, 2 fichiers recollés) + texte retouché par l'utilisateur → `SCRIPT.md` v3
+      (v2 dans `SCRIPT_v2.md`), images adaptées (gestion passive « équipe de professionnels », PLACER/RETIRER, chien retiré
+      → 4e bénéficiaire « QUI VOUS VOULEZ », « Midelton Investment Capital » sous le logo et dans le test de profil),
+      calage avec `PAUSE=1.2 python3 motion/tools/align.py …` (respiration entre parties, la voix de synthèse enchaîne tout)
 - [ ] Points à faire vérifier :
-      - « taux réduit » après abattement : la voix dit 18,6 % ; la slide parle de prélèvements sociaux (l'impôt sur le revenu
-        de 7,5 % peut aussi s'appliquer selon les cas) → l'écran affiche seulement « à un taux réduit »
+      - « taux réduit d'environ 18,6 % » (texte de l'utilisateur, affiché à l'écran) : à revérifier. Après 8 ans, la part
+        imposable est soumise à 7,5 % d'impôt sur le revenu, et les prélèvements sociaux s'appliquent sur tous les intérêts
+        (l'abattement ne les couvre pas). La hausse de CSG 2026 (17,2 → 18,6 %) exclurait l'assurance vie → idem pour la
+        « flat tax 31,4 % » de la partie fiscalité (30 % si l'assurance vie est exclue)
       - S&P 500 « 12,2 % par an » (chiffre de la slide), courbe reconstruite à partir des rendements annuels publics
       - Logos des assureurs partenaires non repris (marques) : réseau dessiné de façon générique
 
