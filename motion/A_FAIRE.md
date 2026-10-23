@@ -35,6 +35,13 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
   Prochaines : 2 vidéos, suites de l'assurance vie.
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
+## Vidéo « Le Girardin industriel » (`videos/girardin/`)
+- [x] Transcript (`TRANSCRIPT.md`, chiffres faux à l'oral) → script calé sur la présentation (`SCRIPT.md`, 22 parties, ~9 min)
+- [x] Textes ElevenLabs (`elevenlabs/`) ; version muette (intro + outro « défiscalisation » existantes)
+- [ ] Validation des images, puis MP3 → `REPRISES=0 PAUSE=1.2 align.py` → build.sh
+- [ ] À faire vérifier : plafond 10 000 + 8 000 € (en Girardin, seule une partie de la réduction s'impute sur le plafond) ;
+      stratégie 2 (marge d'erreur 10 % sur la modulation du PAS, sinon pénalité) ; garantie de l'opérateur
+
 ## Vidéo « Le PER » (`videos/per/`)
 - [x] Transcript brut (`TRANSCRIPT.md`) → script (`SCRIPT.md`, 28 parties, ~13 min estimées) → textes ElevenLabs (`elevenlabs/`)
 - [x] Version muette (intro + outro thème « retraite », nouvelle icône sablier)
