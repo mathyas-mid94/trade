@@ -11,4 +11,8 @@ videos/capital-18-ans/.mots_nettoyes.json
 videos/per/*.mp4
 videos/per/.mots_nettoyes.json
 videos/girardin/*.mp4
+videos/assurance-emprunteur/*.mp4
+videos/assurance-emprunteur/.mots_nettoyes.json
+videos/assurance-emprunteur/.frames/
+videos/assurance-emprunteur/.*.mp4
 videos/girardin/.mots_nettoyes.json
