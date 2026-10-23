@@ -71,7 +71,7 @@ Le Girardin industriel est le seul texte de loi qui te donne une réduction d'im
 Je te fais le dessin. Monsieur X paie 12 000 euros d'impôts. [3]
 Au lieu de tout verser à l'État, il met 10 000 euros dans un Girardin industriel. [4]
 L'année suivante, il récupère ses 10 000 euros en réduction d'impôt, [5] plus une bonification de 1 700 euros. [6]
-Au total : 11 700 euros d'impôt en moins. [7] Il ne lui reste que 300 euros à payer. [8] C'est une rentabilité de 17 %. [9]
+Au total : 11 700 euros d'impôt en moins. [7] Il ne lui reste que 300 euros à payer. [8] C'est une rentabilité [9] de 17 %.
 
 ## 10 · Revenons à nos 3 500 euros
 Revenons à notre exemple du début. [1] Tu paies 3 500 euros d'impôts. [2]
