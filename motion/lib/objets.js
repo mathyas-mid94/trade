@@ -1,4 +1,5 @@
-// Objets et personnages de « Un capital pour ses 18 ans » (au-dessus de dalio.js et kit.js).
+// Personnages (famille MIC) et objets dessinés, partagés par les vidéos longues (au-dessus de dalio.js et kit.js).
+// Chaque vidéo définit draw() et SC() avant de charger ce fichier.
 
 // ---- personnages : la famille ----
 // Sophie (maman), Marc (papa), Léo (17 ans), Camille (12 ans), Noé (6 ans) ; même dessin que les autres vidéos

@@ -247,6 +247,14 @@ const D = (() => {
       el("path", { ...line, "stroke-width": 3, fill: C.inkSoft, d: "M32 -48 C46 -48 58 -60 56 -72 C42 -72 32 -62 32 -48 Z" }, s);
       return g;
     },
+    sablier(parent) {   // la retraite, le temps ; le sable du haut = avant-dernier enfant, du bas = dernier
+      const g = el("g", {}, parent);
+      el("path", { ...line, "stroke-width": 6, d: "M-46 -62 L46 -62 M-46 62 L46 62" }, g);
+      el("path", { ...line, fill: C.face, d: "M-38 -58 L38 -58 C38 -20 8 -12 6 0 C8 12 38 20 38 58 L-38 58 C-38 20 -8 12 -6 0 C-8 -12 -38 -20 -38 -58 Z" }, g);
+      el("path", { ...line, "stroke-width": 0, fill: C.accent, d: "M-26 -36 L26 -36 C22 -18 6 -10 0 -2 C-6 -10 -22 -18 -26 -36 Z" }, g);
+      el("path", { ...line, "stroke-width": 0, fill: C.accent, d: "M0 30 C-14 36 -28 44 -32 56 L32 56 C28 44 14 36 0 30 Z" }, g);
+      return g;
+    },
     curve(parent) {
       const g = el("g", {}, parent);
       el("path", { ...line, fill: C.paperDeep, d: "M-58 -52 L58 -52 L58 52 L-58 52 Z" }, g);

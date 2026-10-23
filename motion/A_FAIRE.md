@@ -35,6 +35,14 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
   Prochaines : 2 vidéos, suites de l'assurance vie.
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
+## Vidéo « Le PER » (`videos/per/`)
+- [x] Transcript brut (`TRANSCRIPT.md`) → script (`SCRIPT.md`, 28 parties, ~13 min estimées) → textes ElevenLabs (`elevenlabs/`)
+- [x] Version muette (intro + outro thème « retraite », nouvelle icône sablier)
+- [ ] Validation des images, puis MP3 ElevenLabs → `REPRISES=0 PAUSE=1.2 align.py` → build.sh
+- [ ] Points à faire vérifier par l'utilisateur : réforme 2023 (64 ans) suspendue en 2026 ? ; « discussions pour réduire
+      l'avantage à 75 / 50 % » ; rendements visés par profil (3-5 / 5-7 / 8-9 %) présentés comme non garantis ;
+      retirés du texte : « la moitié des retraités sous le seuil de pauvreté » (faux, ≈ 10 %) et « système de Napoléon »
+
 ## Vidéo « Un capital pour ses 18 ans » (`videos/capital-18-ans/`, suite de l'assurance vie)
 - [x] Transcript brut des 2 parties (`TRANSCRIPT.md`) → script unique, tutoiement, ton Mathyas (`SCRIPT.md`, 32 parties, ~21 min estimées)
 - [x] Version muette sur minutage estimé (`tools/estime.py` → `estimation.js`), intro + outro thème « enfants »

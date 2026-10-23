@@ -34,6 +34,10 @@ const THEMES = {
     labels: ["IMMOBILIER", "ÉPARGNE", "ENFANTS", "ASSURANCE-VIE", "PLACEMENTS"],
     // sous la loupe : la pousse sort des pièces et grandit (le capital de l'enfant)
     react(f, k) { f.firstElementChild.lastElementChild.setAttribute("transform", `translate(32 -16) scale(${1 + 0.7 * k}) translate(-32 16)`); } },
+  retraite: { label: "RETRAITE", kinds: ["house", "coins", "sablier", "contract", "curve"],
+    labels: ["IMMOBILIER", "ÉPARGNE", "RETRAITE", "CONTRATS", "PLACEMENTS"],
+    // sous la loupe : le sablier se retourne (le temps passe, on prépare la suite)
+    react(f, k) { f.firstElementChild.setAttribute("transform", `rotate(${180 * k})`); } },
   budget: { label: "BUDGET", kinds: ["coins", "receipt", "pie", "piggy", "house"],
     labels: ["REVENUS", "DÉPENSES", "BUDGET", "ÉPARGNE", "LOGEMENT"],
     // sous la loupe : le camembert tourne et une part se détache (on découpe le budget)
