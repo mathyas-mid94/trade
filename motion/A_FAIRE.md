@@ -33,6 +33,7 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
      minutage estimé au débit de sa voix ElevenLabs (~215 mots/min + 1,2 s de respiration entre parties).
   Ensuite seulement : MP3 ElevenLabs → recalage exact → version finale.
   Prochaines : 2 vidéos, suites de l'assurance vie.
+- Textes ElevenLabs : `tools/elevenlabs.py <SCRIPT.md> <dossier> [n]` (sigles en phonétique française : SCPI → esse-cé-pé-i…, < 10 000 car. par fichier).
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
 ## Vidéo « La SCPI » (`videos/scpi/`)
