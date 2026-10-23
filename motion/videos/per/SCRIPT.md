@@ -153,7 +153,7 @@ Mais le PER, ça reste de l'épargne qui travaille. [1]
 Tu mets 1 000 euros par mois, [2] il te reste 20 ans de carrière, [3] avec un rendement de 5 % par an, ce qui est prudent, [4] et une tranche à 30 %.
 Dans 20 ans, tu as environ 407 000 euros. [5]
 Tu as économisé plus de 72 000 euros d'impôts, [6] de l'argent que tu n'as pas donné à l'État.
-Et ton argent a produit plus de 167 000 euros d'intérêts. [7]
+Et ton argent a produit [7] plus de 167 000 euros d'intérêts.
 
 ## 20 · Réinvestir l'économie d'impôt
 Et maintenant, j'en appelle à ton intelligence. [1]
