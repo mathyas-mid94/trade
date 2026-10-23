@@ -35,10 +35,18 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
   Prochaines : 2 vidéos, suites de l'assurance vie.
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
+## Vidéo « L'assurance emprunteur » (`videos/assurance-emprunteur/`)
+- [x] Transcript (`TRANSCRIPT.md`) → script resserré (`SCRIPT.md`, 17 parties, ~5 min 30, ~6 000 caractères) → textes ElevenLabs
+- [ ] PAS de version muette (consigne de l'utilisateur) : attendre ses MP3, puis créer les scènes directement sur la vraie voix
+      (`REPRISES=0 PAUSE=1.2 align.py`), intro/outro thème à créer (immobilier / crédit ?)
+- [ ] Corrections faites, à lui signaler : assurance pas « obligatoire » légalement mais exigée en pratique, la banque ne peut pas
+      imposer la sienne ; marges pas « réglementées » ; « jusqu'à 65 % » (slide) ; 28 987 € ; mail noreply@utwin.fr (slide)
+- Crédits ElevenLabs serrés (~32 000 restants avant cette vidéo) : SCPI (1 h d'origine) à resserrer fortement.
+
 ## Vidéo « Le Girardin industriel » (`videos/girardin/`)
 - [x] Transcript (`TRANSCRIPT.md`, chiffres faux à l'oral) → script calé sur la présentation (`SCRIPT.md`, 22 parties, ~9 min)
 - [x] Textes ElevenLabs (`elevenlabs/`) ; version muette (intro + outro « défiscalisation » existantes)
-- [ ] Validation des images, puis MP3 → `REPRISES=0 PAUSE=1.2 align.py` → build.sh
+- [x] Images validées, voix ElevenLabs calée, version finale livrée (`girardin.mp4`, 9:44)
 - [ ] À faire vérifier : plafond 10 000 + 8 000 € (en Girardin, seule une partie de la réduction s'impute sur le plafond) ;
       stratégie 2 (marge d'erreur 10 % sur la modulation du PAS, sinon pénalité) ; garantie de l'opérateur
 
