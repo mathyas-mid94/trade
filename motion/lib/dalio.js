@@ -255,6 +255,17 @@ const D = (() => {
       el("path", { ...line, "stroke-width": 0, fill: C.accent, d: "M0 30 C-14 36 -28 44 -32 56 L32 56 C28 44 14 36 0 30 Z" }, g);
       return g;
     },
+    bouclier(parent) {  // crédit immobilier protégé (assurance emprunteur) ; la coche = dernier enfant
+      const g = el("g", {}, parent);
+      el("path", { ...line, fill: C.paperDeep, d: "M0 -64 C20 -52 40 -48 54 -48 C54 4 40 40 0 64 C-40 40 -54 4 -54 -48 C-40 -48 -20 -52 0 -64 Z" }, g);
+      el("path", { ...line, "stroke-width": 3, fill: C.accent, d: "M-30 -2 L0 -30 L30 -2 Z" }, g);
+      el("path", { ...line, "stroke-width": 3, fill: C.face, d: "M-22 -4 L22 -4 L22 30 L-22 30 Z" }, g);
+      el("path", { ...line, "stroke-width": 3, fill: C.inkSoft, d: "M-6 30 L-6 12 L6 12 L6 30" }, g);
+      const c = el("g", {}, g);
+      el("circle", { ...line, "stroke-width": 3, fill: C.accent, cx: 34, cy: 34, r: 17 }, c);
+      el("path", { ...line, "stroke-width": 4, d: "M26 34 L32 40 L43 27" }, c);
+      return g;
+    },
     curve(parent) {
       const g = el("g", {}, parent);
       el("path", { ...line, fill: C.paperDeep, d: "M-58 -52 L58 -52 L58 52 L-58 52 Z" }, g);

@@ -38,10 +38,10 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 ## Vidéo « L'assurance emprunteur » (`videos/assurance-emprunteur/`)
 - [x] Transcript (`TRANSCRIPT.md`) → script resserré (`SCRIPT.md`, 17 parties, ~5 min 30, ~6 000 caractères) → textes ElevenLabs
 - [ ] PAS de version muette (consigne de l'utilisateur) : attendre ses MP3, puis créer les scènes directement sur la vraie voix
-      (`REPRISES=0 PAUSE=1.2 align.py`), intro/outro thème à créer (immobilier / crédit ?)
+      (`REPRISES=0 PAUSE=1.2 align.py`) ; intro/outro thème « crédit » rendues (`intro/credit`, `outro/credit`, icône bouclier)
 - [ ] Corrections faites, à lui signaler : assurance pas « obligatoire » légalement mais exigée en pratique, la banque ne peut pas
       imposer la sienne ; marges pas « réglementées » ; « jusqu'à 65 % » (slide) ; 28 987 € ; mail noreply@utwin.fr (slide)
-- Crédits ElevenLabs serrés (~32 000 restants avant cette vidéo) : SCPI (1 h d'origine) à resserrer fortement.
+- Crédits ElevenLabs : pas un frein (l'utilisateur rachètera si besoin), priorité à la vitesse.
 
 ## Vidéo « Le Girardin industriel » (`videos/girardin/`)
 - [x] Transcript (`TRANSCRIPT.md`, chiffres faux à l'oral) → script calé sur la présentation (`SCRIPT.md`, 22 parties, ~9 min)
