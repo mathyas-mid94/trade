@@ -1,17 +1,16 @@
 """Génère les textes à coller dans ElevenLabs depuis un SCRIPT.md : sans titres ni repères [n],
 découpés en N fichiers de moins de 10 000 caractères, avec les sigles réécrits en phonétique française
-(sinon ElevenLabs lit parfois « SCPI » avec le I à l'anglaise). SCRIPT.md reste la référence pour align.py.
+(sinon ElevenLabs lit « SCPI » avec le I à l'anglaise ; avec des tirets, il bégaie). SCRIPT.md reste la référence pour align.py.
 
 usage : python3 motion/tools/elevenlabs.py <SCRIPT.md> <dossier_sortie> [nb_fichiers]
 """
 import re, sys
 
-# sigle -> écriture phonétique (lettres épelées à la française)
-PHONETIQUE = {
-    "SCPI": "esse-cé-pé-i", "SCI": "esse-cé-i", "AMF": "a-èm-èf", "ISR": "i-esse-èr", "PEA": "pé-eu-a",
-    "TOF": "toffe", "EDR": "eu-dé-èr", "DPD": "dé-pé-dé", "REITs": "rits", "WALB": "walbé", "WALT": "walté",
-    "PER": "pé-eu-èr", "SNCF": "esse-ène-cé-èf", "EDF": "eu-dé-èf", "BCE": "bé-cé-eu", "CTO": "cé-té-o",
-    "LMNP": "èl-èm-ène-pé", "SAS": "esse-a-esse", "SNC": "esse-ène-cé", "TMI": "té-èm-i",
+PHONETIQUE = {   # validé sur la SCPI (24/10) : lettres séparées par des points (les tirets faisaient bégayer la voix)
+    "SCPI": "S.C.P.I.", "SCI": "S.C.I.", "AMF": "A.M.F.", "ISR": "I.S.R.", "PEA": "P.E.A.",
+    "TOF": "toffe", "EDR": "E.D.R.", "DPD": "D.P.D.", "REITs": "rits", "WALB": "walbé", "WALT": "walté",
+    "PER": "P.E.R.", "SNCF": "S.N.C.F.", "EDF": "E.D.F.", "BCE": "B.C.E.", "CTO": "C.T.O.",
+    "LMNP": "L.M.N.P.", "SAS": "S.A.S.", "SNC": "S.N.C.", "TMI": "T.M.I.",
 }
 
 def phonetique(s):
