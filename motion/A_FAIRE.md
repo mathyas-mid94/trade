@@ -38,7 +38,7 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 
 ## Vidéo « Les produits structurés » (`videos/produits-structures/`)
 - [x] Script (`SCRIPT.md`, 21 parties dont 4 bonus, ~9 min) d'après les slides 12-30 (pas de vidéo d'origine) → 2 textes ElevenLabs + test
-- [x] Voix calée (21 parties, marges OK, respirations entre phrases), scènes animées (marcheurs, ascenseur, robinet, compteur, tapis, airbag, haie), intro/outro « structures »
+- [x] Version finale livrée (`produits-structures.mp4`, 9:39). Voix calée (21 parties, marges OK, respirations entre phrases), scènes animées (marcheurs, ascenseur, robinet, compteur, tapis, airbag, haie), intro/outro « structures »
 - [ ] À réécouter : « ta mise te revient » (partie 09) et « le Phénix et l'Athéna » (partie 09) — Whisper entend « ministre » / « la Téla »
 - [ ] Slides : « capital garanti » → préciser « à l'échéance, sauf défaut de l'émetteur » ; décrément « dans la poche de la banque » trop affirmatif
 
