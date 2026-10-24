@@ -20,3 +20,7 @@ videos/scpi/*.mp4
 videos/scpi/.mots_nettoyes.json
 videos/scpi/.frames/
 videos/scpi/.*.mp4
+videos/pea-cto/*.mp4
+videos/pea-cto/.mots_nettoyes.json
+videos/pea-cto/.frames/
+videos/pea-cto/.*.mp4

@@ -83,7 +83,7 @@ Une société à l'impôt sur les sociétés paie 15 % sur ses premiers 42 500 e
 Tu réinvestis donc un capital moins taxé. [4] La deuxième couche d'impôt n'arrive qu'au moment où tu te verses l'argent. [5]
 Et pour les grosses participations, c'est encore plus doux : [6] environ 1,25 % sur les dividendes mère-fille, [7] et environ 3 % sur les plus-values de titres de participation détenus plus de 2 ans. [8]
 Attention à un piège : [9] dans une société à l'IS, les ETF et les fonds sont en principe taxés chaque année sur leur hausse de valeur, même sans vente. [10]
-Et dans une société à l'IR, c'est la transparence : chaque associé est imposé sur sa part, en pratique au PFU. [11]
+Et dans une société à l'IR, c'est la transparence : [11] chaque associé est imposé sur sa part, en pratique au PFU.
 
 ## 09 · Transmettre avec un CTO
 Le CTO, c'est aussi l'ami de l'héritier. [1]
@@ -139,7 +139,7 @@ Puis il signe un swap avec une banque contrepartie. [4]
 Il envoie à la banque la performance de son panier européen, [5] et en échange, il reçoit celle du S&P 500, ou du MSCI World. [6]
 Résultat : tu es exposé aux marchés américains et mondiaux, [7] depuis ton PEA. [8]
 Le risque, c'est la banque contrepartie, [9] mais c'est encadré par la réglementation européenne UCITS. [10]
-Il y a eu des discussions pour les exclure du PEA, [11] mais aujourd'hui, ils restent éligibles. [12]
+Il y a eu des discussions pour les exclure du PEA, [11] mais aujourd'hui, [12] ils restent éligibles.
 
 ## 16 · La règle des 5 ans
 La fiscalité du PEA tient en une règle : les 5 ans. [1]

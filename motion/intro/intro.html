@@ -42,6 +42,10 @@ const THEMES = {
     labels: ["IMMOBILIER", "ÉPARGNE", "CRÉDIT", "ASSURANCE", "PLACEMENTS"],
     // sous la loupe : la coche « protégé » grossit sur le bouclier (le prêt est couvert)
     react(f, k) { f.firstElementChild.lastElementChild.setAttribute("transform", `translate(34 34) scale(${1 + 0.8 * k}) translate(-34 -34)`); } },
+  bourse: { label: "BOURSE", kinds: ["house", "coins", "bourse", "contract", "pie"],
+    labels: ["IMMOBILIER", "ÉPARGNE", "BOURSE", "CONTRATS", "ALLOCATION"],
+    // sous la loupe : la flèche de tendance monte (le capital grandit)
+    react(f, k) { f.firstElementChild.lastElementChild.setAttribute("transform", `translate(${6 * k} ${-14 * k})`); } },
   immobilier: { label: "IMMOBILIER", kinds: ["house", "coins", "immeuble", "contract", "curve"],
     labels: ["LOGEMENT", "ÉPARGNE", "IMMOBILIER", "CONTRATS", "PLACEMENTS"],
     // sous la loupe : les fenêtres du parc s'allument une à une (les loyers tombent)

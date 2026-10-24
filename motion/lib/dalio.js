@@ -255,6 +255,17 @@ const D = (() => {
       el("path", { ...line, "stroke-width": 0, fill: C.accent, d: "M0 30 C-14 36 -28 44 -32 56 L32 56 C28 44 14 36 0 30 Z" }, g);
       return g;
     },
+    bourse(parent) {    // chandeliers boursiers ; la flèche montante = dernier enfant
+      const g = el("g", {}, parent);
+      el("path", { ...line, "stroke-width": 4, d: "M-58 56 L60 56" }, g);
+      [[-44, 20, 44, 10, 50, C.inkSoft], [-18, -4, 30, -14, 38, C.accent], [8, 6, 26, -2, 32, C.inkSoft], [34, -30, 12, -40, 20, C.accent]].forEach(([x, y, h, w0, w1, f]) => {
+        el("path", { ...line, "stroke-width": 3, d: `M${x} ${w0 - 8} L${x} ${y + h + 10}` }, g);
+        el("rect", { ...line, "stroke-width": 3, fill: f, x: x - 9, y, width: 18, height: h }, g); });
+      const a = el("g", {}, g);
+      el("path", { ...line, stroke: C.ink, "stroke-width": 6, d: "M-54 30 L-20 0 L6 14 L50 -44" }, a);
+      el("path", { ...line, stroke: C.ink, "stroke-width": 6, d: "M30 -46 L52 -46 L52 -24" }, a);
+      return g;
+    },
     immeuble(parent) {  // parc immobilier (SCPI) : trois immeubles ; les fenêtres = dernier enfant (elles s'allument)
       const g = el("g", {}, parent);
       el("path", { ...line, fill: C.paperDeep, d: "M-62 60 L-62 -10 L-26 -10 L-26 60 Z" }, g);
