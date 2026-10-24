@@ -1,0 +1,71 @@
+Aujourd'hui, on parle de deux outils indispensables dans un patrimoine : le compte-titres ordinaire, le C.T.O., et le plan d'épargne en actions, le P.E.A.
+Deux comptes pour investir en Bourse, avec deux logiques différentes : la liberté, et l'avantage fiscal.
+Si tu veux investir selon tes convictions, et diversifier ton patrimoine au-delà de l'assurance vie, ce sont les outils qu'il te faut.
+Ils te donnent accès à des choses qu'on ne trouve pas dans les autres enveloppes, et ils te laissent un peu plus de liberté pour te positionner.
+Trois objectifs : faire grandir ton capital sur le long terme, investir en Bourse en payant moins d'impôts, et garder ton argent disponible à tout moment.
+
+Avant de parler des comptes, on parle de ce qu'on met dedans. Trois briques de base : l'action, l'obligation, et l'E.T.F.
+On commence par l'action. Une action, c'est une part d'une entreprise.
+Une entreprise, pour développer son activité et atteindre sa mission, a besoin d'argent.
+Un des moyens de se financer, c'est de demander des fonds à des investisseurs.
+Toi, tu apportes ton argent, et en échange, tu deviens propriétaire d'un petit bout de l'entreprise.
+Avec des droits : un droit de vote, un droit sur les bénéfices, en fonction du nombre d'actions que tu détiens.
+
+Ton gain, il vient de deux choses.
+Les dividendes : une partie des bénéfices que l'entreprise te reverse.
+Et la hausse du cours : si l'entreprise grandit, ton action prend de la valeur.
+Le risque, c'est la perte en capital. Si l'entreprise va mal, ton action peut baisser.
+C'est un principe économique très simple : tu confies ton argent à des gens qui vont le faire travailler, et tu partages le résultat.
+
+Deuxième brique : l'obligation.
+C'est aussi un moyen de financement, pour une entreprise, ou pour un État.
+Mais cette fois, tu ne deviens pas propriétaire. Tu deviens prêteur.
+Tu es comme une mini-banque : tu prêtes ton argent, tu reçois des intérêts, qu'on appelle des coupons, et à une date donnée, on te rembourse ton capital.
+Le risque, c'est le défaut : que l'entreprise ou l'État ne puisse pas rembourser.
+Il existe plein de types d'obligations, on y consacrera une vidéo.
+
+Troisième brique, celle dont tout le monde parle : l'E.T.F.
+Un E.T.F., c'est un panier d'actions qui réplique un indice.
+Un indice, c'est la représentation d'un groupe d'entreprises, ou d'un secteur.
+Le CAC 40, c'est les 40 plus grandes capitalisations françaises.
+Le S and P 500, c'est la même chose, avec 500 grandes entreprises américaines.
+Et le M.S.C.I. World, c'est les grandes entreprises du monde entier.
+Au lieu d'acheter une seule action, tu en achètes des dizaines, voire des centaines, en un seul achat.
+Résultat : une diversification instantanée, des frais faibles, et c'est la base de ce qu'on appelle la gestion passive.
+
+Et il y a une distinction importante : capitalisant, ou distribuant.
+Un E.T.F. distribuant te verse les dividendes de son panier.
+Un E.T.F. capitalisant, lui, les réinvestit automatiquement dans le panier. Ton argent fait boule de neige.
+C'est un peu la même logique côté entreprises.
+Certaines versent un dividende à leurs actionnaires, d'autres réinvestissent leurs bénéfices pour grandir plus vite.
+Et on va voir que ce choix a un vrai impact sur tes impôts.
+
+Maintenant, les comptes. On commence par le compte-titres ordinaire, le C.T.O.
+C'est le compte le plus libre.
+Aucun plafond de versement.
+Aucune durée minimale : ton argent reste disponible.
+Il peut être ouvert par un particulier, ou par une société.
+Et il est démembrable : usufruit d'un côté, nue-propriété de l'autre.
+Dedans, tu peux mettre presque tout : des actions, des obligations, des E.T.F., des fonds, gérés par des sociétés de gestion, des produits structurés, et même des matières premières.
+Tout est permis… sauf d'échapper à l'impôt.
+
+Sur un C.T.O., tes gains sont soumis au P.F.U., le prélèvement forfaitaire unique, à 31,4 %.
+Sur 100 euros de gain : 12,80 euros d'impôt sur le revenu, 18,60 euros de prélèvements sociaux, et il te reste 68,60 euros dans ta poche.
+Le fait générateur, c'est chaque vente, et chaque dividende ou coupon, même si tu le réinvestis.
+Tu peux opter pour le barème progressif, utile si ta tranche est à 0 ou 11 %. Mais attention, l'option s'applique à tous tes revenus mobiliers.
+Et les moins-values s'imputent sur les plus-values, et se reportent pendant 10 ans.
+
+Et un C.T.O. peut être détenu par une société.
+Une société à l'impôt sur les sociétés paie 15 % sur ses premiers 42 500 euros de bénéfice, et 25 % au-delà. Contre 31,4 % pour un particulier.
+Tu réinvestis donc un capital moins taxé. La deuxième couche d'impôt n'arrive qu'au moment où tu te verses l'argent.
+Et pour les grosses participations, c'est encore plus doux : environ 1,25 % sur les dividendes mère-fille, et environ 3 % sur les plus-values de titres de participation détenus plus de 2 ans.
+Attention à un piège : dans une société à l'I.S., les E.T.F. et les fonds sont en principe taxés chaque année sur leur hausse de valeur, même sans vente.
+Et dans une société à l'I.R., c'est la transparence : chaque associé est imposé sur sa part, en pratique au P.F.U.
+
+Le C.T.O., c'est aussi l'ami de l'héritier.
+Imagine un titre acheté 100 euros, qui en vaut 300.
+Si tu le vends de ton vivant, tu paies l'impôt sur la plus-value : il te reste 237,20 euros.
+Si tu le transmets au décès, la plus-value latente est purgée : tes héritiers reprennent les titres à 300 euros, sans impôt sur la plus-value. Les droits de succession, eux, restent dus.
+Autre technique : la donation avant cession. Celui qui reçoit vend sur la valeur du jour de la donation. Mais il faut donner avant tout engagement de vente, sinon c'est un abus de droit.
+Et le démembrement : le parent garde les revenus, les enfants reçoivent la nue-propriété.
+Tout ça, on le valide avec notre notaire partenaire avant de le mettre en place.

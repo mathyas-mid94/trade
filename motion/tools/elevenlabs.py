@@ -11,12 +11,15 @@ PHONETIQUE = {   # validé sur la SCPI (24/10) : lettres séparées par des poin
     "TOF": "toffe", "EDR": "E.D.R.", "DPD": "D.P.D.", "REITs": "rits", "WALB": "walbé", "WALT": "walté",
     "PER": "P.E.R.", "SNCF": "S.N.C.F.", "EDF": "E.D.F.", "BCE": "B.C.E.", "CTO": "C.T.O.",
     "LMNP": "L.M.N.P.", "SAS": "S.A.S.", "SNC": "S.N.C.", "TMI": "T.M.I.",
+    "ETF": "E.T.F.", "PFU": "P.F.U.", "IS": "I.S.", "IR": "I.R.", "PME": "P.M.E.", 
+    "MSCI": "M.S.C.I.", "S&P": "S and P", "UCITS": "U.C.I.T.S.", "IFU": "I.F.U.", "UE": "U.E.",
 }
 
 def phonetique(s):
+    s = s.replace("PEA-PME", "P.E.A. P.M.E.")
     for k, v in sorted(PHONETIQUE.items(), key=lambda kv: -len(kv[0])):
         s = re.sub(rf"(?<![\w-]){re.escape(k)}(?![\w-])", v, s)
-    return s
+    return re.sub(r"\.([.?!])", r"\1", s)
 
 if __name__ == "__main__":
     src, out = sys.argv[1], sys.argv[2]

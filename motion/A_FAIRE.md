@@ -36,6 +36,11 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 - Textes ElevenLabs : `tools/elevenlabs.py <SCRIPT.md> <dossier> [n]` (sigles écrits S.C.P.I., E.D.R.… : validé ; les tirets « esse-cé-pé-i » faisaient bégayer, < 10 000 car. par fichier).
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
+## Vidéo « Le CTO et le PEA » (`videos/pea-cto/`)
+- [x] Script (`SCRIPT.md`, 24 parties, ~11 min, slides 11 à 30 + consignes orales) → 2 textes ElevenLabs + test de prononciation
+- [ ] MP3 → calage → scènes sur la vraie voix (pas de version muette) ; intro/outro : thème « bourse » à créer ?
+- [ ] À vérifier : ETF swap « exclusion abandonnée le 26 août » (slide) ; « 0 € d'impôt » au décès (droits de succession restent dus)
+
 ## Vidéo « La SCPI » (`videos/scpi/`)
 - [x] Transcript des 2 parties (`TRANSCRIPT.md`) → script unique (`SCRIPT.md`, 36 parties, ~18 min, ~19 800 car.) → 3 textes ElevenLabs (< 10 000 car.)
 - [x] Voix calée (doublon de jonction retiré), 36 scènes, intro/outro « immobilier », version finale livrée (`scpi.mp4`, 18:37)

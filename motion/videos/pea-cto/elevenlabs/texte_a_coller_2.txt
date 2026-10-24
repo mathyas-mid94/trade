@@ -1,0 +1,92 @@
+En gestion privée, on utilise cinq techniques courantes sur le C.T.O.
+Un : l'E.T.F. capitalisant. Comme il ne verse rien, tu ne paies pas d'impôt chaque année.
+Sur 50 000 euros, à 6 % par an dont 2 % de dividendes, ça fait environ 4 900 euros de plus au bout de 20 ans. C'est une illustration théorique, mais l'écart est réel.
+Deux : le tax-loss harvesting. Réaliser des moins-values en fin d'année, pour effacer des plus-values.
+Trois : le crédit lombard. Tu empruntes en nantissant ton portefeuille : de la liquidité sans vendre, donc sans impôt.
+Quatre : les produits structurés sur mesure, adaptés à ton profil.
+Cinq : l'arbitrage d'enveloppe. Le C.T.O. accueille ce que le P.E.A. refuse : les titres américains, les obligations, les montants au-delà du plafond.
+
+Passons au P.E.A., le plan d'épargne en actions. Là, c'est l'avantage fiscal, sous conditions.
+Un seul P.E.A. par personne, donc deux pour un couple.
+Les versements sont plafonnés à 150 000 euros.
+Jusqu'à 225 000 euros si tu ajoutes un P.E.A. P.M.E.
+Et il existe un P.E.A. Jeune, jusqu'à 20 000 euros, pour un enfant majeur rattaché au foyer.
+Pas de P.E.A. pour une société, et pas de P.E.A. joint.
+
+Et un point que beaucoup de gens ratent : le plafond compte les versements, pas la valeur.
+Tu verses 150 000 euros.
+Si ton P.E.A. prend 250 000 euros de gains, il vaut 400 000 euros.
+Et c'est parfaitement normal : seuls les versements sont plafonnés.
+
+Dans un P.E.A., tu peux mettre :
+des actions de sociétés de l'Union européenne, ou de l'Espace économique européen,
+des E.T.F. et des fonds investis à au moins 75 % dans ces titres,
+et certains produits structurés éligibles.
+Par contre, c'est interdit : les obligations en direct, les actions américaines en direct, et les E.T.F. physiques sur des indices hors Europe.
+La règle des 75 % : au moins 75 % en titres européens éligibles, et 25 % libres.
+
+Et là, il faut comprendre la différence entre un E.T.F. physique et un E.T.F. synthétique.
+Un E.T.F. physique achète vraiment les actions de l'indice. S'il réplique le S and P 500, il détient les actions américaines.
+Donc il n'entre pas dans un P.E.A.
+Un E.T.F. synthétique, lui, ne détient pas forcément les actions de l'indice.
+Il reproduit la performance grâce à un contrat d'échange, qu'on appelle un swap.
+
+Et c'est l'astuce du P.E.A.
+L'E.T.F. swap détient un panier d'actions européennes, ce qui le rend éligible au P.E.A.
+Puis il signe un swap avec une banque contrepartie.
+Il envoie à la banque la performance de son panier européen, et en échange, il reçoit celle du S and P 500, ou du M.S.C.I. World.
+Résultat : tu es exposé aux marchés américains et mondiaux, depuis ton P.E.A.
+Le risque, c'est la banque contrepartie, mais c'est encadré par la réglementation européenne U.C.I.T.S.
+Il y a eu des discussions pour les exclure du P.E.A., mais aujourd'hui, ils restent éligibles.
+
+La fiscalité du P.E.A. tient en une règle : les 5 ans.
+L'horloge démarre à l'ouverture.
+Si tu retires avant 5 ans, tes gains sont taxés à 31,4 %, et le plan est clôturé, sauf cas particuliers : licenciement, invalidité, retraite anticipée, création d'entreprise.
+Sur 10 000 euros de gains : 3 140 euros d'impôts.
+Après 5 ans, tes gains sont exonérés d'impôt sur le revenu. Il ne reste que les prélèvements sociaux, 18,6 %.
+Sur 10 000 euros de gains : 1 860 euros.
+Et tu peux faire des retraits partiels : le plan reste ouvert, et accepte de nouveaux versements.
+
+En gestion privée, j'utilise cinq leviers sur le P.E.A.
+Prendre date : ouvre-le tôt, même avec un petit montant. L'horloge des 5 ans démarre au premier versement.
+Un P.E.A. par personne : un par conjoint, plus un P.E.A. Jeune par enfant majeur rattaché.
+Verser tôt : seuls les versements consomment le plafond, la performance future, elle, est gratuite.
+Transférer : en principe, tu gardes l'ancienneté fiscale si tu changes d'établissement.
+La rente viagère : après 5 ans, tu peux sortir en rente, exonérée d'impôt sur le revenu.
+Et la limite : le P.E.A. n'est ni démembrable, ni transmissible. Au décès, il est clôturé. Pour transmettre, on passe par le C.T.O. ou l'assurance vie.
+
+Concrètement, quand est-ce que tu paies ?
+Sur un C.T.O., à chaque vente et à chaque revenu. Les dividendes sont prélevés à la source, et les plus-values sont déclarées l'année suivante.
+Sur un P.E.A., rien, tant que l'argent reste dans le plan. Le calcul se fait au moment du retrait.
+Exemple : tu vends une ligne qui a gagné 5 000 euros, pour en racheter une autre.
+Sur un C.T.O. : 1 570 euros d'impôt, dès l'arbitrage.
+Dans un P.E.A. : zéro euro. L'argent reste investi, et continue de travailler.
+
+Si on résume, côte à côte.
+Le C.T.O. : aucun plafond, un univers mondial, 31,4 % à chaque gain, démembrable, plus-values purgées au décès, et ouvert aux sociétés.
+Le P.E.A. : 150 000 euros, un seul par personne, des actions européennes, plus les E.T.F. swap, 18,6 % après 5 ans, des arbitrages sans impôt, mais clôturé au décès, et réservé aux particuliers.
+Le P.E.A. pour faire grossir, le C.T.O. pour tout le reste, et pour transmettre.
+
+Et pour être transparent, les points d'attention.
+Sur les deux comptes, ton capital n'est pas garanti : il peut varier à la hausse comme à la baisse.
+Sur le P.E.A. : un retrait avant 5 ans clôture le plan, et les versements sont plafonnés.
+Sur le C.T.O. : chaque vente et chaque revenu est imposé, et les frais de tenue de compte sont un peu plus élevés.
+
+Pour ouvrir ton P.E.A. ou ton C.T.O., je travaille avec Shares Pro.
+C'est 100 % digital : tu pilotes tout depuis l'application.
+Une large gamme : actions, E.T.F., fonds, et sur le C.T.O., des produits structurés.
+Tu valides chaque ordre dans ton espace client.
+C'est un cadre réglementé, et tes titres sont protégés jusqu'à 70 000 euros par le fonds de garantie.
+La simplicité d'une appli, avec un conseiller derrière.
+
+Et on travaille ensemble en trois étapes.
+Un : je recommande. Je construis ton allocation et je te propose les ordres.
+Deux : tu valides. Rien ne bouge sans ton accord.
+Trois : on suit ensemble. Tu vois ton portefeuille en temps réel, et on fait des points réguliers pour rééquilibrer.
+Tu gardes la main : tu décides, mais tu n'es plus seul face au marché.
+Et c'est transparent : mes honoraires sont fixés d'avance, entre 0 et 1,20 % par an.
+
+Au final, le C.T.O. et le P.E.A., c'est la liberté, et l'avantage fiscal.
+De quoi faire grandir ton capital, payer moins d'impôts, et garder ton argent disponible.
+Si tu veux qu'on regarde ta situation, réserve directement un créneau avec moi.
+Allez, on se retrouve pour une prochaine vidéo.
