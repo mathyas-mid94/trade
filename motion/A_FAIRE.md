@@ -38,7 +38,7 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 
 ## Vidéo « La SCPI » (`videos/scpi/`)
 - [x] Transcript des 2 parties (`TRANSCRIPT.md`) → script unique (`SCRIPT.md`, 36 parties, ~18 min, ~19 800 car.) → 3 textes ElevenLabs (< 10 000 car.)
-- [ ] Attendre les MP3 (pas de version muette), puis scènes sur la vraie voix ; intro/outro : thème « immobilier » à créer
+- [x] Voix calée (doublon de jonction retiré), 36 scènes, intro/outro « immobilier », version finale livrée (`scpi.mp4`, 18:37)
 - [ ] À faire valider : slide Iroko « 120 019 € » (devrait être 122 019 €) ; slides cash 50/75/100 k€ « 125 parts » (250/375/500) ;
       rendement Osmo 7 % (simulation) vs 5,79 % (simulateur) ; « première banque privée » (EdR) ; slides Iroko/Osmo marquées « Française »
       alors que la règle est « < 10 % France » ; simulateur de portefeuille marqué « usage interne » (non montré dans la vidéo)
