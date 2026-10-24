@@ -38,7 +38,7 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 
 ## Vidéo « Le CTO et le PEA » (`videos/pea-cto/`)
 - [x] Script (`SCRIPT.md`, 24 parties, ~11 min, slides 11 à 30 + consignes orales) → 2 textes ElevenLabs + test de prononciation
-- [ ] MP3 → calage → scènes sur la vraie voix (pas de version muette) ; intro/outro : thème « bourse » à créer ?
+- [x] Voix calée, 24 scènes, intro/outro « bourse », version finale livrée (`pea-cto.mp4`, 11:53)
 - [ ] À vérifier : ETF swap « exclusion abandonnée le 26 août » (slide) ; « 0 € d'impôt » au décès (droits de succession restent dus)
 
 ## Vidéo « La SCPI » (`videos/scpi/`)
