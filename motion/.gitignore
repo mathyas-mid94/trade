@@ -16,3 +16,7 @@ videos/assurance-emprunteur/.mots_nettoyes.json
 videos/assurance-emprunteur/.frames/
 videos/assurance-emprunteur/.*.mp4
 videos/girardin/.mots_nettoyes.json
+videos/scpi/*.mp4
+videos/scpi/.mots_nettoyes.json
+videos/scpi/.frames/
+videos/scpi/.*.mp4

@@ -255,6 +255,17 @@ const D = (() => {
       el("path", { ...line, "stroke-width": 0, fill: C.accent, d: "M0 30 C-14 36 -28 44 -32 56 L32 56 C28 44 14 36 0 30 Z" }, g);
       return g;
     },
+    immeuble(parent) {  // parc immobilier (SCPI) : trois immeubles ; les fenêtres = dernier enfant (elles s'allument)
+      const g = el("g", {}, parent);
+      el("path", { ...line, fill: C.paperDeep, d: "M-62 60 L-62 -10 L-26 -10 L-26 60 Z" }, g);
+      el("path", { ...line, fill: C.inkSoft, d: "M-26 60 L-26 -64 L22 -64 L22 60 Z" }, g);
+      el("path", { ...line, fill: C.face, d: "M22 60 L22 -28 L60 -28 L60 60 Z" }, g);
+      el("path", { ...line, "stroke-width": 5, d: "M-72 60 L70 60" }, g);
+      const w = el("g", {}, g);
+      for (const [x, y] of [[-52, 2], [-38, 2], [-52, 22], [-38, 22], [-16, -50], [2, -50], [-16, -30], [2, -30], [-16, -10], [2, -10], [-16, 10], [2, 10], [32, -16], [46, -16], [32, 4], [46, 4], [32, 24], [46, 24]])
+        el("rect", { ...line, "stroke-width": 2, fill: C.paper, x, y, width: 10, height: 12 }, w);
+      return g;
+    },
     bouclier(parent) {  // crédit immobilier protégé (assurance emprunteur) ; la coche = dernier enfant
       const g = el("g", {}, parent);
       el("path", { ...line, fill: C.paperDeep, d: "M0 -64 C20 -52 40 -48 54 -48 C54 4 40 40 0 64 C-40 40 -54 4 -54 -48 C-40 -48 -20 -52 0 -64 Z" }, g);
