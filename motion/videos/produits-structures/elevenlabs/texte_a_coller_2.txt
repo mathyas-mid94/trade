@@ -1,0 +1,72 @@
+Premier grand classique : le Phénix. Le robinet à coupons.
+Chaque trimestre, une seule question : est-ce que l'indice tient la barrière, par exemple à 60 % de son niveau de départ ?
+Oui : tu touches ton coupon, par exemple 2 % par trimestre.
+Trimestre 1 : 2 %. Trimestre 2 : 2 %.
+Trimestre 3 : l'indice passe sous la barrière. Le robinet se coupe.
+Trimestre 4 : toujours en dessous. Rien.
+Mais le seau, lui, continue de se remplir.
+Trimestre 5 : l'indice repasse au-dessus. Et tout tombe d'un coup : 6 %.
+C'est l'effet mémoire. Les coupons manqués sont rattrapés.
+
+Deuxième grand classique : l'Athéna. Le compteur qui tourne.
+Là, rien n'est versé en cours de route.
+Mais chaque année, le compteur avance, par exemple de 8 %, même quand le marché dort.
+Année 1 : 8 %. Année 2 : 16 %.
+Année 3 : l'indice repasse au-dessus de son niveau de départ. Rappel automatique.
+Tu encaisses ton capital, plus le cumul : 24 %. Et le produit s'arrête.
+Le Phénix, c'est un salaire. L'Athéna, c'est une prime de fin de mission.
+
+Autre choix important : sur quoi repose le produit ?
+Sur un seul indice, par exemple l'Euro Stoxx 50 : le risque est lisible, et déjà diversifié sur 50 grandes sociétés. Exemple de coupon : 6 % par an.
+Ou sur un panier de trois actions, en « worst of ». Exemple de coupon : 11 % par an.
+Mais attention : c'est la plus mauvaise des trois qui décide de tout.
+Les deux autres peuvent très bien se porter, ça ne compense rien.
+C'est une cordée en montagne : le groupe avance à la vitesse du plus lent.
+Le coupon ne grimpe pas par générosité. Il grimpe parce que tu acceptes trois risques au lieu d'un.
+
+Et je veux être carré avec toi : il n'y a pas de rendement gratuit.
+Ce que la banque te donne : un coupon élevé, une barrière de protection, et un calendrier connu d'avance.
+Ce que tu lui laisses en échange : les dividendes, la hausse au-delà du coupon, ta liquidité, et une assurance contre la baisse.
+Tant que l'indice reste au-dessus de la barrière, par exemple à moins 40 %, tu encaisses ton coupon.
+Mais s'il finit en dessous à l'échéance, tu suis la baisse de l'indice.
+Le coupon, c'est la prime d'assurance que la banque te verse.
+En échange, c'est toi l'assureur, le jour où ça casse.
+
+Alors avant de signer, je te pose toujours trois questions.
+Un : qu'est-ce que je gagne ? Un coupon, une protection, un calendrier lisible.
+Deux : à quoi je renonce ? Aux dividendes, à la hausse au-delà du coupon, à ma liquidité.
+Trois : dans quel cas je perds ? Une baisse sous la barrière à l'échéance, le défaut de la banque émettrice, ou une sortie avant l'échéance, au prix du marché du jour.
+Si la troisième question n'a pas de réponse claire et chiffrée, le produit ne passe pas en rendez-vous.
+
+Voilà, tu as compris les produits structurés.
+Une obligation pour le filet, une option pour le moteur, et des règles écrites noir sur blanc avant de signer.
+C'est ce qui permet de viser un rendement attractif, tout en sachant exactement dans quel cas tu gagnes, et dans quel cas tu perds.
+Je reviendrai vers toi avec des produits structurés concrets, sélectionnés pour ton profil : l'émetteur, le sous-jacent, le coupon, la barrière, la durée, tout sera détaillé dans le document d'informations clés.
+Et pour ceux qui veulent aller plus loin, je te montre quatre mécanismes en bonus.
+
+Premier bonus : le reverse convertible. Le loyer certain.
+Ici, c'est l'inverse de ce qu'on vient de voir.
+Le coupon est garanti, versé chaque année quoi qu'il arrive, sauf défaut de l'émetteur.
+C'est le remboursement du capital qui devient conditionnel.
+À l'échéance, si l'action est au-dessus du seuil, tu récupères 100 % de ton capital.
+Si elle est en dessous, tu reçois l'action, avec sa perte.
+Tu loues ton capital à prix d'or, mais le locataire peut te rendre les murs en moins bon état.
+
+Deuxième bonus : le décrément. La ligne d'arrivée qui recule.
+Certains indices retirent un montant fixe chaque année, souvent 50 points ou 5 %.
+Donc l'indice que tu suis monte moins vite que le vrai marché.
+C'est un tapis roulant qui recule doucement sous tes pieds.
+Tu avances quand même, mais la ligne d'arrivée s'éloigne un peu chaque année.
+Et c'est ce mécanisme qui permet de financer un coupon plus élevé.
+
+Troisième bonus : l'airbag. Le choc amorti.
+Sans airbag, si l'indice finit sous la barrière, tu encaisses toute la baisse d'un coup.
+Avec airbag, la perte est calculée à partir du niveau de la barrière.
+Même mur, même vitesse, mais avec l'airbag, tu sors en marchant.
+Ce confort se paie en coupon : il sera plus bas.
+
+Dernier bonus : la barrière dégressive. La haie qu'on abaisse.
+Le seuil de rappel baisse, par exemple de 5 points chaque année : 100 %, puis 95 %, puis 90 %…
+Même si le marché stagne, tes chances de sortir augmentent avec le temps.
+Ce n'est pas toi qui sautes plus haut, c'est l'obstacle qui descend vers toi.
+Allez, on se retrouve très vite, avec des produits concrets.

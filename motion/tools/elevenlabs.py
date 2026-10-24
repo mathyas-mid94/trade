@@ -12,7 +12,7 @@ PHONETIQUE = {   # validé sur la SCPI (24/10) : lettres séparées par des poin
     "PER": "P.E.R.", "SNCF": "S.N.C.F.", "EDF": "E.D.F.", "BCE": "B.C.E.", "CTO": "C.T.O.",
     "LMNP": "L.M.N.P.", "SAS": "S.A.S.", "SNC": "S.N.C.", "TMI": "T.M.I.",
     "ETF": "E.T.F.", "PFU": "P.F.U.", "IS": "I.S.", "IR": "I.R.", "PME": "P.M.E.", 
-    "MSCI": "M.S.C.I.", "S&P": "S and P", "UCITS": "U.C.I.T.S.", "IFU": "I.F.U.", "UE": "U.E.",
+    "MSCI": "M.S.C.I.", "S&P": "S and P", "UCITS": "U.C.I.T.S.", "IFU": "I.F.U.", "UE": "U.E.", "DIC": "D.I.C.", "Phoenix": "Phénix",
 }
 
 def phonetique(s):

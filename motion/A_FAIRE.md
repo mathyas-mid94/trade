@@ -36,6 +36,11 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 - Textes ElevenLabs : `tools/elevenlabs.py <SCRIPT.md> <dossier> [n]` (sigles écrits S.C.P.I., E.D.R.… : validé ; les tirets « esse-cé-pé-i » faisaient bégayer, < 10 000 car. par fichier).
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
+## Vidéo « Les produits structurés » (`videos/produits-structures/`)
+- [x] Script (`SCRIPT.md`, 21 parties dont 4 bonus, ~9 min) d'après les slides 12-30 (pas de vidéo d'origine) → 2 textes ElevenLabs + test
+- [ ] MP3 → calage → scènes TRÈS animées (demande : plus de mouvement que les autres, personnages, mécanismes) ; thème intro/outro à créer
+- [ ] Slides : « capital garanti » → préciser « à l'échéance, sauf défaut de l'émetteur » ; décrément « dans la poche de la banque » trop affirmatif
+
 ## Vidéo « Le CTO et le PEA » (`videos/pea-cto/`)
 - [x] Script (`SCRIPT.md`, 24 parties, ~11 min, slides 11 à 30 + consignes orales) → 2 textes ElevenLabs + test de prononciation
 - [x] Voix calée, 24 scènes, intro/outro « bourse », version finale livrée (`pea-cto.mp4`, 11:53)
