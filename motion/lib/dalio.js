@@ -255,6 +255,15 @@ const D = (() => {
       el("path", { ...line, "stroke-width": 0, fill: C.accent, d: "M0 30 C-14 36 -28 44 -32 56 L32 56 C28 44 14 36 0 30 Z" }, g);
       return g;
     },
+    structure(parent) { // produit structuré : socle obligation (vert) + couvercle option (or) ; le couvercle = dernier enfant
+      const g = el("g", {}, parent);
+      el("rect", { ...line, fill: C.ink, x: -54, y: -6, width: 108, height: 62, rx: 8 }, g);
+      el("path", { ...line, stroke: C.paper, "stroke-width": 4, d: "M-36 30 L-12 12 L6 22 L36 -2" }, g);
+      const top = el("g", {}, g);
+      el("rect", { ...line, fill: C.accent, x: -54, y: -48, width: 108, height: 36, rx: 8 }, top);
+      el("path", { ...line, stroke: C.ink, "stroke-width": 4, d: "M-20 -30 L0 -40 L20 -30" }, top);
+      return g;
+    },
     bourse(parent) {    // chandeliers boursiers ; la flèche montante = dernier enfant
       const g = el("g", {}, parent);
       el("path", { ...line, "stroke-width": 4, d: "M-58 56 L60 56" }, g);

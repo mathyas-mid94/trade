@@ -38,12 +38,13 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 
 ## Vidéo « Les produits structurés » (`videos/produits-structures/`)
 - [x] Script (`SCRIPT.md`, 21 parties dont 4 bonus, ~9 min) d'après les slides 12-30 (pas de vidéo d'origine) → 2 textes ElevenLabs + test
-- [ ] MP3 → calage → scènes TRÈS animées (demande : plus de mouvement que les autres, personnages, mécanismes) ; thème intro/outro à créer
+- [x] Voix calée (21 parties, marges OK, respirations entre phrases), scènes animées (marcheurs, ascenseur, robinet, compteur, tapis, airbag, haie), intro/outro « structures »
+- [ ] À réécouter : « ta mise te revient » (partie 09) et « le Phénix et l'Athéna » (partie 09) — Whisper entend « ministre » / « la Téla »
 - [ ] Slides : « capital garanti » → préciser « à l'échéance, sauf défaut de l'émetteur » ; décrément « dans la poche de la banque » trop affirmatif
 
 ## Vidéo « Le CTO et le PEA » (`videos/pea-cto/`)
 - [x] Script (`SCRIPT.md`, 24 parties, ~11 min, slides 11 à 30 + consignes orales) → 2 textes ElevenLabs + test de prononciation
-- [x] Voix calée, 24 scènes, intro/outro « bourse », version finale livrée (`pea-cto.mp4`, 11:53)
+- [x] Voix calée, 24 scènes, intro/outro « bourse », version finale livrée (`pea-cto.mp4`, 11:53) ; respiration qui coupait « P.F.U. » à 4:49 corrigée
 - [ ] À vérifier : ETF swap « exclusion abandonnée le 26 août » (slide) ; « 0 € d'impôt » au décès (droits de succession restent dus)
 
 ## Vidéo « La SCPI » (`videos/scpi/`)
