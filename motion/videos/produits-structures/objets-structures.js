@@ -11,8 +11,9 @@ function marcheur(g, opts = {}, s = 1) {
       if (t >= t0 && t <= t1) { const k = ease((t - t0) / (t1 - t0)); x = lerp(x0, x1, k); y = lerp(y0, y1, k); mv = Math.abs(x1 - x0) > 1 ? 1 : 0; dir = x1 >= x0 ? 1 : -1; break; }
       if (t > t1) { x = x1; y = y1; } }
     if (o.yOf) y = o.yOf(x);
-    const sw = mv * 28 * Math.sin(t * 11), k = (o.k ?? 1) * pop(t, keys[0][0] - 0.3);
-    guy.pose(o.armL ?? 100 + sw, o.armR ?? 80 - sw).place(x, y - mv * Math.abs(Math.sin(t * 11)) * 8 + Math.sin(t * 2.2 + x) * 2, s * k, o.flip ?? dir < 0);
+    // pas calme : bras ±12°, rebond 3 px, cadence posée ; respiration lente et indépendante de la position (sinon ça tremble en marchant)
+    const sw = mv * 12 * Math.sin(t * 6.5), k = (o.k ?? 1) * pop(t, keys[0][0] - 0.3);
+    guy.pose(o.armL ?? 100 + sw, o.armR ?? 80 - sw).place(x, y - mv * Math.abs(Math.sin(t * 6.5)) * 3 + Math.sin(t * 1.4) * 1, s * k, o.flip ?? dir < 0);
     guy.g.style.opacity = k > 0.001 ? 1 : 0; return { x, y };
   } };
 }
