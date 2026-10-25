@@ -15,8 +15,8 @@
   --line:rgba(35,78,72,.16);
   --neg:#b14a3b;
   --pos:#2f7d4f;
-  --serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:Calibri,Carlito,Arial,"Helvetica Neue",Helvetica,sans-serif;
+  --sans:Calibri,Carlito,Arial,"Helvetica Neue",Helvetica,sans-serif;
   --shadow:0 24px 60px -28px rgba(35,78,72,.45);
 }
 *{box-sizing:border-box}
@@ -28,6 +28,7 @@ body{
     radial-gradient(900px 500px at -10% 110%, rgba(63,111,104,.14), transparent 60%),
     var(--paper);
   min-height:100vh;-webkit-font-smoothing:antialiased;
+  font-variant-numeric:lining-nums tabular-nums;
 }
 .wrap{max-width:900px;margin:0 auto;padding:24px 16px 80px}
 button{font-family:inherit;cursor:pointer}
@@ -56,7 +57,7 @@ button{font-family:inherit;cursor:pointer}
 .card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--ink),var(--inkSoft),var(--accent));opacity:.9}
 .kicker{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:700}
 h1.st{font-family:var(--serif);font-size:30px;margin:8px 0 6px;line-height:1.1}
-p.lead{font-size:15px;color:var(--inkSoft);margin:0 0 18px;line-height:1.55}
+p.lead{font-size:16.5px;color:var(--inkSoft);margin:0 0 18px;line-height:1.55}
 h3{font-family:var(--serif);font-size:19px;margin:0 0 4px}
 
 /* fields */
@@ -64,20 +65,20 @@ h3{font-family:var(--serif);font-size:19px;margin:0 0 4px}
 .fields .full{grid-column:1/-1}
 label.fl{display:block;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--inkSoft);margin:0 0 6px 2px;font-weight:600}
 .ti,textarea.ti,select.ti{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;
-  font-size:15px;color:var(--ink);font-family:inherit;outline:none;transition:.15s}
+  font-size:16px;color:var(--ink);font-family:inherit;outline:none;transition:.15s}
 textarea.ti{min-height:150px;resize:vertical;line-height:1.5}
 .ti:focus{border-color:var(--inkSoft);box-shadow:0 0 0 3px rgba(63,111,104,.14)}
 .unit{position:relative}
 .unit .ti{padding-right:46px}
 .unit span{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--inkSoft);font-size:14px;pointer-events:none}
-.hint{font-size:12px;color:var(--inkSoft);margin:6px 2px 0;line-height:1.45}
+.hint{font-size:13px;color:var(--inkSoft);margin:6px 2px 0;line-height:1.45}
 
 /* KPI tiles */
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px}
 .kpi small{display:block;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--inkSoft);margin-bottom:6px;line-height:1.35}
-.kpi b{font-family:var(--serif);font-size:23px;display:block;line-height:1.1}
-.kpi em{display:block;font-style:normal;font-size:12.5px;color:var(--inkSoft);margin-top:4px}
+.kpi b{font-family:var(--serif);font-size:26px;display:block;line-height:1.1}
+.kpi em{display:block;font-style:normal;font-size:13.5px;color:var(--inkSoft);margin-top:4px}
 .kpi.hl{background:linear-gradient(180deg,#fff,var(--accentSoft));border-color:var(--accent)}
 .kpi.dark{background:var(--ink);border-color:var(--ink);color:#fdfaf0}
 .kpi.dark small,.kpi.dark em{color:#d8e4df}
@@ -251,7 +252,7 @@ const LOGO = (s=46)=>`
 const OBJECTIVES = [
   ['impots',   'Réduire mes impôts'],
   ['epargne',  'Faire fructifier mon épargne'],
-  ['immo',     'Investir dans l\'immobilier'],
+  ['immo',     'Investir dans l\'immobilier', {noCible:true}],  // une cible €/mois n'a pas de sens ici
   ['revenus',  'Générer des revenus passifs'],
   ['retraite', 'Préparer ma retraite'],
 ];
@@ -597,13 +598,13 @@ function stepPrio(card){
     <div class="prio-head"><span>Objectif</span><span>Priorité</span><span>Horizon</span><span>Cible</span></div>
     <div id="prios"></div>`;
   const box=card.querySelector('#prios');
-  OBJECTIVES.forEach(([k,label])=>{
+  OBJECTIVES.forEach(([k,label,o={}])=>{
     const p=state.prio[k];
     const row=el(`<div class="prio">
       <div class="nm">${label}</div>
       <div class="chips">${[1,2,3].map(v=>`<button type="button" data-v="${v}" class="${p.note===v?'on':''}" aria-label="Priorité ${v}">${v}</button>`).join('')}</div>
       <input class="ti" data-f="horizon" placeholder="Horizon (ex. 10 ans)" value="${esc(p.horizon)}">
-      <input class="ti" data-f="cible" placeholder="Cible (ex. 300 €/mois)" value="${esc(p.cible)}">
+      ${o.noCible?'<div></div>':`<input class="ti" data-f="cible" placeholder="Cible (ex. 300 €/mois)" value="${esc(p.cible)}">`}
       <input class="ti rem" data-f="remarque" placeholder="Remarque (facultatif)" value="${esc(p.remarque)}">
     </div>`);
     row.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{
@@ -852,8 +853,8 @@ function scenSVG(lo,hi,gLo,gHi){
     <line x1="6" y1="${y0}" x2="${W-6}" y2="${y0}" stroke="#234e48" stroke-dasharray="6 6" stroke-width="1.5" opacity=".5"/>
     <rect x="${W/2-36}" y="${y(hi)}" width="72" height="${Math.max(9,y0-y(hi)-3)}" rx="11" fill="#234e48"/>
     <rect x="${W/2-36}" y="${y0+3}" width="72" height="${Math.max(9,y(lo)-y0-3)}" rx="11" fill="#caa97a"/>
-    <text x="${W/2}" y="${Math.max(24,y(hi)-10)}" text-anchor="middle" font-size="22" font-weight="bold" font-family="Georgia,serif" fill="#234e48">+${hi}%</text>
-    <text x="${W/2}" y="${Math.min(H-6,y(lo)+26)}" text-anchor="middle" font-size="22" font-weight="bold" font-family="Georgia,serif" fill="#b14a3b">${lo}%</text>
+    <text x="${W/2}" y="${Math.max(24,y(hi)-10)}" text-anchor="middle" font-size="22" font-weight="bold" font-family="Calibri,Carlito,Arial,sans-serif" fill="#234e48">+${hi}%</text>
+    <text x="${W/2}" y="${Math.min(H-6,y(lo)+26)}" text-anchor="middle" font-size="22" font-weight="bold" font-family="Calibri,Carlito,Arial,sans-serif" fill="#b14a3b">${lo}%</text>
   </svg>`;
 }
 
