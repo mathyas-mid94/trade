@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Découverte Client — Midelton Investment Capital</title>
+<style>
+:root{
+  --paper:#fbf7ec;
+  --paperDeep:#f0e8d2;
+  --ink:#234e48;
+  --inkSoft:#3f6f68;
+  --accent:#caa97a;
+  --accentSoft:#ece0c5;
+  --line:rgba(35,78,72,.16);
+  --neg:#b14a3b;
+  --pos:#2f7d4f;
+  --serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --shadow:0 24px 60px -28px rgba(35,78,72,.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--sans);color:var(--ink);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(202,169,122,.18), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(63,111,104,.14), transparent 60%),
+    var(--paper);
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 80px}
+button{font-family:inherit;cursor:pointer}
+.muted{color:var(--inkSoft)}
+.tiny{font-size:12.5px;line-height:1.5}
+.serif{font-family:var(--serif)}
+
+/* top bar */
+.topbar{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.brandtxt{line-height:1.15}
+.brandtxt b{font-family:var(--serif);font-size:18px;letter-spacing:.3px}
+.brandtxt span{display:block;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--inkSoft)}
+
+/* stepper */
+.steps{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin-bottom:6px;scrollbar-width:thin}
+.steps button{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--inkSoft);border-radius:99px;
+  padding:6px 11px;font-size:12px;white-space:nowrap;transition:.15s}
+.steps button.on{background:var(--ink);color:#fdfaf0;border-color:var(--ink);font-weight:600}
+.steps button.done{border-color:var(--accent);color:var(--ink)}
+.progressbar{height:7px;background:var(--accentSoft);border-radius:99px;overflow:hidden;margin:2px 0 18px}
+.progressbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--inkSoft),var(--ink));border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+/* card */
+.card{background:linear-gradient(180deg,#fffdf6,var(--paper));border:1px solid var(--line);border-radius:22px;
+  box-shadow:var(--shadow);padding:30px 30px 26px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--ink),var(--inkSoft),var(--accent));opacity:.9}
+.kicker{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1.st{font-family:var(--serif);font-size:30px;margin:8px 0 6px;line-height:1.1}
+p.lead{font-size:15px;color:var(--inkSoft);margin:0 0 18px;line-height:1.55}
+h3{font-family:var(--serif);font-size:19px;margin:0 0 4px}
+
+/* fields */
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fields .full{grid-column:1/-1}
+label.fl{display:block;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--inkSoft);margin:0 0 6px 2px;font-weight:600}
+.ti,textarea.ti,select.ti{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;
+  font-size:15px;color:var(--ink);font-family:inherit;outline:none;transition:.15s}
+textarea.ti{min-height:150px;resize:vertical;line-height:1.5}
+.ti:focus{border-color:var(--inkSoft);box-shadow:0 0 0 3px rgba(63,111,104,.14)}
+.unit{position:relative}
+.unit .ti{padding-right:46px}
+.unit span{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--inkSoft);font-size:14px;pointer-events:none}
+.hint{font-size:12px;color:var(--inkSoft);margin:6px 2px 0;line-height:1.45}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px}
+.kpi small{display:block;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--inkSoft);margin-bottom:6px;line-height:1.35}
+.kpi b{font-family:var(--serif);font-size:23px;display:block;line-height:1.1}
+.kpi em{display:block;font-style:normal;font-size:12.5px;color:var(--inkSoft);margin-top:4px}
+.kpi.hl{background:linear-gradient(180deg,#fff,var(--accentSoft));border-color:var(--accent)}
+.kpi.dark{background:var(--ink);border-color:var(--ink);color:#fdfaf0}
+.kpi.dark small,.kpi.dark em{color:#d8e4df}
+.pos{color:var(--pos)}.neg{color:var(--neg)}
+
+.panel{border:1px solid var(--line);background:#fff;border-radius:18px;padding:18px;margin-top:18px}
+.notebox{margin-top:18px;border-left:3px solid var(--accent);background:var(--accentSoft);border-radius:0 12px 12px 0;
+  padding:12px 15px;font-size:13px;line-height:1.55}
+
+/* priorities */
+.prio{display:grid;grid-template-columns:1.3fr auto 1fr 1fr;gap:10px;align-items:center;padding:12px 0;border-bottom:1px dashed var(--line)}
+.prio:last-child{border-bottom:none}
+.prio .nm{font-weight:600;font-size:15px}
+.prio .ti{padding:9px 11px;font-size:14px}
+.prio .rem{grid-column:1/-1}
+.chips{display:flex;gap:6px}
+.chips button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;font-family:var(--serif);font-size:16px;color:var(--ink);transition:.12s}
+.chips button.on{background:var(--ink);color:#fdfaf0;border-color:var(--ink)}
+.prio-head{display:grid;grid-template-columns:1.3fr auto 1fr 1fr;gap:10px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--inkSoft);padding-bottom:6px;border-bottom:1px solid var(--line)}
+
+/* nav */
+.navrow{display:flex;justify-content:space-between;align-items:center;margin-top:26px;gap:12px;flex-wrap:wrap}
+.btn{border:none;border-radius:13px;padding:13px 22px;font-size:15px;font-weight:600;letter-spacing:.2px;background:var(--ink);
+  color:#fdfaf0;transition:.16s;display:inline-flex;align-items:center;gap:9px}
+.btn:hover{background:#1b3c39;transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:rgba(35,78,72,.06)}
+.btn.gold{background:var(--accent);color:#3a2e16}
+.btn.gold:hover{background:#bd9a68}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.linkbtn{background:none;border:none;color:var(--inkSoft);font-size:14px;padding:8px 6px;display:inline-flex;align-items:center;gap:6px}
+.linkbtn:hover{color:var(--ink)}
+
+/* profile questionnaire (repris du simulateur) */
+.qmeta{display:flex;justify-content:space-between;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--inkSoft);margin:4px 0 8px}
+.qmeta .sec{color:var(--accent);font-weight:700}
+.qhead{display:flex;align-items:flex-start;gap:14px;margin:10px 0 6px}
+.qnum{font-family:var(--serif);font-size:30px;color:var(--accent);line-height:1;opacity:.85}
+.qtitle{font-family:var(--serif);font-size:22px;line-height:1.25;margin:0}
+.qhelp{font-size:14px;color:var(--inkSoft);margin:8px 0 0;line-height:1.5}
+.opts{display:grid;gap:10px;margin-top:18px}
+.opt{display:flex;align-items:center;gap:14px;text-align:left;width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px;transition:.14s}
+.opt:hover{border-color:var(--inkSoft);transform:translateX(3px)}
+.opt .key{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--accentSoft);display:grid;place-items:center;font-size:13px;font-weight:700;font-family:var(--serif);color:var(--ink)}
+.opt b{display:block;font-size:15px;color:var(--ink)}
+.opt small{display:block;font-size:12.5px;color:var(--inkSoft);margin-top:2px}
+.opt.sel{border-color:var(--ink);background:linear-gradient(180deg,#fff,var(--accentSoft))}
+.opt.sel .key{background:var(--ink);color:#fdfaf0}
+.scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.scen{border:1px solid var(--line);background:#fff;border-radius:16px;padding:18px 12px 14px;text-align:center;transition:.15s}
+.scen:hover{border-color:var(--inkSoft);transform:translateY(-3px)}
+.scen.sel{border-color:var(--ink);background:linear-gradient(180deg,#fff,var(--accentSoft))}
+.scen h4{font-family:var(--serif);font-size:21px;margin:0 0 4px;font-weight:600;color:var(--ink)}
+.scen .pick{margin-top:10px;font-size:14px;font-weight:600;color:#fdfaf0;background:var(--ink);border-radius:10px;padding:10px 0}
+.scen.sel .pick{background:var(--accent);color:#3a2e16}
+.profileName{font-family:var(--serif);font-size:42px;margin:6px 0 2px;line-height:1;text-align:center}
+.profileTag{font-size:15px;color:var(--inkSoft);max-width:560px;margin:6px auto 0;text-align:center;line-height:1.5}
+.scale{display:flex;gap:6px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
+.pill{font-size:12px;padding:6px 13px;border-radius:99px;border:1px solid var(--line);color:var(--inkSoft);background:#fff}
+.pill.on{background:var(--ink);color:#fdfaf0;border-color:var(--ink);font-weight:600}
+.meter{margin:10px 0}
+.meter div:first-child{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* docs */
+.doclist{display:grid;gap:10px;margin-top:6px}
+.doc{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+.doc .ab{flex:0 0 auto;min-width:52px;text-align:center;font-family:var(--serif);font-weight:700;background:var(--accentSoft);border-radius:8px;padding:5px 6px;font-size:13px}
+.doc b{display:block;font-size:14.5px}
+.doc small{color:var(--inkSoft);font-size:12.5px;line-height:1.45}
+.badge{margin-left:auto;flex:0 0 auto;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--inkSoft);border:1px dashed var(--accent);border-radius:99px;padding:3px 9px}
+
+pre.recap{white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;font-size:12.5px;line-height:1.5;max-height:260px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace}
+
+footer.disc{margin-top:22px;font-size:11.5px;color:var(--inkSoft);line-height:1.6;text-align:center}
+
+.fade{animation:fade .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fdfaf0;
+  padding:12px 20px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;box-shadow:var(--shadow);z-index:50;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:680px){
+  .fields,.grid2{grid-template-columns:1fr}
+  .card{padding:22px 16px}
+  h1.st{font-size:25px}
+  .prio,.prio-head{grid-template-columns:1fr 1fr}
+  .prio-head{display:none}
+  .prio .nm{grid-column:1/-1}
+  .prio .chips{grid-column:1/-1}
+  .scenarios{grid-template-columns:1fr}
+  .profileName{font-size:34px}
+}
+
+/* ---------- PDF (impression) ---------- */
+#report{display:none}
+@media print{
+  @page{margin:13mm}
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .wrap,#toast{display:none!important}
+  #report{display:block!important;color:#1c1c1c;font-size:12px}
+  .pr-h{display:flex;align-items:center;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:14px}
+  .pr-sec{margin:14px 0;break-inside:avoid}
+  .pr-sec h2{font-family:var(--serif);font-size:15px;color:var(--ink);border-bottom:1px solid #ccc;padding-bottom:4px;margin:0 0 6px}
+  .pr-grid{width:100%;border-collapse:collapse;font-size:11.5px}
+  .pr-grid td{padding:4px 6px;border-bottom:1px solid #e4e4e4;vertical-align:top}
+  .pr-grid td:first-child{color:#555;width:55%}
+  .pr-txt{white-space:pre-wrap;font-size:11.5px;background:#faf7ef;border-radius:6px;padding:8px}
+  .pr-foot{margin-top:18px;font-size:9.5px;color:#666;border-top:1px solid #ccc;padding-top:8px;line-height:1.5}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="report"></div>
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   MIDELTON INVESTMENT CAPITAL — Découverte Client (R1 en ligne)
+   Tout est calculé dans le navigateur. Aucune donnée n'est
+   stockée : ni serveur, ni localStorage, ni service tiers.
+   ============================================================ */
+
+/* ---------- Paramètres à valider avant mise en ligne ---------- */
+const CONFIG = {
+  advisorEmail: 'mathyas@midelton-capital.fr',
+  firm: 'Midelton Investment Capital',
+  footer: 'Cabinet indépendant de toute banque ou assureur',
+
+  // Table net → brut → coût employeur (annuel, salarié du privé, temps plein).
+  // ⚠ PROVISOIRE : seul le point 36 000 € est calé sur le simulateur URSSAF
+  // (mon-entreprise.urssaf.fr). Les autres points sont des estimations à
+  // remplacer par les valeurs exactes du simulateur.
+  urssaf: [
+    // [net, brut, coût employeur]
+    [ 17300,  21900,  23400],
+    [ 22000,  27900,  33000],
+    [ 28000,  35600,  46000],
+    [ 36000,  45810,  63598],   // calage URSSAF validé
+    [ 45000,  57500,  82500],
+    [ 60000,  77000, 112000],
+    [ 80000, 103000, 150000],
+    [120000, 155500, 223000],
+  ],
+
+  // Taux de remplacement retraite (revenu à la retraite / dernier revenu net).
+  replaceBase: 0.50,
+  replaceYoung: 0.25,
+  replaceSource: 'Source INSEE — référence exacte à compléter avant mise en ligne',
+
+  retirementAge: 64,        // par défaut, modifiable
+  reserveMonths: 3,         // réserve de précaution = 3 mois de salaire net
+  debtCap: 0.40,            // seuil d'endettement retenu (financement SCPI)
+  inflation: 2.0,           // hypothèse par défaut, modifiable (%)
+  livretRate: 1.7,          // rendement actuel par défaut (%)
+  targetRate: 5.0,          // rendement visé par défaut (%)
+};
+
+const LOGO = (s=46)=>`
+<svg width="${s}" height="${s}" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="MIC">
+  <circle cx="100" cy="100" r="97" fill="#f8f4e9" stroke="#2e5049" stroke-width="2.4"/>
+  <circle cx="100" cy="100" r="90.5" fill="none" stroke="#2e5049" stroke-width="1"/>
+  <text x="100" y="121" text-anchor="middle" font-family="'Times New Roman',Georgia,serif" font-size="72" font-weight="500" letter-spacing="1" fill="#2e5049">MIC</text>
+  <line x1="55" y1="140" x2="145" y2="140" stroke="#2e5049" stroke-width="1.6"/>
+</svg>`;
+
+/* ---------- État (en mémoire uniquement) ---------- */
+const OBJECTIVES = [
+  ['impots',   'Réduire mes impôts'],
+  ['epargne',  'Faire fructifier mon épargne'],
+  ['immo',     'Investir dans l\'immobilier'],
+  ['revenus',  'Générer des revenus passifs'],
+  ['retraite', 'Préparer ma retraite'],
+];
+
+const state = {
+  step: 0,
+  maxStep: 0,
+  lifeGoals: '',
+  prio: Object.fromEntries(OBJECTIVES.map(([k])=>[k,{note:0,horizon:'',cible:'',remarque:''}])),
+  age: null, netAnnual: null, ir: null, patFin: null, patImmo: null,
+  retirementAge: CONFIG.retirementAge,
+  livrets: null, livretRate: CONFIG.livretRate, targetRate: CONFIG.targetRate, inflation: CONFIG.inflation,
+  mensualites: null, immoComment: '',
+  retireWanted: null,
+  monthlySaving: null,
+  answers: {}, qIdx: 0,
+  contact: {nom:'', email:'', tel:''},
+};
+
+/* ============================================================ CALCULS */
+const n = v => (v==null || isNaN(v)) ? 0 : v;
+
+function interpUrssaf(net){
+  const T = CONFIG.urssaf;
+  if(!net || net<=0) return {brut:0, emp:0};
+  if(net<=T[0][0]) return {brut:net*T[0][1]/T[0][0], emp:net*T[0][2]/T[0][0]};
+  const L = T[T.length-1];
+  if(net>=L[0]) return {brut:net*L[1]/L[0], emp:net*L[2]/L[0]};
+  for(let i=1;i<T.length;i++){
+    if(net<=T[i][0]){
+      const a=T[i-1], b=T[i], t=(net-a[0])/(b[0]-a[0]);
+      return {brut:a[1]+t*(b[1]-a[1]), emp:a[2]+t*(b[2]-a[2])};
+    }
+  }
+}
+
+function calc(){
+  const s = state;
+  const net = n(s.netAnnual), netM = net/12;
+  const {brut, emp} = interpUrssaf(net);
+  const gap = emp - net;
+  const totalTax = gap + n(s.ir);
+  const years = Math.max(0, n(s.retirementAge) - n(s.age));
+  const patTotal = n(s.patFin) + n(s.patImmo);
+
+  // épargne
+  const L = n(s.livrets), r = n(s.livretRate)/100, rt = n(s.targetRate)/100, inf = n(s.inflation)/100;
+  const realL10 = L*Math.pow((1+r)/(1+inf),10);
+  const infLoss10 = L - realL10;               // > 0 = pouvoir d'achat perdu
+  const gapRate = (rt - r)*100;
+  const gapYear = L*(rt - r);
+
+  // immobilier
+  const partImmo = patTotal>0 ? n(s.patImmo)/patTotal : 0;
+  const debtRate = netM>0 ? n(s.mensualites)/netM : 0;
+
+  // retraite
+  const w = n(s.retireWanted);
+  const est50 = netM*CONFIG.replaceBase, est25 = netM*CONFIG.replaceYoung;
+
+  // synthèse
+  const reserve = CONFIG.reserveMonths*netM;
+  const investable = Math.max(0, n(s.patFin) - reserve);
+  const debtMargin = CONFIG.debtCap*netM - n(s.mensualites);
+  const debtMarginPts = (CONFIG.debtCap - debtRate)*100;
+
+  return {net, netM, brut, emp, gap, gapPct: emp>0?gap/emp:0, totalTax, years,
+    projTax: totalTax*years, patTotal,
+    L, r, rt, inf, realL10, infLoss10, gapRate, gapYear,
+    partImmo, debtRate,
+    w, est50, est25, create50: Math.max(0,w-est50), create25: Math.max(0,w-est25),
+    reserve, investable, debtMargin, debtMarginPts};
+}
+
+/* ============================================================ PROFIL INVESTISSEUR
+   Repris du simulateur existant (questions passées au tutoiement,
+   envoi tiers et stockage local supprimés). */
+const SECTIONS = {exp:"Expérience & connaissances", cap:"Situation & capacité", risk:"Tolérance au risque"};
+const CARDS = [
+  { id:'q1', sec:'exp', type:'single',
+    q:"Depuis combien de temps investis-tu sur les marchés financiers ?",
+    help:"Toute expérience compte : à titre personnel ou professionnel.",
+    opts:[
+      {l:"Je débute", d:"Jamais ou presque", pts:{know:0}},
+      {l:"Moins de 2 ans", d:"Premières expériences", pts:{know:3}},
+      {l:"2 à 5 ans", d:"Une bonne habitude", pts:{know:6}},
+      {l:"Plus de 5 ans", d:"Investisseur aguerri", pts:{know:9}},
+    ]},
+  { id:'q2', sec:'exp', type:'multi',
+    q:"Quels placements as-tu déjà détenus ?",
+    help:"Sélectionne tout ce qui s'applique (sur les 12 derniers mois ou avant).",
+    opts:[
+      {l:"Livrets & épargne", d:"Livret A, LDDS, PEL…", pts:{know:1}},
+      {l:"Assurance-vie", d:"ou capitalisation", pts:{know:2}},
+      {l:"Comptes-titres / PEA", d:"Actions, ETF, OPC", pts:{know:3}},
+      {l:"Épargne retraite", d:"PER, PERP, Madelin…", pts:{know:2}},
+      {l:"SCPI / immobilier", d:"Pierre-papier", pts:{know:3}},
+      {l:"Private equity", d:"FIP, FCPI, FCPR…", pts:{know:4}},
+    ]},
+  { id:'q3', sec:'exp', type:'single',
+    q:"Comment gères-tu habituellement tes placements ?",
+    help:"Ton mode de gestion en dit long sur ton aisance.",
+    opts:[
+      {l:"Je ne gère pas encore", d:"Tout est à construire", pts:{know:0}},
+      {l:"Gestion conseillée", d:"Accompagné par un conseiller", pts:{know:4}},
+      {l:"Gestion directe", d:"Je décide moi-même", pts:{know:6}},
+      {l:"Gestion sous mandat", d:"Déléguée à un gérant", pts:{know:5}},
+    ]},
+  { id:'q4', sec:'exp', type:'multi',
+    q:"Quels produits comprends-tu réellement ?",
+    help:"Coche ceux dont le couple rendement / risque t'est familier.",
+    opts:[
+      {l:"Fonds en euros", d:"Capital garanti", pts:{know:1}},
+      {l:"Obligations", d:"Sensibles aux taux", pts:{know:2}},
+      {l:"Actions", d:"Long terme, volatiles", pts:{know:3}},
+      {l:"SCPI", d:"Immobilier, peu liquide", pts:{know:2}},
+      {l:"Produits structurés", d:"Protection conditionnelle", pts:{know:4}},
+      {l:"Capital-investissement", d:"Non coté, 6-8 ans", pts:{know:4}},
+    ]},
+  { id:'q5', sec:'exp', type:'single',
+    q:"As-tu déjà traversé une forte baisse sur l'un de tes placements ?",
+    help:"Et si oui, comment l'as-tu gérée ?",
+    opts:[
+      {l:"Non, jamais", d:"Je n'y ai pas encore été confronté", pts:{tol:1,know:0}},
+      {l:"Oui — j'ai tout vendu", d:"La baisse m'a fait sortir", pts:{tol:0,know:1}},
+      {l:"Oui — j'ai patienté", d:"J'ai gardé le cap", pts:{tol:5,know:3}},
+      {l:"Oui — j'ai renforcé", d:"J'en ai profité pour investir", pts:{tol:9,know:4}},
+    ]},
+  { id:'q6', sec:'cap', type:'single',
+    q:"Dans quel délai pourrais-tu avoir besoin de cette épargne ?",
+    help:"Ton horizon de placement le plus long pour ce projet.",
+    opts:[
+      {l:"Moins de 1 an", d:"Très court terme", pts:{cap:0}},
+      {l:"1 à 3 ans", d:"Court terme", pts:{cap:3}},
+      {l:"3 à 5 ans", d:"Moyen terme", pts:{cap:7}},
+      {l:"Plus de 5 ans", d:"Long terme", pts:{cap:10}},
+    ]},
+  { id:'q7', sec:'cap', type:'single',
+    q:"Quelle baisse temporaire pourrais-tu supporter sereinement ?",
+    help:"Sans que cela ne menace tes projets ni ta tranquillité.",
+    opts:[
+      {l:"Aucune perte", d:"La sécurité d'abord", pts:{cap:0,tol:0}},
+      {l:"Jusqu'à -10 %", d:"Des variations limitées", pts:{cap:4,tol:3}},
+      {l:"Entre -10 % et -30 %", d:"Des creux passagers", pts:{cap:8,tol:7}},
+      {l:"Plus de -30 %", d:"Je vise le long terme", pts:{cap:11,tol:10}},
+    ]},
+  { id:'q8', sec:'cap', type:'single',
+    q:"Quelle part de ton patrimoine est éligible à de l'investissement ?",
+    help:"La part que tu pourrais mobiliser sans toucher à ton épargne de sécurité.",
+    opts:[
+      {l:"Une petite part", d:"L'essentiel doit rester disponible", pts:{cap:0}},
+      {l:"Une part modérée", d:"Une fraction confortable", pts:{cap:4}},
+      {l:"Environ la moitié", d:"Un bon équilibre", pts:{cap:7}},
+      {l:"Une part importante", d:"J'ai d'autres réserves solides", pts:{cap:10}},
+    ]},
+  { id:'q9', sec:'risk', type:'single',
+    q:"Pour tes placements, quelle phrase te ressemble le plus ?",
+    help:"Il n'y a pas de bonne réponse — seulement la tienne.",
+    opts:[
+      {l:"Ne jamais prendre de risque", d:"Tout en placements sûrs", pts:{tol:0}},
+      {l:"Un peu de risque, prudemment", d:"Une petite part dynamique", pts:{tol:4}},
+      {l:"Du risque si le gain en vaut la peine", d:"Une part importante exposée", pts:{tol:8}},
+      {l:"Viser la performance maximale", d:"Quitte à beaucoup fluctuer", pts:{tol:12}},
+    ]},
+  { id:'q10', sec:'risk', type:'scenario',
+    q:"Trois placements, leurs fourchettes de rendement sur 8 ans. Lequel choisis-tu ?",
+    help:"De l'estimation la plus pessimiste à la plus optimiste, chaque année.",
+    scen:[
+      {name:"Sérénité", lo:-1, hi:4, pts:{tol:1}},
+      {name:"Équilibre", lo:-7, hi:9, pts:{tol:6}},
+      {name:"Ambition", lo:-18, hi:22, pts:{tol:12}},
+    ]},
+  { id:'q11', sec:'risk', type:'single',
+    q:"Ton portefeuille perd −15 % en un mois de turbulences. Ton réflexe ?",
+    help:"Réaction à chaud face à une baisse marquée.",
+    opts:[
+      {l:"Je vends tout", d:"Stopper l'hémorragie", pts:{tol:0}},
+      {l:"J'allège un peu", d:"Réduire la voilure", pts:{tol:3}},
+      {l:"Je ne touche à rien", d:"Garder le cap", pts:{tol:8}},
+      {l:"J'en profite pour renforcer", d:"Acheter à bon compte", pts:{tol:12}},
+    ]},
+  { id:'q12', sec:'risk', type:'single',
+    q:"On te propose d'échanger un revenu certain de 20 000 € contre…",
+    help:"50 % de chances de doubler (40 000 €), 50 % de baisser d'un tiers (13 333 €).",
+    opts:[
+      {l:"Non merci, je garde le certain", d:"La sécurité prime", pts:{tol:0}},
+      {l:"J'hésite mais je refuse", d:"Trop d'incertitude", pts:{tol:3}},
+      {l:"Je tente, le potentiel m'attire", d:"Le gain en vaut le coup", pts:{tol:8}},
+      {l:"Sans hésiter, je prends le pari", d:"J'aime le risque", pts:{tol:12}},
+    ]},
+  { id:'q13', sec:'risk', type:'single',
+    q:"Enfin, quel est ton objectif prioritaire ?",
+    help:"Ce qui compte le plus pour toi, aujourd'hui.",
+    opts:[
+      {l:"Préserver mon capital", d:"Éviter les pertes avant tout", pts:{tol:0,cap:2}},
+      {l:"Générer des revenus", d:"Dividendes, coupons, loyers", pts:{tol:4}},
+      {l:"Faire croître mon capital", d:"Accepter du risque pour grandir", pts:{tol:8}},
+      {l:"Maximiser la performance", d:"Viser haut sur le long terme", pts:{tol:12}},
+    ]},
+];
+
+const PROFILES = [
+  { key:'Prudent', color:'#3f6f68',
+    tag:"Tu privilégies la sécurité. Ton capital est protégé en priorité, avec une exposition mesurée pour ne pas subir l'inflation.",
+    alloc:[["Fonds euros & monétaire",60,'#234e48'],["Obligations",25,'#3f6f68'],["Actions & diversifié",15,'#caa97a']]},
+  { key:'Équilibré', color:'#2f7d4f',
+    tag:"Tu cherches un équilibre entre sécurité et performance. Des fluctuations modérées sont acceptées au service d'un rendement régulier.",
+    alloc:[["Fonds euros & obligations",55,'#234e48'],["Actions",35,'#3f6f68'],["Immobilier & diversifié",10,'#caa97a']]},
+  { key:'Dynamique', color:'#b58a3c',
+    tag:"Tu vises la croissance du capital sur le long terme et acceptes des baisses temporaires marquées en contrepartie d'un potentiel plus élevé.",
+    alloc:[["Actions",65,'#234e48'],["Obligations & diversifié",25,'#3f6f68'],["Non coté & thématiques",10,'#caa97a']]},
+  { key:'Offensif', color:'#a8472f',
+    tag:"Tu recherches la performance sur un horizon long. Une forte volatilité fait partie du jeu et ne te détourne pas de ton cap.",
+    alloc:[["Actions",80,'#234e48'],["Non coté & private equity",12,'#3f6f68'],["Diversifié & opportuniste",8,'#caa97a']]},
+];
+
+const MAX = (()=>{
+  const m={tol:0,cap:0,know:0};
+  CARDS.forEach(c=>{
+    if(c.type==='multi'){ c.opts.forEach(o=>{for(const k in o.pts) m[k]+=o.pts[k];}); return; }
+    const best={}; (c.opts||c.scen).forEach(o=>{for(const k in o.pts) best[k]=Math.max(best[k]||0,o.pts[k]);});
+    for(const k in best) m[k]+=best[k];
+  });
+  return m;
+})();
+
+function profileScores(){
+  const s={tol:0,cap:0,know:0};
+  CARDS.forEach(c=>{
+    const a=state.answers[c.id]; if(a==null) return;
+    const add=p=>{for(const k in p) s[k]+=p[k]||0;};
+    if(c.type==='multi') a.forEach(i=>add(c.opts[i].pts));
+    else add((c.opts||c.scen)[a].pts);
+  });
+  const pct=k=>MAX[k]?Math.round(100*s[k]/MAX[k]):0;
+  return {tol:pct('tol'),cap:pct('cap'),know:pct('know')};
+}
+
+function profileResult(){
+  if(!profileDone()) return null;
+  const sc=profileScores();
+  const comp=0.50*sc.tol+0.32*sc.cap+0.18*sc.know;
+  let band = comp<28?0 : comp<52?1 : comp<74?2 : 3;
+  const A=state.answers;
+  if(A.q7===0) band=Math.min(band,0);
+  else if(A.q7===1) band=Math.min(band,1);
+  if(A.q6!=null && A.q6<=1) band=Math.min(band,1);
+  if(sc.know<25) band=Math.min(band,2);
+  if(A.q9===0) band=Math.min(band,0);
+  return {band, sc, p:PROFILES[band]};
+}
+function profileDone(){
+  return CARDS.every(c=>{const a=state.answers[c.id]; return c.type==='multi' ? Array.isArray(a)&&a.length>0 : a!=null;});
+}
+function answerLabel(c){
+  const a=state.answers[c.id]; if(a==null) return '—';
+  if(c.type==='multi') return a.length?a.map(i=>c.opts[i].l).join(', '):'—';
+  if(c.type==='scenario') return c.scen[a].name;
+  return c.opts[a].l;
+}
+
+/* ============================================================ ÉCRANS */
+const STEPS = [
+  {short:'Objectifs',   render:stepGoals},
+  {short:'Priorités',   render:stepPrio},
+  {short:'Fiscalité',   render:stepTax},
+  {short:'Épargne',     render:stepSavings},
+  {short:'Immobilier',  render:stepImmo},
+  {short:'Retraite',    render:stepRetire},
+  {short:'Profil',      render:stepProfile},
+  {short:'Synthèse',    render:stepSynth},
+  {short:'Documents',   render:stepDocs},
+  {short:'Accès Majors',render:stepAccess},
+];
+
+const app=()=>document.getElementById('app');
+function el(html){const t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild;}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
+
+function render(){
+  const s=state.step;
+  state.maxStep=Math.max(state.maxStep,s);
+  const root=app(); root.innerHTML='';
+  const shell=el(`<div class="fade">
+    <div class="topbar">${LOGO(46)}<div class="brandtxt"><b>${CONFIG.firm}</b><span>Découverte patrimoniale</span></div></div>
+    <nav class="steps" aria-label="Étapes">${STEPS.map((x,i)=>`<button data-i="${i}" class="${i===s?'on':(i<=state.maxStep?'done':'')}">${i+1}. ${x.short}</button>`).join('')}</nav>
+    <div class="progressbar"><i style="width:${Math.round(100*(s+1)/STEPS.length)}%"></i></div>
+    <div class="card" id="card"></div>
+    <footer class="disc">${CONFIG.firm} — ${CONFIG.footer}.<br>
+      Aucune donnée n'est enregistrée : tout est calculé dans ton navigateur et disparaît à la fermeture de la page.
+      Les projections sont des estimations à hypothèses constantes, non garanties, et ne constituent pas un conseil en investissement.</footer>
+  </div>`);
+  root.appendChild(shell);
+  shell.querySelectorAll('.steps button').forEach(b=>b.onclick=()=>go(+b.dataset.i));
+  const on=shell.querySelector('.steps button.on'); on&&on.scrollIntoView({block:'nearest',inline:'center'});
+  STEPS[s].render(shell.querySelector('#card'));
+}
+function go(i){ state.step=Math.max(0,Math.min(STEPS.length-1,i)); window.scrollTo({top:0,behavior:'smooth'}); render(); }
+
+function nav(card,{nextLabel='Continuer',nextDisabled=false}={}){
+  const s=state.step;
+  const row=el(`<div class="navrow">
+    <button class="linkbtn" id="prev" ${s===0?'style="visibility:hidden"':''}>${ic('left')} Précédent</button>
+    ${s<STEPS.length-1?`<button class="btn" id="next" ${nextDisabled?'disabled':''}>${nextLabel} ${ic('right')}</button>`:''}
+  </div>`);
+  card.appendChild(row);
+  row.querySelector('#prev').onclick=()=>go(s-1);
+  const nx=row.querySelector('#next'); if(nx) nx.onclick=()=>go(s+1);
+}
+
+function head(n,title,lead){
+  return `<div class="kicker">Étape ${n} / ${STEPS.length}</div><h1 class="st">${title}</h1>${lead?`<p class="lead">${lead}</p>`:''}`;
+}
+
+/* champ numérique lié à l'état */
+function numField(key,label,unit='€',hint='',opts={}){
+  const v=state[key];
+  return `<div class="${opts.full?'full':''}"><label class="fl" for="f_${key}">${label}</label>
+    <div class="unit"><input class="ti" id="f_${key}" data-num="${key}" inputmode="decimal" autocomplete="off"
+      value="${v==null?'':fmtInput(v)}" placeholder="${opts.ph||''}"><span>${unit}</span></div>
+    ${hint?`<p class="hint">${hint}</p>`:''}</div>`;
+}
+function bindNums(root,onChange){
+  root.querySelectorAll('[data-num]').forEach(inp=>{
+    inp.addEventListener('input',()=>{state[inp.dataset.num]=parseNum(inp.value); onChange&&onChange();});
+    inp.addEventListener('blur',()=>{const v=state[inp.dataset.num]; inp.value=v==null?'':fmtInput(v);});
+  });
+}
+
+/* ---------- 1. Objectifs de vie ---------- */
+function stepGoals(card){
+  card.innerHTML=`${head(1,'Tes objectifs de vie','Avant les chiffres, l\'essentiel : qu\'est-ce que tu veux construire ? Projets, rêves, inquiétudes… avec tes mots, sans filtre.')}
+    <label class="fl" for="f_goals">Tes mots</label>
+    <textarea class="ti" id="f_goals" placeholder="ex. Acheter une maison avec jardin d'ici 5 ans, partir à la retraite à 60 ans, aider mes enfants pour leurs études, ne plus dépendre uniquement de mon salaire…">${esc(state.lifeGoals)}</textarea>
+    <div class="notebox">Rien n'est enregistré sur un serveur : à la fin, tu télécharges ton bilan en PDF et tu choisis de l'envoyer ou non.</div>`;
+  card.querySelector('#f_goals').oninput=e=>state.lifeGoals=e.target.value;
+  nav(card);
+}
+
+/* ---------- 2. Priorités ---------- */
+function stepPrio(card){
+  card.innerHTML=`${head(2,'Tes priorités','Note chaque objectif de 1 (secondaire) à 3 (prioritaire), puis précise l\'horizon et la cible si tu en as une.')}
+    <div class="prio-head"><span>Objectif</span><span>Priorité</span><span>Horizon</span><span>Cible</span></div>
+    <div id="prios"></div>`;
+  const box=card.querySelector('#prios');
+  OBJECTIVES.forEach(([k,label])=>{
+    const p=state.prio[k];
+    const row=el(`<div class="prio">
+      <div class="nm">${label}</div>
+      <div class="chips">${[1,2,3].map(v=>`<button type="button" data-v="${v}" class="${p.note===v?'on':''}" aria-label="Priorité ${v}">${v}</button>`).join('')}</div>
+      <input class="ti" data-f="horizon" placeholder="Horizon (ex. 10 ans)" value="${esc(p.horizon)}">
+      <input class="ti" data-f="cible" placeholder="Cible (ex. 300 €/mois)" value="${esc(p.cible)}">
+      <input class="ti rem" data-f="remarque" placeholder="Remarque (facultatif)" value="${esc(p.remarque)}">
+    </div>`);
+    row.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{
+      const v=+b.dataset.v; p.note = p.note===v?0:v;
+      row.querySelectorAll('.chips button').forEach(x=>x.classList.toggle('on',+x.dataset.v===p.note));
+    });
+    row.querySelectorAll('[data-f]').forEach(i=>i.oninput=()=>p[i.dataset.f]=i.value);
+    box.appendChild(row);
+  });
+  nav(card);
+}
+
+/* ---------- 3. Situation fiscale ---------- */
+function stepTax(card){
+  card.innerHTML=`${head(3,'Ta situation fiscale','Quelques chiffres suffisent. Le reste se calcule tout seul.')}
+    <div class="fields">
+      ${numField('age','Ton âge','ans','',{ph:'35'})}
+      ${numField('netAnnual','Salaire net annuel','€','Net avant impôt sur le revenu, primes comprises.',{ph:'36 000'})}
+      ${numField('ir','Impôt sur le revenu payé (an)','€','Montant de ta dernière année (avis d\'imposition ou prélèvement à la source).',{ph:'2 800'})}
+      ${numField('retirementAge','Âge de départ à la retraite','ans','64 ans par défaut — dépend de chaque situation.')}
+      ${numField('patFin','Patrimoine financier','€','Livrets, assurance-vie, PEA, comptes-titres, PER…',{ph:'40 000'})}
+      ${numField('patImmo','Patrimoine immobilier net','€','Valeur des biens moins le capital restant dû.',{ph:'0'})}
+    </div>
+    <div id="out"></div>`;
+  const out=card.querySelector('#out');
+  const upd=()=>{
+    const c=calc();
+    if(!c.net){ out.innerHTML=`<p class="hint" style="margin-top:18px">Saisis ton salaire net pour voir le détail.</p>`; return; }
+    out.innerHTML=`<div class="kpis">
+        ${kpi('Salaire brut estimé',eur(c.brut),'annuel')}
+        ${kpi('Coût total employeur',eur(c.emp),'ce que tu coûtes vraiment')}
+        ${kpi('Écart coût employeur − net',eur(c.gap),pct(c.gapPct)+' du coût employeur part en cotisations','hl')}
+        ${kpi('Total IR + prélèvements',eur(c.totalTax),'par an','hl')}
+        ${kpi(`Projection jusqu'à ${n(state.retirementAge)} ans`,eur(c.projTax),c.years?`${c.years} ans à salaire constant`:'renseigne ton âge','dark')}
+        ${kpi('Total capitalisation',eur(c.patTotal),'patrimoine financier + immobilier net')}
+      </div>
+      <div class="notebox"><b>Comment lire ces chiffres ?</b> Sur ${eur(c.emp)} dépensés par ton employeur, tu touches ${eur(c.net)} nets.
+        La différence (${pct(c.gapPct)}) part en cotisations sociales, puis l'impôt sur le revenu s'y ajoute.
+        Estimation pour un salarié du secteur privé, basée sur le simulateur URSSAF (mon-entreprise.urssaf.fr) avec interpolation ; ton bulletin de paie fait foi.</div>`;
+  };
+  bindNums(card,upd); upd();
+  nav(card);
+}
+
+/* ---------- 4. Épargne actuelle ---------- */
+function stepSavings(card){
+  card.innerHTML=`${head(4,'Ton épargne actuelle','Ton épargne dort-elle, ou travaille-t-elle pour toi ?')}
+    <div class="fields">
+      ${numField('livrets','Montant sur tes livrets','€','Livret A, LDDS, LEP, comptes épargne…',{ph:'20 000'})}
+      ${numField('livretRate','Rendement actuel','%','Taux net moyen de tes livrets.')}
+      ${numField('targetRate','Rendement visé','%','Ce que tu aimerais obtenir.')}
+      ${numField('inflation','Inflation retenue','%','Hypothèse moyenne sur 10 ans, modifiable.')}
+    </div>
+    <div id="out"></div>`;
+  const out=card.querySelector('#out');
+  const upd=()=>{
+    const c=calc();
+    if(!c.L){ out.innerHTML=`<p class="hint" style="margin-top:18px">Saisis le montant de tes livrets pour voir l'effet de l'inflation.</p>`; return; }
+    const loss=c.infLoss10;
+    out.innerHTML=`<div class="kpis">
+        ${kpi('Écart à combler',(c.gapRate>=0?'+':'')+fmtNum(c.gapRate,1)+' pts',`soit ${eur(Math.abs(c.gapYear))} / an sur ${eur(c.L)}`,'hl')}
+        ${kpi('Pouvoir d\'achat dans 10 ans',eur(c.realL10),'en euros d\'aujourd\'hui')}
+        ${kpi(loss>0?'Perte face à l\'inflation (10 ans)':'Gain réel (10 ans)',`<span class="${loss>0?'neg':'pos'}">${loss>0?'−':'+'}${eur(Math.abs(loss))}</span>`,
+          loss>0?'ton épargne grossit moins vite que les prix':'ton rendement dépasse l\'inflation retenue',loss>0?'':'')}
+      </div>
+      <div class="panel"><h3>Livret face à l'inflation</h3>
+        <p class="tiny muted" style="margin:0 0 8px">Ce que ton livret affiche, et ce qu'il faudrait juste pour garder le même pouvoir d'achat.</p>
+        ${savingsChart(c)}
+      </div>
+      <div class="notebox">Projection à taux constants, non garantie. Les rendements passés ou visés ne préjugent pas des rendements futurs ; un rendement plus élevé implique un risque de perte en capital.</div>`;
+  };
+  bindNums(card,upd); upd();
+  nav(card);
+}
+
+function savingsChart(c){
+  const W=600,H=230,pl=58,pr=110,pt=14,pb=28, Y=10;
+  const pts=f=>Array.from({length:Y+1},(_,t)=>f(t));
+  const liv=pts(t=>c.L*Math.pow(1+c.r,t));
+  const inf=pts(t=>c.L*Math.pow(1+c.inf,t));
+  const tgt=pts(t=>c.L*Math.pow(1+c.rt,t));
+  const all=[...liv,...inf,...tgt];
+  const lo=Math.min(...all)*0.97, hi=Math.max(...all)*1.02;
+  const x=t=>pl+t*(W-pl-pr)/Y, y=v=>pt+(1-(v-lo)/(hi-lo))*(H-pt-pb);
+  const line=a=>a.map((v,t)=>`${t?'L':'M'}${x(t).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const area=`${line(liv)} ${inf.slice().reverse().map((v,i)=>`L${x(Y-i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')} Z`;
+  const ticks=[0,0.25,0.5,0.75,1].map(f=>lo+f*(hi-lo));
+  // étiquettes en bout de courbe, écartées pour ne pas se chevaucher
+  const labs=[[tgt,'#a8874f','Rendement visé'],[inf,'#b14a3b','Inflation'],[liv,'#234e48','Livret']]
+    .map(([a,col,txt])=>({y:y(a[Y])+4,col,txt})).sort((a,b)=>a.y-b.y);
+  for(let i=1;i<labs.length;i++) labs[i].y=Math.max(labs[i].y,labs[i-1].y+15);
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution du livret comparée à l'inflation sur 10 ans">
+    ${ticks.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#234e48" stroke-opacity=".08"/>
+      <text x="${pl-8}" y="${y(v)+4}" text-anchor="end" font-size="10.5" fill="#3f6f68">${eurShort(v)}</text>`).join('')}
+    ${[0,2,4,6,8,10].map(t=>`<text x="${x(t)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="#3f6f68">${t?'+'+t+' ans':'auj.'}</text>`).join('')}
+    ${c.inf>c.r?`<path d="${area}" fill="#b14a3b" fill-opacity=".10"/>`:''}
+    <path d="${line(tgt)}" fill="none" stroke="#caa97a" stroke-width="2" stroke-dasharray="5 5"/>
+    <path d="${line(inf)}" fill="none" stroke="#b14a3b" stroke-width="2.4"/>
+    <path d="${line(liv)}" fill="none" stroke="#234e48" stroke-width="2.8"/>
+    ${labs.map(l=>`<text x="${x(Y)+8}" y="${l.y}" font-size="11.5" fill="${l.col}" font-weight="600">${l.txt}</text>`).join('')}
+  </svg>`;
+}
+
+/* ---------- 5. Immobilier ---------- */
+function stepImmo(card){
+  card.innerHTML=`${head(5,'Ton immobilier','La pierre pèse souvent lourd dans un patrimoine. Voyons sa place chez toi.')}
+    <div class="fields">
+      ${numField('patImmo','Patrimoine immobilier net','€','Valeur des biens moins le capital restant dû.')}
+      ${numField('mensualites','Mensualités de crédit en cours','€/mois','Tous crédits confondus (immobilier, conso, auto…).',{ph:'0'})}
+      <div class="full"><label class="fl" for="f_ic">Commentaire</label>
+        <textarea class="ti" id="f_ic" style="min-height:90px" placeholder="ex. Résidence principale achetée en 2021, crédit jusqu'en 2046.">${esc(state.immoComment)}</textarea></div>
+    </div>
+    <div id="out"></div>`;
+  card.querySelector('#f_ic').oninput=e=>state.immoComment=e.target.value;
+  const out=card.querySelector('#out');
+  const upd=()=>{
+    const c=calc();
+    out.innerHTML=`<div class="kpis">
+        ${kpi('Part de l\'immobilier',c.patTotal?pct(c.partImmo):'—',c.patTotal?`sur un patrimoine global de ${eur(c.patTotal)}`:'renseigne ton patrimoine (étape 3)','hl')}
+        ${kpi('Taux d\'endettement',c.netM?pct(c.debtRate):'—',c.netM?`${eur(n(state.mensualites))} / ${eur(c.netM)} nets mensuels`:'renseigne ton salaire (étape 3)',
+          c.netM&&c.debtRate>CONFIG.debtCap?'':'')}
+      </div>
+      ${c.patTotal?`<div class="panel"><h3>Répartition de ton patrimoine</h3>${splitBar([['Financier',n(state.patFin),'#234e48'],['Immobilier net',n(state.patImmo),'#caa97a']])}</div>`:''}`;
+  };
+  bindNums(card,upd); upd();
+  nav(card);
+}
+
+function splitBar(parts,money=true){
+  const tot=parts.reduce((s,p)=>s+p[1],0)||1;
+  return `<div style="display:flex;height:22px;border-radius:8px;overflow:hidden;margin:10px 0 8px;gap:2px">
+    ${parts.filter(p=>p[1]>0).map(p=>`<div style="flex:${p[1]};background:${p[2]}"></div>`).join('')}</div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:13px">${parts.map(p=>`<span><i style="display:inline-block;width:11px;height:11px;border-radius:3px;background:${p[2]};margin-right:6px;vertical-align:-1px"></i>${p[0]} : <b>${money?eur(p[1])+'</b> ('+pct(p[1]/tot)+')':pct(p[1]/tot)+'</b>'}</span>`).join('')}</div>`;
+}
+
+/* ---------- 6. Retraite ---------- */
+function stepRetire(card){
+  card.innerHTML=`${head(6,'Ta retraite','Combien voudrais-tu toucher chaque mois, une fois à la retraite ?')}
+    <div class="fields">
+      ${numField('retireWanted','Revenu souhaité à la retraite','€/mois','En euros d\'aujourd\'hui.',{ph:'2 500'})}
+      ${numField('retirementAge','Âge de départ','ans','64 ans par défaut — dépend de chaque situation.')}
+    </div>
+    <div id="out"></div>`;
+  const out=card.querySelector('#out');
+  const upd=()=>{
+    const c=calc();
+    if(!c.netM){ out.innerHTML=`<p class="hint" style="margin-top:18px">Renseigne ton salaire net à l'étape 3 pour estimer ta pension.</p>`; return; }
+    out.innerHTML=`<div class="kpis">
+        ${kpi('Revenu actuel',eur(c.netM)+'/mois','net avant impôt')}
+        ${kpi('Retraite estimée — 50 %',eur(c.est50)+'/mois','taux de remplacement moyen')}
+        ${kpi('Retraite estimée — 25 %',eur(c.est25)+'/mois','hypothèse prudente, générations plus jeunes')}
+      </div>
+      ${c.w?`<div class="kpis">
+        ${kpi('Revenu à créer (hypothèse 50 %)',eur(c.create50)+'/mois',c.create50?'à compléter par ton épargne':'objectif couvert','hl')}
+        ${kpi('Revenu à créer (hypothèse 25 %)',eur(c.create25)+'/mois',c.create25?'à compléter par ton épargne':'objectif couvert','dark')}
+      </div>`:''}
+      <div class="notebox">Taux de remplacement de ${pct(CONFIG.replaceBase)} et ${pct(CONFIG.replaceYoung)} (plus jeunes) appliqués à ton revenu net actuel. ${esc(CONFIG.replaceSource)}.
+        Estimation simplifiée : ta pension réelle dépend de ta carrière complète — consulte ton relevé sur info-retraite.fr.</div>`;
+  };
+  bindNums(card,upd); upd();
+  nav(card);
+}
+
+/* ---------- 7. Profil investisseur ---------- */
+function stepProfile(card){
+  const total=CARDS.length;
+  if(state.qIdx>=total){ return profileResultView(card); }
+  const c=CARDS[state.qIdx];
+  card.innerHTML=`${head(7,'Ton profil investisseur','')}
+    <div class="qmeta"><span class="sec">${SECTIONS[c.sec]}</span><span>Question ${state.qIdx+1} / ${total}</span></div>
+    <div class="progressbar" style="height:5px;margin-bottom:6px"><i style="width:${Math.round(100*state.qIdx/total)}%"></i></div>
+    <div class="qhead"><div class="qnum">${String(state.qIdx+1).padStart(2,'0')}</div>
+      <div><h2 class="qtitle">${c.q}</h2><p class="qhelp">${c.help}</p></div></div>
+    <div id="zone"></div>
+    <div class="navrow">
+      <button class="linkbtn" id="qprev">${ic('left')} ${state.qIdx===0?'Étape précédente':'Question précédente'}</button>
+      ${c.type==='multi'?`<button class="btn" id="qnext">Continuer ${ic('right')}</button>`:''}
+    </div>`;
+  const zone=card.querySelector('#zone');
+  const nextQ=()=>{state.qIdx++; render();};
+  if(c.type==='scenario'){
+    const lo=Math.min(...c.scen.map(s=>s.lo)), hi=Math.max(...c.scen.map(s=>s.hi));
+    const w=el(`<div class="scenarios"></div>`);
+    c.scen.forEach((s,i)=>{
+      const b=el(`<button class="scen ${state.answers[c.id]===i?'sel':''}"><h4>${s.name}</h4>${scenSVG(s.lo,s.hi,lo,hi)}<div class="pick">${state.answers[c.id]===i?'✓ Sélectionné':'Choisir'}</div></button>`);
+      b.onclick=()=>{state.answers[c.id]=i; setTimeout(nextQ,250);};
+      w.appendChild(b);
+    });
+    zone.appendChild(w);
+  }else{
+    const g=el(`<div class="opts"></div>`);
+    c.opts.forEach((o,i)=>{
+      const sel=c.type==='multi'?(state.answers[c.id]||[]).includes(i):state.answers[c.id]===i;
+      const b=el(`<button class="opt ${sel?'sel':''}"><span class="key">${'ABCDEFGH'[i]}</span><span><b>${o.l}</b><small>${o.d}</small></span></button>`);
+      b.onclick=()=>{
+        if(c.type==='multi'){
+          const arr=(state.answers[c.id]||[]).slice(); const k=arr.indexOf(i);
+          k>=0?arr.splice(k,1):arr.push(i); state.answers[c.id]=arr;
+          b.classList.toggle('sel'); card.querySelector('#qnext').disabled=!arr.length;
+        }else{
+          state.answers[c.id]=i;
+          g.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel')); b.classList.add('sel');
+          setTimeout(nextQ,250);
+        }
+      };
+      g.appendChild(b);
+    });
+    zone.appendChild(g);
+  }
+  const qn=card.querySelector('#qnext');
+  if(qn){ qn.disabled=!(state.answers[c.id]||[]).length; qn.onclick=nextQ; }
+  card.querySelector('#qprev').onclick=()=>{ if(state.qIdx===0) go(state.step-1); else {state.qIdx--; render();} };
+}
+
+function profileResultView(card){
+  const res=profileResult();
+  if(!res){ state.qIdx=CARDS.findIndex(c=>{const a=state.answers[c.id];return c.type==='multi'?!(a&&a.length):a==null;}); return render(); }
+  const {band,sc,p}=res;
+  card.innerHTML=`${head(7,'Ton profil investisseur','')}
+    <div class="kicker" style="text-align:center;margin-top:6px">Ton profil</div>
+    <div class="profileName" style="color:${p.color}">${p.key}</div>
+    <p class="profileTag">${p.tag}</p>
+    <div class="scale">${PROFILES.map((x,i)=>`<span class="pill ${i===band?'on':''}">${x.key}</span>`).join('')}</div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="panel" style="margin-top:0"><h3>Allocation de référence</h3>
+        <p class="tiny muted" style="margin:0 0 10px">Indicative, pour un profil ${p.key.toLowerCase()}.</p>
+        ${splitBar(p.alloc,false)}
+      </div>
+      <div class="panel" style="margin-top:0"><h3>Tes trois dimensions</h3>
+        ${meter('Tolérance au risque',sc.tol)}${meter('Capacité de perte & horizon',sc.cap)}${meter('Connaissance & expérience',sc.know)}
+      </div>
+    </div>
+    <div class="notebox">Ce profil reflète tes réponses et sera confirmé avec ton conseiller. Il ne constitue ni un conseil en investissement personnalisé ni une recommandation.</div>
+    <div class="btnrow"><button class="btn ghost" id="redo">Refaire le questionnaire</button></div>`;
+  card.querySelector('#redo').onclick=()=>{state.answers={};state.qIdx=0;render();};
+  nav(card);
+}
+
+function meter(label,v){
+  return `<div class="meter"><div><span>${label}</span><b>${v}/100</b></div><div class="progressbar" style="margin:0"><i style="width:${v}%"></i></div></div>`;
+}
+function scenSVG(lo,hi,gLo,gHi){
+  const W=170,H=190,padT=32,padB=32, range=gHi-gLo, u=H-padT-padB;
+  const y=v=>H-padB-((v-gLo)/range)*u, y0=y(0);
+  return `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}">
+    <line x1="6" y1="${y0}" x2="${W-6}" y2="${y0}" stroke="#234e48" stroke-dasharray="6 6" stroke-width="1.5" opacity=".5"/>
+    <rect x="${W/2-36}" y="${y(hi)}" width="72" height="${Math.max(9,y0-y(hi)-3)}" rx="11" fill="#234e48"/>
+    <rect x="${W/2-36}" y="${y0+3}" width="72" height="${Math.max(9,y(lo)-y0-3)}" rx="11" fill="#caa97a"/>
+    <text x="${W/2}" y="${Math.max(24,y(hi)-10)}" text-anchor="middle" font-size="22" font-weight="bold" font-family="Georgia,serif" fill="#234e48">+${hi}%</text>
+    <text x="${W/2}" y="${Math.min(H-6,y(lo)+26)}" text-anchor="middle" font-size="22" font-weight="bold" font-family="Georgia,serif" fill="#b14a3b">${lo}%</text>
+  </svg>`;
+}
+
+/* ---------- 8. Synthèse ---------- */
+function stepSynth(card){
+  card.innerHTML=`${head(8,'Ta synthèse','Ce que tes chiffres disent, en un coup d\'œil.')}
+    <div class="fields">${numField('monthlySaving','Ta capacité d\'épargne mensuelle','€/mois','Ce que tu peux mettre de côté chaque mois, sans te priver.',{ph:'500'})}</div>
+    <div id="out"></div>`;
+  const out=card.querySelector('#out');
+  const upd=()=>{
+    const c=calc(); const res=profileResult();
+    out.innerHTML=`<div class="kpis">
+        ${kpi('Patrimoine financier',eur(n(state.patFin)),state.livrets?`dont ${eur(n(state.livrets))} sur livrets`:'')}
+        ${kpi('Réserve de précaution',eur(c.reserve),`${CONFIG.reserveMonths} mois de salaire net minimum`)}
+        ${kpi('Épargne investissable',eur(c.investable),'patrimoine financier − réserve','hl')}
+        ${kpi('Capacité mensuelle',state.monthlySaving!=null?eur(n(state.monthlySaving))+'/mois':'—',state.monthlySaving!=null?`soit ${eur(12*n(state.monthlySaving))} / an`:'à renseigner ci-dessus','hl')}
+        ${kpi('Marge d\'endettement',c.netM?`<span class="${c.debtMargin<0?'neg':''}">${eur(c.debtMargin)}/mois</span>`:'—',
+          c.netM?`${c.debtMarginPts>=0?'+':''}${fmtNum(c.debtMarginPts,1)} pts sous le seuil de ${pct(CONFIG.debtCap)}`:'renseigne ton salaire (étape 3)','dark')}
+        ${kpi('Profil investisseur',res?`<span style="color:${res.p.color}">${res.p.key}</span>`:'—',res?'issu du questionnaire':'questionnaire à terminer (étape 7)')}
+      </div>
+      <div class="notebox">Marge d'endettement = ${pct(CONFIG.debtCap)} × revenu net mensuel − mensualités actuelles (seuil retenu pour un financement de SCPI).
+        La capacité d'emprunt réelle dépend de la banque et de ton dossier.</div>`;
+  };
+  bindNums(card,upd); upd();
+  nav(card);
+}
+
+/* ---------- 9. Documents réglementaires ---------- */
+const DOCS = [
+  ['DER','Document d\'entrée en relation','Présente le cabinet, ses statuts et ses modes de rémunération.'],
+  ['LM CIF','Lettre de mission — conseil en investissements financiers','Cadre de la mission de conseil financier.'],
+  ['LM IAS','Lettre de mission — intermédiation en assurance','Cadre de la mission sur les contrats d\'assurance.'],
+  ['DCC','Document de connaissance client','Reprend ta situation familiale, patrimoniale et fiscale.'],
+  ['KYC','Justificatifs d\'identité et de domicile','Obligations de lutte contre le blanchiment.'],
+  ['Profil','Questionnaire de profil investisseur','Version formalisée du profil établi à l\'étape 7.'],
+  ['Adéquation','Rapport / déclaration d\'adéquation','Justifie que les solutions proposées te correspondent.'],
+];
+function stepDocs(card){
+  card.innerHTML=`${head(9,'Les documents réglementaires','Pour information : voici ce qui viendra ensuite, avec ton conseiller. Rien à signer ici.')}
+    <div class="doclist">${DOCS.map(d=>`<div class="doc"><span class="ab">${d[0]}</span><div><b>${d[1]}</b><small>${d[2]}</small></div><span class="badge">À venir</span></div>`).join('')}</div>`;
+  nav(card,{nextLabel:'Dernière étape'});
+}
+
+/* ---------- 10. Accès Majors ---------- */
+function stepAccess(card){
+  const ct=state.contact;
+  card.innerHTML=`${head(10,'Demande tes accès Majors','Laisse tes coordonnées : ton bilan PDF se télécharge et un e-mail prérempli s\'ouvre vers ton conseiller.')}
+    <div class="fields">
+      <div class="full"><label class="fl" for="c_nom">Nom et prénom</label><input class="ti" id="c_nom" data-c="nom" autocomplete="name" value="${esc(ct.nom)}"></div>
+      <div><label class="fl" for="c_email">E-mail</label><input class="ti" id="c_email" data-c="email" type="email" autocomplete="email" value="${esc(ct.email)}"></div>
+      <div><label class="fl" for="c_tel">Téléphone</label><input class="ti" id="c_tel" data-c="tel" type="tel" autocomplete="tel" value="${esc(ct.tel)}"></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn gold" id="send">${ic('send')} Demander mes accès Majors</button>
+      <button class="btn ghost" id="pdf">${ic('pdf')} Télécharger le PDF seul</button>
+    </div>
+    <div class="panel">
+      <h3>L'e-mail ne s'ouvre pas ?</h3>
+      <p class="tiny muted" style="margin:0 0 10px">Copie le récapitulatif et envoie-le à <b><a href="mailto:${CONFIG.advisorEmail}" style="color:inherit">${CONFIG.advisorEmail}</a></b>, avec ton PDF en pièce jointe.</p>
+      <pre class="recap" id="recap"></pre>
+      <div class="btnrow" style="margin-top:12px"><button class="btn ghost" id="copy">${ic('copy')} Copier le récapitulatif</button></div>
+    </div>`;
+  const recap=card.querySelector('#recap');
+  const upd=()=>recap.textContent=recapText();
+  card.querySelectorAll('[data-c]').forEach(i=>i.oninput=()=>{ct[i.dataset.c]=i.value.trim();upd();});
+  upd();
+  card.querySelector('#pdf').onclick=downloadPDF;
+  card.querySelector('#copy').onclick=()=>copyText(recapText());
+  card.querySelector('#send').onclick=()=>{
+    if(!ct.nom || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ct.email)){ toast('Indique au moins ton nom et un e-mail valide.'); return; }
+    const subj=`Demande d'accès Majors — ${ct.nom}`;
+    const body=recapText()+`\n\n(Mon bilan PDF est joint à ce message.)`;
+    const a=document.createElement('a');
+    a.href=`mailto:${CONFIG.advisorEmail}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+    a.click();
+    toast('Pense à joindre le PDF à ton e-mail.');
+    setTimeout(downloadPDF,700);
+  };
+  nav(card);
+}
+
+/* ============================================================ RÉCAP / PDF */
+function recapText(){
+  const c=calc(), res=profileResult(), ct=state.contact, S=state;
+  const L=[];
+  L.push('DEMANDE D\'ACCÈS MAJORS');
+  L.push(`Nom : ${ct.nom||'—'}`, `E-mail : ${ct.email||'—'}`, `Téléphone : ${ct.tel||'—'}`, '');
+  L.push('— Objectifs de vie —', S.lifeGoals.trim()||'—', '');
+  L.push('— Priorités (1 à 3) —');
+  OBJECTIVES.forEach(([k,l])=>{const p=S.prio[k]; if(p.note||p.horizon||p.cible||p.remarque)
+    L.push(`${l} : ${p.note||'—'}/3${p.horizon?' · horizon '+p.horizon:''}${p.cible?' · cible '+p.cible:''}${p.remarque?' · '+p.remarque:''}`);});
+  L.push('');
+  L.push('— Situation —');
+  L.push(`Âge : ${S.age??'—'} · retraite visée : ${S.retirementAge??'—'} ans`);
+  L.push(`Salaire net : ${eur(c.net)}/an · brut estimé ${eur(c.brut)} · coût employeur ${eur(c.emp)}`);
+  L.push(`IR : ${eur(n(S.ir))} · IR + prélèvements : ${eur(c.totalTax)}/an · d'ici la retraite : ${eur(c.projTax)}`);
+  L.push(`Patrimoine financier : ${eur(n(S.patFin))} · immobilier net : ${eur(n(S.patImmo))}`);
+  L.push(`Livrets : ${eur(c.L)} à ${fmtNum(n(S.livretRate),1)} % · visé ${fmtNum(n(S.targetRate),1)} % · perte inflation 10 ans : ${eur(c.infLoss10)}`);
+  L.push(`Mensualités : ${eur(n(S.mensualites))}/mois · taux d'endettement ${pct(c.debtRate)}`);
+  L.push(`Retraite souhaitée : ${eur(c.w)}/mois · à créer : ${eur(c.create50)} (50 %) à ${eur(c.create25)} (25 %)`);
+  L.push('');
+  L.push('— Synthèse —');
+  L.push(`Réserve de précaution : ${eur(c.reserve)} · épargne investissable : ${eur(c.investable)}`);
+  L.push(`Capacité mensuelle : ${S.monthlySaving!=null?eur(n(S.monthlySaving))+'/mois':'—'} · marge d'endettement : ${eur(c.debtMargin)}/mois`);
+  L.push(`Profil investisseur : ${res?res.p.key:'non terminé'}`);
+  return L.join('\n');
+}
+
+function downloadPDF(){
+  buildReport();
+  toast('Choisis « Enregistrer au format PDF » dans la fenêtre d\'impression.');
+  setTimeout(()=>window.print(),300);
+}
+
+function buildReport(){
+  const c=calc(), res=profileResult(), S=state, ct=S.contact;
+  const row=(a,b)=>`<tr><td>${a}</td><td><b>${b}</b></td></tr>`;
+  const prioRows=OBJECTIVES.map(([k,l])=>{const p=S.prio[k];
+    return row(l,`${p.note?p.note+'/3':'—'}${p.horizon?' · '+esc(p.horizon):''}${p.cible?' · '+esc(p.cible):''}${p.remarque?' · '+esc(p.remarque):''}`);}).join('');
+  document.getElementById('report').innerHTML=`
+    <div class="pr-h">${LOGO(52)}<div>
+      <div style="font-family:var(--serif);font-size:18px;font-weight:bold">${CONFIG.firm}</div>
+      <div style="font-size:12px;color:#555">Bilan de découverte patrimoniale — document confidentiel</div></div></div>
+    <table class="pr-grid">${row('Client',esc(ct.nom||'—'))}${row('Contact',esc([ct.email,ct.tel].filter(Boolean).join(' · ')||'—'))}${row('Date',new Date().toLocaleDateString('fr-FR'))}</table>
+
+    <div class="pr-sec"><h2>1. Objectifs de vie</h2><div class="pr-txt">${esc(S.lifeGoals.trim()||'—')}</div></div>
+    <div class="pr-sec"><h2>2. Priorités</h2><table class="pr-grid">${prioRows}</table></div>
+    <div class="pr-sec"><h2>3. Situation fiscale</h2><table class="pr-grid">
+      ${row('Âge / départ à la retraite',`${S.age??'—'} ans / ${S.retirementAge??'—'} ans`)}
+      ${row('Salaire net annuel',eur(c.net))}
+      ${row('Salaire brut estimé',eur(c.brut))}
+      ${row('Coût total employeur',eur(c.emp))}
+      ${row('Écart coût employeur − net',`${eur(c.gap)} (${pct(c.gapPct)})`)}
+      ${row('Impôt sur le revenu',eur(n(S.ir)))}
+      ${row('Total IR + prélèvements',eur(c.totalTax)+' / an')}
+      ${row(`Projection jusqu'à la retraite (${c.years} ans)`,eur(c.projTax))}
+      ${row('Total capitalisation (financier + immobilier net)',eur(c.patTotal))}
+    </table></div>
+    <div class="pr-sec"><h2>4. Épargne actuelle</h2><table class="pr-grid">
+      ${row('Livrets',eur(c.L))}
+      ${row('Rendement actuel / visé',`${fmtNum(n(S.livretRate),1)} % / ${fmtNum(n(S.targetRate),1)} %`)}
+      ${row('Écart à combler',`${fmtNum(c.gapRate,1)} pts (${eur(c.gapYear)} / an)`)}
+      ${row(`Perte face à l'inflation sur 10 ans (inflation ${fmtNum(n(S.inflation),1)} %)`,eur(c.infLoss10))}
+    </table>${c.L?`<div style="margin-top:6px">${savingsChart(c)}</div>`:''}</div>
+    <div class="pr-sec"><h2>5. Immobilier</h2><table class="pr-grid">
+      ${row('Patrimoine immobilier net',eur(n(S.patImmo)))}
+      ${row('Mensualités de crédit',eur(n(S.mensualites))+' / mois')}
+      ${row('Part immobilier / patrimoine global',pct(c.partImmo))}
+      ${row('Taux d\'endettement',pct(c.debtRate))}
+      ${S.immoComment.trim()?row('Commentaire',esc(S.immoComment)):''}
+    </table></div>
+    <div class="pr-sec"><h2>6. Retraite</h2><table class="pr-grid">
+      ${row('Revenu souhaité',eur(c.w)+' / mois')}
+      ${row(`Revenu estimé (${pct(CONFIG.replaceBase)})`,eur(c.est50)+' / mois')}
+      ${row(`Revenu estimé (${pct(CONFIG.replaceYoung)}, plus jeunes)`,eur(c.est25)+' / mois')}
+      ${row('Revenu à créer',`${eur(c.create50)} à ${eur(c.create25)} / mois`)}
+    </table></div>
+    <div class="pr-sec"><h2>7. Profil investisseur</h2>
+      ${res?`<table class="pr-grid">${row('Profil déterminé',`<span style="color:${res.p.color}">${res.p.key}</span>`)}
+        ${row('Tolérance au risque',res.sc.tol+'/100')}${row('Capacité de perte & horizon',res.sc.cap+'/100')}${row('Connaissance & expérience',res.sc.know+'/100')}
+        ${CARDS.map(q=>row(esc(q.q),esc(answerLabel(q)))).join('')}</table>`:'<p>Questionnaire non terminé.</p>'}</div>
+    <div class="pr-sec"><h2>8. Synthèse</h2><table class="pr-grid">
+      ${row('Patrimoine financier',eur(n(S.patFin)))}
+      ${row(`Réserve de précaution (${CONFIG.reserveMonths} mois de net)`,eur(c.reserve))}
+      ${row('Épargne investissable',eur(c.investable))}
+      ${row('Capacité d\'épargne mensuelle',S.monthlySaving!=null?eur(n(S.monthlySaving))+' / mois':'—')}
+      ${row(`Marge d'endettement (seuil ${pct(CONFIG.debtCap)})`,`${eur(c.debtMargin)} / mois (${fmtNum(c.debtMarginPts,1)} pts)`)}
+    </table></div>
+    <div class="pr-sec"><h2>9. Documents réglementaires à venir</h2>
+      <p style="font-size:11.5px">${DOCS.map(d=>`${d[0]} (${d[1]})`).join(' · ')}.</p></div>
+    <div class="pr-foot">${CONFIG.firm} — ${CONFIG.footer}.
+      Salaire brut et coût employeur : estimations pour un salarié du privé, d'après le simulateur URSSAF (mon-entreprise.urssaf.fr) avec interpolation.
+      Toutes les projections reposent sur des hypothèses de rendement et d'inflation constantes, non garanties ; un placement à rendement plus élevé comporte un risque de perte en capital.
+      Retraite : ${esc(CONFIG.replaceSource)}. Ce document reflète les déclarations du client ; il ne constitue pas un conseil en investissement personnalisé.</div>`;
+}
+
+function copyText(t){
+  const ok=()=>toast('Récapitulatif copié ✓');
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(ok,()=>fallbackCopy(t,ok));
+  else fallbackCopy(t,ok);
+}
+function fallbackCopy(t,ok){
+  const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select();
+  try{document.execCommand('copy'); ok();}catch(e){toast('Copie impossible — sélectionne le texte à la main.');}
+  ta.remove();
+}
+
+/* ---------- utils ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function parseNum(v){const t=String(v).replace(/[\s  €%]/g,'').replace(',','.'); if(t==='')return null; const x=parseFloat(t); return isNaN(x)?null:x;}
+function fmtInput(v){return Number.isInteger(v)?v.toLocaleString('fr-FR'):String(v).replace('.',',');}
+function fmtNum(v,d=0){return (+v).toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function eur(v){return Math.round(n(v)).toLocaleString('fr-FR')+' €';}
+function eurShort(v){return v>=1e6?fmtNum(v/1e6,1)+' M€':Math.round(v/1000)+' k€';}
+function pct(f){return fmtNum(100*n(f),1).replace(/,0$/,'')+' %';}
+function kpi(label,value,sub='',cls=''){return `<div class="kpi ${cls}"><small>${label}</small><b>${value}</b>${sub?`<em>${sub}</em>`:''}</div>`;}
+function ic(name){const p={
+  left:'<path d="M19 12H5M11 18l-6-6 6-6"/>',
+  right:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  pdf:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/>',
+  send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>',
+  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/>',
+}[name]||'';
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;}
+
+render();
+</script>
+</body>
+</html>
