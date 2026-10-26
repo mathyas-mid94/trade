@@ -6,6 +6,21 @@ Chaque description reprend le ton de sa vidéo : vouvoiement pour les deux vidé
 
 
 -------------------------------------------------------------------------------
+0. Les bases : l'argent suit la valeur (vidéo de départ)
+-------------------------------------------------------------------------------
+
+Avant de parler placements, on pose les bases. Pas une vidéo « mindset » : les fondamentaux pour avoir une relation saine avec tes finances personnelles.
+
+• L'argent suit la valeur : sur la durée, tes revenus suivent ce que tu vaux (tes compétences, tes connaissances). D'où l'importance de progresser au même rythme que ton argent.
+• Ni sale ni obsession : l'argent est un outil. Trois questions pour s'organiser : comment le faire, comment le garder, comment le multiplier.
+• Ne consomme jamais ton capital, seulement ce qu'il te rapporte : 4 millions placés à environ 4 % par an, c'est environ 160 000 € par an, sans toucher au capital.
+• Les bases qui changent tout : dépenser moins que ce que tu gagnes, suivre tes comptes, investir chaque mois, automatiser, faire le point tous les mois.
+• « Se payer en premier », bien compris : d'abord ce qui te fait vivre, ensuite ton épargne, puis tes plaisirs. Et la constance plutôt que le coup de chance.
+
+Informations générales, ne constituant pas un conseil personnalisé. Exemple chiffré illustratif, hors fiscalité ; tout placement comporte un risque de perte en capital.
+
+
+-------------------------------------------------------------------------------
 1. L'assurance-vie en 2 min 30
 -------------------------------------------------------------------------------
 

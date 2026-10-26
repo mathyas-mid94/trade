@@ -54,6 +54,10 @@ const THEMES = {
     labels: ["LOGEMENT", "ÉPARGNE", "IMMOBILIER", "CONTRATS", "PLACEMENTS"],
     // sous la loupe : les fenêtres du parc s'allument une à une (les loyers tombent)
     react(f, k) { [...f.firstElementChild.lastElementChild.children].forEach((r, i) => r.setAttribute("fill", k * 18 > i ? C.accent : C.paper)); } },
+  bases: { label: "LES BASES", kinds: ["coins", "receipt", "piggy", "pie", "sprout"],
+    labels: ["REVENUS", "DÉPENSES", "LES BASES", "BUDGET", "INVESTIR"],
+    // sous la loupe : la pièce tombe dans la fente de la tirelire (se payer en premier)
+    react(f, k) { const c = f.firstElementChild.lastElementChild; c.setAttribute("transform", `translate(0 ${30 * Math.min(1, k)})`); c.style.opacity = k > 0.95 ? 0 : 1; } },
   budget: { label: "BUDGET", kinds: ["coins", "receipt", "pie", "piggy", "house"],
     labels: ["REVENUS", "DÉPENSES", "BUDGET", "ÉPARGNE", "LOGEMENT"],
     // sous la loupe : le camembert tourne et une part se détache (on découpe le budget)
