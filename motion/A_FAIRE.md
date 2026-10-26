@@ -36,6 +36,11 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 - Textes ElevenLabs : `tools/elevenlabs.py <SCRIPT.md> <dossier> [n]` (sigles écrits S.C.P.I., E.D.R.… : validé ; les tirets « esse-cé-pé-i » faisaient bégayer, < 10 000 car. par fichier).
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
+## Vidéo « Les obligations » (`videos/obligations/`)
+- [x] Script (`SCRIPT.md`, 17 parties, ~7 min 30) d'après les 13 slides + insistance sur le pull to par → 1 texte ElevenLabs (~8 100 car.) + test de prononciation
+- [ ] MP3 → calage → scènes (même style que « L'argent suit la valeur ») ; thème intro/outro à créer
+- [ ] Slides : slide 4 (IG 3,5–4 %, HY 5,75 %) vs slide 9 (spreads posés sur le 10 ans allemand) ; slide 10 (10 ans à 3,83 % au 30/04) vs slide 11 (4,90 % au 01/10)
+
 ## Vidéo « L'argent suit la valeur » (`videos/argent-valeur/`)
 - [x] Script (`SCRIPT.md`, 19 parties, ~7 min 30) d'après le texte de Mathyas + la leçon PDF → 1 texte ElevenLabs (~8 400 car.) + test de prononciation
 - [x] Voix calée (19 parties, marges OK, respirations entre phrases), scènes, intro/outro génériques

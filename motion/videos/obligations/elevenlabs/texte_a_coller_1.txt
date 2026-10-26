@@ -1,0 +1,113 @@
+Les obligations.
+Le placement dont tout le monde a entendu parler… et que presque personne ne sait vraiment expliquer.
+Pourtant, l'idée est simple : au lieu de parier sur l'avenir d'une entreprise, tu lui prêtes de l'argent.
+Prêter plutôt que parier.
+Dans cette vidéo, on va voir comment ça marche, comment lire le marché, et surtout un mécanisme que je veux vraiment que tu comprennes : pourquoi une obligation peut baisser en cours de route… et revenir à son prix à la fin.
+
+On part de la base. Une entreprise, ou un État, a besoin d'argent.
+Elle a deux grandes solutions.
+La première : vendre une part d'elle-même. Ce sont les actions. Toi, tu deviens associé.
+La deuxième : emprunter, sans rien céder. Ce sont les obligations. Et là, toi, tu deviens le banquier.
+
+Une obligation, c'est un prêt. Point.
+Tu prêtes 100 euros.
+Chaque année, l'emprunteur te verse un intérêt : par exemple 4 euros. Ça s'appelle le coupon.
+An 1, 4 euros. An 2, 4 euros. Et ainsi de suite.
+Et à la fin, à une date fixée à l'avance, l'échéance, on te rend tes 100 euros.
+Trois mots à retenir : le montant, ce que tu prêtes. Le coupon, l'intérêt que tu touches. Et l'échéance, la date où on te rembourse.
+Tout est écrit dès le départ.
+
+Maintenant, à qui est-ce qu'on prête ?
+Aux États, d'abord. À 10 ans, l'Allemagne paie environ 3,6 %, la France environ 4,9 %. C'est le risque le plus faible.
+Aux grandes entreprises bien notées, ce qu'on appelle l'Investment Grade : autour de 3,5 à 4 %. Risque modéré.
+Et aux entreprises plus fragiles, le High Yield, le haut rendement : environ 5,75 %. Là, le risque est élevé.
+La règle est toujours la même : plus de rendement, c'est plus de risque. Il n'y a pas de cadeau.
+
+Il y a deux façons d'être payé.
+L'obligation classique : tu prêtes 100 euros, tu touches 4 euros par an, et la dernière année, tu récupères tes 100 euros, plus le dernier coupon. Des revenus réguliers.
+Et l'obligation zéro coupon : tu paies par exemple 80 euros aujourd'hui, tu ne touches rien en cours de route, et dans 5 ans, on te rend 100 euros.
+Ton gain, c'est l'écart entre les deux. Un montant connu, à une date connue.
+
+Maintenant, la mécanique. Et c'est là que la plupart des gens décrochent, alors on y va doucement.
+Une obligation, ça s'achète et ça se revend avant l'échéance. Donc elle a un prix, qui bouge tous les jours.
+Et ce prix est sur une balançoire avec les taux d'intérêt.
+Quand les taux montent, le prix des obligations déjà émises baisse.
+Quand les taux baissent, leur prix monte.
+
+Pourquoi ? Prends ton obligation à 4 %.
+Demain, les taux montent, et les nouvelles obligations paient 6 %.
+Si tu veux revendre la tienne, personne ne va te la payer 100 euros, puisqu'on trouve mieux à côté.
+Pour la vendre, il faut baisser son prix, jusqu'à ce qu'elle rapporte autant que les nouvelles.
+Voilà la balançoire. Taux en haut, prix en bas.
+
+Et maintenant, le point le plus important de la vidéo.
+Tu as acheté ton obligation 100 euros.
+En cours de route, les taux montent, et sa valeur affichée tombe à 91 euros.
+Mais plus on se rapproche de l'échéance, plus son prix remonte vers 100.
+Pourquoi ? Parce qu'à la fin, l'emprunteur rembourse 100 euros. Pas 91. Cent.
+C'est ce qu'on appelle le « pull to par » : le retour au prix de remboursement.
+Et le zéro coupon, c'est la même chose, en plus visible : acheté 80 euros, il remonte tranquillement vers 100.
+
+Alors arrêtons-nous deux secondes, parce que c'est là que beaucoup de gens paniquent.
+Tu ouvres ton relevé. Ta ligne affiche 91 euros. Moins 9 %.
+Sur le papier, tu es perdant. C'est la valeur de marché, ou la valeur liquidative pour un fonds.
+Mais regarde ce qui se passe vraiment si tu gardes.
+Tu touches tes coupons : 4 euros par an, pendant 5 ans. Ça fait 20 euros.
+Et à l'échéance, on te rend 100 euros.
+Au total, 120 euros, pour 100 euros prêtés. Exactement ce qui était prévu le jour de l'achat.
+La baisse du milieu, tu ne l'as jamais encaissée. Elle s'efface toute seule, au fur et à mesure qu'on avance vers l'échéance.
+Ce que tu as raté, c'est une occasion : les nouvelles obligations paient plus. Mais tu n'as pas perdu d'argent par rapport à ce que tu avais signé.
+
+Attention, pour que ça marche, il y a deux conditions. Et je veux être carré là-dessus.
+Un : l'emprunteur doit rembourser. S'il fait défaut, la promesse ne vaut plus rien. D'où l'importance de bien choisir à qui tu prêtes.
+Deux : tu dois pouvoir garder jusqu'au bout. Si tu as besoin de ton argent avant, tu revends au prix du jour, et là, la baisse devient une vraie perte.
+Une baisse en cours de route n'est pas une perte… si l'emprunteur rembourse, et si tu tiens jusqu'à l'échéance.
+
+Passons à la lecture du marché. Premier repère : le taux sans risque.
+C'est le taux de dépôt de la B.C.E., la Banque centrale européenne. Aujourd'hui, 2,50 %.
+C'est ce qu'on peut gagner sur de l'argent placé à court terme, sans prendre de risque. Le plancher.
+Et il bouge beaucoup. En 2019, il était à moins 0,5 % : on payait pour prêter. En 2023, il est monté à 4 %. Aujourd'hui, il est redescendu à 2,50 %.
+La règle : si un placement risqué te rapporte moins que ce plancher, tu prends un risque… gratuitement.
+
+Deuxième repère : le spread. Le prix de la confiance.
+C'est la prime qu'un emprunteur paie en plus de la référence sans risque, pour une même durée.
+À 10 ans, la référence en Europe, c'est l'Allemagne : 3,60 %.
+La France paie 1,30 point de plus. Un écart jamais vu depuis 2012.
+Une grande entreprise bien notée paie une prime d'environ 0,8 point.
+Une entreprise plus fragile, environ 2,9 points.
+Et fin septembre, cette prime du High Yield est passée de 2,66 à 2,94 % en une semaine.
+On est mieux payé… mais il faut trier.
+
+Troisième repère : la durée.
+Plus tu prêtes longtemps, plus on te paie.
+Au printemps, l'État français payait environ 3,2 % à 5 ans, 3,8 % à 10 ans, et plus de 4,5 % à 30 ans.
+Mais plus c'est long, plus le prix bouge.
+Si les taux montent d'un point, une obligation à 2 ans perd environ 2 %. À 10 ans, environ 8 %. À 20 ans, près de 15 %.
+Si tu la gardes jusqu'au bout : aucun impact. Si tu as besoin de l'argent avant : ça change tout.
+Donc la bonne durée, c'est celle de ton projet.
+
+Alors, obligations ou actions ?
+D'un côté, l'obligation : un rendement connu. De l'autre, l'action : un rendement espéré.
+En 2020, prêter à l'État français ne rapportait presque rien : environ 0 %. Les actions n'avaient pas de concurrence.
+En octobre 2026, l'État français à 10 ans, c'est 4,90 %.
+Quand le rendement connu rattrape le rendement espéré, le choix devient vite fait.
+Ça ne veut pas dire tout mettre en obligations. Ça veut dire que les obligations ont retrouvé une vraie place dans un patrimoine.
+
+Concrètement, on achète rarement une seule obligation. On passe par des fonds obligataires : des dizaines de prêts en un.
+Il y en a deux grandes familles.
+Le fonds daté : toutes les obligations arrivent à échéance à peu près en même temps, par exemple en 2030.
+Une date de fin connue, un rendement estimé dès l'entrée, et le retour vers 100 à l'échéance. Le pull to par, à l'échelle du fonds.
+C'est ce que je mets au cœur d'un portefeuille.
+Et le fonds ouvert : pas de date de fin, un gérant qui pilote en continu, de la souplesse pour saisir les opportunités.
+Mais attention : sans échéance, il n'y a pas de retour garanti à 100. C'est une poche tactique, à côté.
+
+On résume.
+Une obligation, c'est un prêt : coupon et remboursement connus à l'avance.
+Le prix bouge, mais il revient à 100 si l'emprunteur rembourse.
+Le taux sans risque est le plancher, et le spread paie le risque.
+Et plus c'est long, plus ça paie… et plus ça bouge.
+
+Une obligation, ce n'est pas un pari. C'est une promesse écrite.
+Ta seule vraie question, c'est : à qui je prête, et pour combien de temps ?
+Un bon emprunteur, une durée adaptée… et on garde.
+Si tu veux qu'on regarde ensemble quelle place donner aux obligations dans ton patrimoine, reviens vers moi.
