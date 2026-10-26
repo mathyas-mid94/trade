@@ -93,7 +93,7 @@ SC("03", "À QUI PRÊTE-T-ON ?", (g, A) => {
   const def = el("defs", {}, g), lg = el("linearGradient", { id: "gradRisque", x1: 0, x2: 1 }, def);
   el("stop", { offset: 0, "stop-color": C.inkSoft }, lg); el("stop", { offset: 1, "stop-color": C.accent }, lg);
   const Cs = [["États", "3,6 %", "3,6 à 4,9 %", "Allemagne → France, à 10 ans", "Risque faible", 1, C.inkSoft, [2, 3, 4, 5]],
-              ["Investment Grade", "", "≈ 4,4 %", "grandes entreprises bien notées", "Risque modéré", 2, C.inkSoft, [6, 7, 8, 9]],
+              ["Investment Grade", "", "≈ 5,5 %", "grandes entreprises bien notées", "Risque modéré", 2, C.inkSoft, [6, 7, 8, 9]],
               ["High Yield", "", "≈ 6,5 %", "entreprises plus fragiles", "Risque élevé", 4, C.accent, [10, 11, 12, 13]]]
     .map(([ti, r0, r1, sub, ri, n, col, K], i) => {
       const c = card(g, 480, 360, { fill: C.face }), x = 380 + i * 580;
@@ -106,6 +106,7 @@ SC("03", "À QUI PRÊTE-T-ON ?", (g, A) => {
     });
   const barre = el("rect", { x: 140, y: 790, width: 0, height: 18, rx: 9, fill: "url(#gradRisque)" }, g);
   const lm = txt(g, 140, 850, "moins de risque, moins de rendement", 24, { anchor: "start", weight: 700, fill: C.inkSoft }), lp = txt(g, 1780, 850, "plus de rendement = plus de risque", 24, { anchor: "end", weight: 800, fill: C.accent });
+  const cyc = txt(g, 960, 720, "les taux évoluent avec le cycle économique", 24, { weight: 600, fill: C.inkSoft });
   const cad = pl(g, 960, 960, "IL N'Y A PAS DE CADEAU", { bg: C.ink, fg: C.paper, size: 24 });
   return t => {
     show(head, fade(t, m(1) - 0.5));
@@ -115,7 +116,7 @@ SC("03", "À QUI PRÊTE-T-ON ?", (g, A) => {
       if (i === 0) c.rr.textContent = t < m(k3) - 0.2 ? c.r0 : c.r1;
       show(c.ss, fade(t, m(k3) - 0.2)); c.j.set(ease(prog(t, m(k4) - 0.4, m(k4) + 0.4))); show(c.rk, fade(t, m(k4) - 0.2)); });
     barre.setAttribute("width", 1640 * ease(prog(t, m(14) - 0.4, m(14) + 0.8)));
-    show(lm, fade(t, m(15) - 0.5)); show(lp, fade(t, m(15) - 0.1)); on(cad, pop(t, m(16) - 0.3));
+    show(lm, fade(t, m(15) - 0.5)); show(lp, fade(t, m(15) - 0.1)); on(cad, pop(t, m(16) - 0.3)); show(cyc, fade(t, m(13) + 1.2) * out(t, m(14) - 0.4));
   };
 });
 
