@@ -38,7 +38,7 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 
 ## Vidéo « Les obligations » (`videos/obligations/`)
 - [x] Script (`SCRIPT.md`, 17 parties, ~7 min 30) d'après les 13 slides + insistance sur le pull to par → 1 texte ElevenLabs (~8 100 car.) + test de prononciation
-- [ ] MP3 → calage → scènes (même style que « L'argent suit la valeur ») ; thème intro/outro à créer
+- [x] Voix calée (17 parties, marges OK, respirations entre phrases), 17 scènes, intro/outro « OBLIGATIONS » (nouvelle icône titre + coupons)
 - [ ] Slides : slide 4 (IG 3,5–4 %, HY 5,75 %) vs slide 9 (spreads posés sur le 10 ans allemand) ; slide 10 (10 ans à 3,83 % au 30/04) vs slide 11 (4,90 % au 01/10)
 
 ## Vidéo « L'argent suit la valeur » (`videos/argent-valeur/`)

@@ -88,7 +88,7 @@ Ce que tu as raté, c'est une occasion : les nouvelles obligations paient plus. 
 Attention, pour que ça marche, il y a deux conditions. Et je veux être carré là-dessus. [1]
 Un : l'emprunteur doit rembourser. [2] S'il fait défaut, la promesse ne vaut plus rien. [3] D'où l'importance de bien choisir à qui tu prêtes. [4]
 Deux : tu dois pouvoir garder jusqu'au bout. [5] Si tu as besoin de ton argent avant, tu revends au prix du jour, [6] et là, la baisse devient une vraie perte. [7]
-Une baisse en cours de route n'est pas une perte… [8] si l'emprunteur rembourse, et si tu tiens jusqu'à l'échéance. [9]
+Une baisse en cours de route n'est pas une perte… [8] si l'emprunteur rembourse, [9] et si tu tiens jusqu'à l'échéance.
 
 ## 10 · Le taux sans risque : le thermomètre
 Passons à la lecture du marché. [1] Premier repère : le taux sans risque. [2]
@@ -144,4 +144,4 @@ Et plus c'est long, plus ça paie… [8] et plus ça bouge. [9]
 Une obligation, ce n'est pas un pari. [1] C'est une promesse écrite. [2]
 Ta seule vraie question, c'est : à qui je prête, et pour combien de temps ? [3]
 Un bon emprunteur, une durée adaptée… [4] et on garde. [5]
-Si tu veux qu'on regarde ensemble quelle place donner aux obligations dans ton patrimoine, [6] reviens vers moi. [7]
+Si tu veux qu'on regarde ensemble quelle place donner aux obligations dans ton patrimoine, [6] [7] reviens vers moi.

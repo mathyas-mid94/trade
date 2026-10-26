@@ -255,6 +255,17 @@ const D = (() => {
       el("path", { ...line, "stroke-width": 0, fill: C.accent, d: "M0 30 C-14 36 -28 44 -32 56 L32 56 C28 44 14 36 0 30 Z" }, g);
       return g;
     },
+    obligation(parent) {   // titre obligataire : certificat + bande de coupons détachables (dernier <g> = les coupons)
+      const g = el("g", {}, parent);
+      el("rect", { ...line, fill: C.face, x: -52, y: -58, width: 76, height: 116, rx: 6 }, g);
+      for (const [y, w] of [[-36, 50], [-20, 40], [-4, 46], [12, 30]]) el("path", { ...line, "stroke-width": 3, stroke: C.inkSoft, d: `M-40 ${y} L${-40 + w} ${y}` }, g);
+      el("circle", { ...line, "stroke-width": 3, fill: C.accent, cx: 6, cy: 38, r: 10 }, g);
+      el("path", { ...line, "stroke-width": 2, "stroke-dasharray": "4 5", d: "M28 -58 L28 58" }, g);
+      const cp = el("g", {}, g);
+      [-40, -6, 28].forEach(y => { const c = el("g", {}, cp); el("rect", { ...line, "stroke-width": 3, fill: C.accent, x: 30, y, width: 26, height: 28, rx: 4 }, c);
+        el("path", { ...line, "stroke-width": 2.5, d: `M37 ${y + 10} L49 ${y + 10} M37 ${y + 18} L46 ${y + 18}` }, c); });
+      return g;
+    },
     structure(parent) { // produit structuré : socle obligation (vert) + couvercle option (or) ; le couvercle = dernier enfant
       const g = el("g", {}, parent);
       el("rect", { ...line, fill: C.ink, x: -54, y: -6, width: 108, height: 62, rx: 8 }, g);
