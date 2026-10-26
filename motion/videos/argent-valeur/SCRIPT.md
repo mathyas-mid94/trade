@@ -75,7 +75,7 @@ Comment multiplier l'argent ? [6] C'est l'investissement et la stratégie. [7]
 Une fois que tu regardes les bons leviers, [8] ce n'est pas seulement ta relation à l'argent qui change. [9] C'est tout le reste. [10]
 
 ## 09 · L'art de s'entourer
-« Dis-moi avec qui tu passes ton temps, je te dirai qui tu es. » [1]
+« Dis-moi avec qui tu traînes, je te dirai qui tu es. » [1]
 Ton entourage influence ta façon de penser, [2] tes choix… [3] et donc tes résultats. [4]
 L'objectif : t'entourer de gens qui n'ont pas de plafond dans la tête, [5] qui partagent ta vision. [6]
 Et c'est comme ça que tu deviens, toi aussi, ce genre de personne pour les autres. [7]
@@ -134,7 +134,7 @@ Ne donne pas ton pouvoir aux autres. [4] Si tu attends leur validation, [5] tu l
 Et deviens insensible aux éloges comme aux critiques. [7]
 Les éloges flattent, mais t'éloignent de la réalité. [8] Les critiques blessent, mais seulement si tu leur donnes du poids. [9]
 Ni quand on te crache dessus, [10] ni quand on te glorifie. [11]
-C'est ça, la vraie méritocratie : [12] avancer par tes propres actions, [13] sans que l'opinion des autres dicte ton état d'esprit. [14]
+C'est ça, la vraie méritocratie : [12] avancer par tes propres actions, [13] sans que l'opinion des autres [14] dicte ton état d'esprit.
 
 ## 17 · Planifier ton héritage
 Dernière idée. [1] Ta vie a une durée. [2] Ton argent, lui, peut te survivre. [3]
@@ -148,4 +148,4 @@ Faire de l'argent, [1] c'est toi qui as la solution entre les mains. [2]
 Le garder et le faire fructifier, [3] c'est là qu'on peut t'accompagner. [4]
 Chez Midelton Investment Capital, on construit ça avec toi. [5]
 Fais monter ton support. [6] Casse ta résistance. [7]
-Et rappelle-toi : l'argent suit la valeur. [8]
+Et rappelle-toi : [8] l'argent suit la valeur.

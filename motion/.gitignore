@@ -28,3 +28,7 @@ videos/produits-structures/*.mp4
 videos/produits-structures/.mots_nettoyes.json
 videos/produits-structures/.frames/
 videos/produits-structures/.*.mp4
+videos/argent-valeur/*.mp4
+videos/argent-valeur/.mots_nettoyes.json
+videos/argent-valeur/.frames/
+videos/argent-valeur/.*.mp4

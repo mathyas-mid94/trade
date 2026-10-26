@@ -38,7 +38,8 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 
 ## Vidéo « L'argent suit la valeur » (`videos/argent-valeur/`)
 - [x] Script (`SCRIPT.md`, 19 parties, ~7 min 30) d'après le texte de Mathyas + la leçon PDF → 1 texte ElevenLabs (~8 400 car.) + test de prononciation
-- [ ] MP3 → calage → scènes (graphique support / résistance, balance, faire-garder-multiplier, entourage, habitudes, méritocratie, arbre des générations)
+- [x] Voix calée (19 parties, marges OK, respirations entre phrases), scènes, intro/outro génériques
+- [ ] À réécouter : « plus son salaire grimpe » (partie 06, ~2:30) — Whisper entend « on s'alère »
 
 ## Vidéo « Les produits structurés » (`videos/produits-structures/`)
 - [x] Script (`SCRIPT.md`, 21 parties dont 4 bonus, ~9 min) d'après les slides 12-30 (pas de vidéo d'origine) → 2 textes ElevenLabs + test
