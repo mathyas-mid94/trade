@@ -153,3 +153,18 @@ Un nom qui fait un peu peur, et pourtant, c'est un des outils les plus intellige
 • Les 3 questions à poser avant de signer, plus 4 mécanismes en bonus : reverse convertible, décrément, airbag, barrière dégressive.
 
 Informations générales, ne constituant pas un conseil personnalisé. Exemples illustratifs, hors frais. Capital garanti uniquement à l'échéance et sauf défaut de l'émetteur ; risque de perte en capital en cas de sortie anticipée ou de baisse sous la barrière.
+
+
+-------------------------------------------------------------------------------
+10. Les obligations : prêter plutôt que parier
+-------------------------------------------------------------------------------
+
+Le placement dont tout le monde a entendu parler… et que presque personne ne sait vraiment expliquer. On reprend tout, simplement.
+
+• Une obligation, c'est un prêt : tu prêtes 100 €, tu touches un coupon chaque année, et on te rembourse à une date fixée à l'avance.
+• États, grandes entreprises bien notées (Investment Grade), entreprises plus fragiles (High Yield) : plus de rendement, c'est toujours plus de risque.
+• La balançoire : quand les taux montent, le prix des obligations baisse, et inversement.
+• Le point clé, le « pull to par » : si la valeur affichée tombe à 91 €, ce n'est pas une perte tant que l'emprunteur rembourse et que tu gardes jusqu'à l'échéance. À la fin, on te rend 100 €, plus tous tes coupons.
+• Lire le marché (taux sans risque, spread, durée) et choisir entre fonds daté et fonds ouvert.
+
+Informations générales, ne constituant pas un conseil personnalisé. Chiffres de marché indicatifs à la date de réalisation, exemples illustratifs. Risque de défaut de l'émetteur et risque de perte en capital en cas de revente avant l'échéance ; un fonds obligataire ouvert n'offre pas de retour garanti à 100.
