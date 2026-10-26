@@ -9,6 +9,7 @@ Précisions de rigueur par rapport aux slides :
 - le retour à 100 vaut pour une obligation ou un fonds daté ; un fonds ouvert n'a pas d'échéance, donc pas de retour garanti à 100 ;
 - la prime (spread) se mesure par rapport à un emprunt d'État de même durée : on ne l'additionne pas au 10 ans allemand (sinon l'IG ferait 4,4 % et le High Yield 6,5 %, ce qui contredirait la slide 4) ;
 - la courbe des taux de la slide 10 date du 30/04/26 (10 ans à 3,83 %), alors que la slide 11 donne 4,90 % au 01/10/26 : on dit « au printemps » ;
+- slide 4 : IG « 3,5–4 % » et HY « 5,75 % » rapportaient moins (ou à peine plus) qu'un État : remplacés par 4,4 % et 6,5 % (= 10 ans allemand 3,60 % + spreads de la slide 9), corrigé à la demande de Mathyas ;
 - sensibilité à 20 ans : environ 14 à 15 % pour 1 point de hausse (« près de 15 % »).
 Les repères `[n]` indiquent le mot sur lequel l'image correspondante apparaît ; ils ne sont pas lus.
 Pour ElevenLabs : coller le fichier `elevenlabs/texte_a_coller_1.txt` (texte pur, sigles écrits avec des points).
@@ -40,8 +41,8 @@ Tout est écrit dès le départ. [15]
 ## 03 · À qui prête-t-on ?
 Maintenant, à qui est-ce qu'on prête ? [1]
 Aux États, d'abord. [2] À 10 ans, l'Allemagne paie environ 3,6 %, [3] la France environ 4,9 %. [4] C'est le risque le plus faible. [5]
-Aux grandes entreprises bien notées, [6] ce qu'on appelle l'Investment Grade : [7] autour de 3,5 à 4 %. [8] Risque modéré. [9]
-Et aux entreprises plus fragiles, [10] le High Yield, le haut rendement : [11] environ 5,75 %. [12] Là, le risque est élevé. [13]
+Aux grandes entreprises bien notées, [6] ce qu'on appelle l'Investment Grade : [7] autour de 4,4 %. [8] Risque modéré. [9]
+Et aux entreprises plus fragiles, [10] le High Yield, le haut rendement : [11] environ 6,5 %. [12] Là, le risque est élevé. [13]
 La règle est toujours la même : [14] plus de rendement, c'est plus de risque. [15] Il n'y a pas de cadeau. [16]
 
 ## 04 · Deux façons d'être payé

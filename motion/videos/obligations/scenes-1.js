@@ -93,8 +93,8 @@ SC("03", "À QUI PRÊTE-T-ON ?", (g, A) => {
   const def = el("defs", {}, g), lg = el("linearGradient", { id: "gradRisque", x1: 0, x2: 1 }, def);
   el("stop", { offset: 0, "stop-color": C.inkSoft }, lg); el("stop", { offset: 1, "stop-color": C.accent }, lg);
   const Cs = [["États", "3,6 %", "3,6 à 4,9 %", "Allemagne → France, à 10 ans", "Risque faible", 1, C.inkSoft, [2, 3, 4, 5]],
-              ["Investment Grade", "", "≈ 3,5 à 4 %", "grandes entreprises bien notées", "Risque modéré", 2, C.inkSoft, [6, 7, 8, 9]],
-              ["High Yield", "", "≈ 5,75 %", "entreprises plus fragiles", "Risque élevé", 4, C.accent, [10, 11, 12, 13]]]
+              ["Investment Grade", "", "≈ 4,4 %", "grandes entreprises bien notées", "Risque modéré", 2, C.inkSoft, [6, 7, 8, 9]],
+              ["High Yield", "", "≈ 6,5 %", "entreprises plus fragiles", "Risque élevé", 4, C.accent, [10, 11, 12, 13]]]
     .map(([ti, r0, r1, sub, ri, n, col, K], i) => {
       const c = card(g, 480, 360, { fill: C.face }), x = 380 + i * 580;
       const tt = txt(c, -200, -110, ti, 40, { anchor: "start", font: "Serif", weight: 700 });
