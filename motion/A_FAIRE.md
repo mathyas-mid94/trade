@@ -36,6 +36,10 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 - Textes ElevenLabs : `tools/elevenlabs.py <SCRIPT.md> <dossier> [n]` (sigles écrits S.C.P.I., E.D.R.… : validé ; les tirets « esse-cé-pé-i » faisaient bégayer, < 10 000 car. par fichier).
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
+## Vidéo « L'argent suit la valeur » (`videos/argent-valeur/`)
+- [x] Script (`SCRIPT.md`, 19 parties, ~7 min 30) d'après le texte de Mathyas + la leçon PDF → 1 texte ElevenLabs (~8 400 car.) + test de prononciation
+- [ ] MP3 → calage → scènes (graphique support / résistance, balance, faire-garder-multiplier, entourage, habitudes, méritocratie, arbre des générations)
+
 ## Vidéo « Les produits structurés » (`videos/produits-structures/`)
 - [x] Script (`SCRIPT.md`, 21 parties dont 4 bonus, ~9 min) d'après les slides 12-30 (pas de vidéo d'origine) → 2 textes ElevenLabs + test
 - [x] Version finale livrée (`produits-structures.mp4`, 9:39). Voix calée (21 parties, marges OK, respirations entre phrases), scènes animées (marcheurs, ascenseur, robinet, compteur, tapis, airbag, haie), intro/outro « structures »
