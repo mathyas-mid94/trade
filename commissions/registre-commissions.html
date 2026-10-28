@@ -148,7 +148,22 @@ dialog form { display: grid; gap: 14px; padding: 18px }
 const PRODUITS = ["SCPI", "Assurance-vie", "PER", "Girardin", "Private Equity", "Emprunteur", "Prévoyance", "Autre"];
 const PRIME = new Set(["Emprunteur", "Prévoyance"]);   // assiette = prime annuelle, pas de collecte
 const SANS_ENCOURS = new Set(["Girardin"]);            // collecte one-shot, pas d'encours
-const DEFAULTS = { tauxReseau: 36, nomReseau: "Fyneo", urssaf: 26.1, horizon: 5, baseApporteur: "apres", rendement: 0 };
+const DEFAULTS = { tauxReseau: 36, nomReseau: "Fyneo", urssaf: 26.1, horizon: 5, baseApporteur: "apres", revalo: false,
+  rdtProduit: { "SCPI": 0, "Assurance-vie": 3, "PER": 4, "Private Equity": 5, "Autre": 0 } };
+const REVALO_PRODUITS = ["SCPI", "Assurance-vie", "PER", "Private Equity", "Autre"];
+// rétro annuelle d'un support, en fraction de l'encours de la ligne
+const tauxSupport = l => (l.unite === "frais" ? num(l.fraisFonds) * num(l.retro) / 100 : num(l.retro)) / 100;
+// rendement retenu pour un contrat : réglage du contrat, sinon revalorisation par produit si activée
+const rdtContrat = c => c.rendement !== null && c.rendement !== undefined && c.rendement !== "" ? num(c.rendement) : S.revalo ? num((S.rdtProduit || {})[c.produit]) : 0;
+// les montants des lignes sont rapportés à la dernière valorisation (ou au versement initial) : le reste ne rapporte rien
+function tauxSupports(c) {
+  const L = (c.supports || []).filter(l => num(l.montant) > 0);
+  if (!L.length) return 0;
+  const somme = L.reduce((t, l) => t + num(l.montant), 0);
+  const v = (c.valos || []).filter(x => x.date && num(x.valeur)).sort((a, b) => a.date.localeCompare(b.date)).pop();
+  const ref = Math.max(somme, v ? num(v.valeur) : num(c.montant));
+  return L.reduce((t, l) => t + num(l.montant) * tauxSupport(l), 0) / ref;
+}
 
 let db = null, S = { ...DEFAULTS }, contrats = [], partenaires = [], loaded = false;
 let chartMode = "net", tab = "bord", filtre = "";
@@ -180,17 +195,24 @@ function simulate(c, endIdx) {
   const linStart = sub + decal, dureeLin = num(c.dureeLineaire) * 12;
   const linOn = m => m >= linStart && (!dureeLin || m < linStart + dureeLin) && (fin == null || m <= fin);
   const montant = num(c.montant);
+  // le linéaire court chaque mois mais n'est versé qu'en fin de période (trimestre civil par défaut)
+  const payF = Math.max(1, num(c.paiementLin) || 3);
+  let du = 0;
+  const verse = (m, acc) => { du += acc; if ((m + 1) % payF === 0) { const p = du; du = 0; return p; } return 0; };
 
   if (PRIME.has(c.produit)) {
     for (let m = sub; m <= endIdx; m++) {
       const up = m === sub ? montant * tu : 0;
-      const lin = linOn(m) ? montant * tl / 12 : 0;
-      if (up || lin || m === sub) out.set(m, { vers: 0, prime: m === sub ? montant : 0, up, lin, fr: 0, enc: 0 });
+      const acc = linOn(m) ? montant * tl / 12 : 0;
+      const lin = verse(m, acc);
+      if (up || lin || acc || m === sub) out.set(m, { vers: 0, prime: m === sub ? montant : 0, up, lin, fr: 0, acc, enc: 0 });
       if (fin != null && m > fin) break;
     }
     return out;
   }
-  const g = Math.pow(1 + num(c.rendement ?? S.rendement) / 100, 1 / 12);
+  const g = Math.pow(1 + rdtContrat(c) / 100, 1 / 12);
+  const tuc = tauxSupports(c);
+  const valos = {}; (c.valos || []).forEach(v => { const i = idxOf(v.date); if (i != null && v.valeur !== "" && v.valeur != null) valos[i] = num(v.valeur); });
   const vpM = num(c.vpMontant), freq = Math.max(1, num(c.vpFrequence) || 1);
   const vpStart = c.vpDebut ? idxOf(c.vpDebut) : sub + freq, vpDur = num(c.vpDuree);
   const libres = {}; (c.libres || []).forEach(l => { const i = idxOf(l.date); if (i != null) libres[i] = (libres[i] || 0) + num(l.montant); });
@@ -204,8 +226,9 @@ function simulate(c, endIdx) {
     const vers = init + vp + lib;
     const up = (init + lib) * tu + vp * tuVP;
     enc = garde ? enc * g + vers : 0;
-    const on = linOn(m);
-    out.set(m, { vers, prime: 0, up, lin: on ? enc * tl / 12 : 0, fr: on ? enc * tf / 12 : 0, enc, vp, init: init + lib });
+    if (garde && valos[m] != null) enc = valos[m];   // une valorisation réelle remplace l'estimation
+    const acc = linOn(m) ? enc * (tl + tf + tuc) / 12 : 0;
+    out.set(m, { vers, prime: 0, up, lin: verse(m, acc), fr: 0, acc, enc, vp, init: init + lib });
   }
   return out;
 }
@@ -244,7 +267,7 @@ function compute() {
   let minYear = Y0;
   for (const c of actifs()) {
     const sim = simulate(c, E);
-    const remun = num(c.tauxLineaire) > 0 || num(c.partFrais) > 0;
+    const remun = num(c.tauxLineaire) > 0 || num(c.partFrais) > 0 || tauxSupports(c) > 0;
     const pc = { c, cumul: ZERO(), vers: 0, enc: 0, recur: ZERO(), up: 0 };
     for (const [m, x] of sim) {
       const s = split(c, x.up, x.lin + x.fr, m);
@@ -262,7 +285,7 @@ function compute() {
       if (m > TODAY && m <= TODAY + 12) { addTo(T.next12, s); T.vp12 += x.vp || 0; }
       if (m === TODAY) {
         pc.enc = x.enc; T.enc += x.enc; if (remun) T.encRem += x.enc;
-        const r = split(c, 0, (x.lin + x.fr) * 12, m); addTo(T.recur, r); addTo(pc.recur, r);
+        const r = split(c, 0, x.acc * 12, m); addTo(T.recur, r); addTo(pc.recur, r);
       }
     }
     // contrat souscrit dans le futur : encours = 0 aujourd'hui, mais garder une trace
@@ -293,7 +316,7 @@ function renderBord(R) {
   </div>
   <div class="grid2">
     <div class="panel">
-      <div><h2>Où part l'argent, à date</h2><div class="hint">Cumul de toutes les commissions générées jusqu'à ${lblIdx(TODAY)}.</div></div>
+      <div><h2>Où part l'argent, à date</h2><div class="hint">Cumul des commissions versées jusqu'à ${lblIdx(TODAY)}. Le linéaire du trimestre en cours arrive à sa fin.</div></div>
       <div class="waterfall">
         ${wfRow("", "Upfront", "Linéaire", "head")}
         ${wfRow("Commission brute", eur(cu.up), eur(cu.lin))}
@@ -397,6 +420,9 @@ function rowC(p) {
   const tags = [];
   if (c.statut === "prevu") tags.push(`<span class="pill off">à venir</span>`);
   if (c.statut === "resilie") tags.push(`<span class="pill off">résilié</span>`);
+  const lv = (c.valos || []).filter(v => v.date).sort((a, b) => a.date.localeCompare(b.date)).pop();
+  if (lv) tags.push(`<span class="pill" title="Dernière valorisation : ${eur(num(lv.valeur))}">valorisé ${new Date(lv.date).toLocaleDateString("fr-FR")}</span>`);
+  if ((c.supports || []).length) tags.push(`<span class="pill">${c.supports.length} support${c.supports.length > 1 ? "s" : ""}</span>`);
   if (c.aVerifier) tags.push(`<span class="pill warn" title="${esc(c.aVerifier)}">à vérifier</span>`);
   if (c.reseauDepuis) tags.push(`<span class="pill off">${esc(S.nomReseau)} dès ${new Date(c.reseauDepuis).toLocaleDateString("fr-FR")}</span>`);
   else if (c.tauxReseau !== "" && c.tauxReseau != null && num(c.tauxReseau) === 0) tags.push(`<span class="pill off">sans ${esc(S.nomReseau)}</span>`);
@@ -417,7 +443,7 @@ function renderPrev(R) {
   const cols = ys.map(y => R.years[y]);
   const line = (lbl, f, cls = "") => `<tr class="${cls}"><td>${lbl}</td>${cols.map(y => `<td class="n">${eur(f(y))}</td>`).join("")}</tr>`;
   $("#view-prev").innerHTML = `<div class="panel">
-    <div class="row" style="justify-content:space-between"><div><h2>Prévisionnel sur ${S.horizon} ans</h2><div class="hint">Projection à contrats constants : versements programmés poursuivis, rendement de ${pct(S.rendement)} par an sur l'encours (sauf réglage par contrat), aucune nouvelle souscription.</div></div>${chartSeg()}</div>
+    <div class="row" style="justify-content:space-between"><div><h2>Prévisionnel sur ${S.horizon} ans</h2><div class="hint">Projection à contrats constants : versements programmés poursuivis, ${S.revalo ? "revalorisation de l'encours selon les taux par produit des Réglages" : "encours sans revalorisation (activable dans Réglages)"}, linéaire versé à chaque fin de trimestre, aucune nouvelle souscription.</div></div>${chartSeg()}</div>
     <div class="chart">${chart(R.years)}</div>
     <div class="scroll"><table>
       <thead><tr><th></th>${ys.map(y => `<th class="n">${y}${y === now.getFullYear() ? " · en cours" : ""}</th>`).join("")}</tr></thead>
@@ -459,10 +485,14 @@ function renderReglages() {
       <label class="f" for="sRes">Prélèvement réseau (%)<input id="sRes" inputmode="decimal" value="${S.tauxReseau}"></label>
       <label class="f" for="sUrs">Cotisations URSSAF (%)<input id="sUrs" inputmode="decimal" value="${S.urssaf}"></label>
       <label class="f" for="sHor">Horizon du prévisionnel (ans)<input id="sHor" inputmode="numeric" value="${S.horizon}"></label>
-      <label class="f" for="sRdt">Rendement annuel par défaut de l'encours (%)<input id="sRdt" inputmode="decimal" value="${S.rendement}"></label>
       <label class="f" for="sBase">Apporteurs et cabinets sont payés sur<select id="sBase"><option value="apres" ${S.baseApporteur === "apres" ? "selected" : ""}>la commission après réseau (s'il y en a un)</option><option value="brut" ${S.baseApporteur === "brut" ? "selected" : ""}>la commission brute</option></select></label>
     </div>
     <div class="hint">Micro-entreprise BNC : vérifie ton taux réel sur autoentrepreneur.urssaf.fr (il a augmenté chaque année depuis 2024). Ajoute 2,2 % si tu as opté pour le versement libératoire de l'impôt.</div>
+    <fieldset><legend>Revalorisation de l'encours</legend>
+      <label class="row small" for="sRev"><input type="checkbox" id="sRev" ${S.revalo ? "checked" : ""}> Faire évoluer l'encours selon un rendement annuel par produit</label>
+      <div class="fgrid">${REVALO_PRODUITS.map((p, i) => `<label class="f" for="sRp${i}">${esc(p)} (% par an)<input id="sRp${i}" inputmode="decimal" value="${num((S.rdtProduit || {})[p])}"></label>`).join("")}</div>
+      <div class="hint">Hypothèse de prudence, pas une promesse. Un taux saisi sur un contrat passe avant celui-ci, et une valorisation réelle remplace toujours l'estimation.</div>
+    </fieldset>
     <div><button class="primary" id="sSave">Enregistrer les hypothèses</button></div>
   </div>
   <div class="panel"><h2>Sauvegarde et export</h2>
@@ -472,7 +502,7 @@ function renderReglages() {
     <div class="hint" id="ioMsg"></div>
   </div></div>`;
   $("#sSave").onclick = async () => {
-    const n = { nomReseau: $("#sNom").value.trim() || "Réseau", tauxReseau: num($("#sRes").value), urssaf: num($("#sUrs").value), horizon: Math.min(15, Math.max(1, Math.round(num($("#sHor").value)) || 5)), rendement: num($("#sRdt").value), baseApporteur: $("#sBase").value };
+    const n = { nomReseau: $("#sNom").value.trim() || "Réseau", tauxReseau: num($("#sRes").value), urssaf: num($("#sUrs").value), horizon: Math.min(15, Math.max(1, Math.round(num($("#sHor").value)) || 5)), baseApporteur: $("#sBase").value, revalo: $("#sRev").checked, rdtProduit: Object.fromEntries(REVALO_PRODUITS.map((p, i) => [p, num($("#sRp" + i).value)])) };
     S = { ...S, ...n }; render();
     try { await db.doc("config/reglages").set(S); toast("Hypothèses enregistrées"); } catch (e) { toast("Échec de l'enregistrement : " + (e.message || e.code)); }
   };
@@ -537,8 +567,20 @@ function openForm(c) {
     ${field("fLdur", "Durée du linéaire (ans, vide = tant que le contrat vit)", c.dureeLineaire, 'inputmode="numeric"')}
     ${field("fPf", "Part des frais de gestion (%)", c.partFrais, 'inputmode="decimal" placeholder="ex. 15"')}
     ${field("fFg", "Frais de gestion du contrat (% par an)", c.fraisGestion, 'inputmode="decimal" placeholder="ex. 1"')}
-    ${field("fRdt", "Rendement annuel de l'encours (%)", c.rendement, `inputmode="decimal" placeholder="${S.rendement} (par défaut)"`)}
+    ${sel("fPay", "Linéaire versé", c.paiementLin || 3, [[1, "Chaque mois"], [3, "Chaque trimestre"], [6, "Chaque semestre"], [12, "Chaque année"]])}
   </div><div class="hint">Formule du type « 0,5 % + 15 % par trimestre » : 0,5 dans Linéaire, 15 dans Part des frais, et le taux de frais de gestion du contrat à côté.</div></fieldset>
+
+  <fieldset id="fsSup"><legend>Supports et rétrocession sur frais des fonds</legend>
+    <div class="hint">Une ligne par support (fonds, UC, ETF…). Ex. : PE 1 000 €, frais du fonds 1,5 %, tu touches 0,9 % → 9 €/an. Un ETF à 0 de rétro ne rapporte rien. Les montants sont rapportés à la dernière valorisation : la part non listée (fonds euros…) ne rapporte pas de rétro de fonds.</div>
+    <div id="supports" class="scroll"></div><div><button type="button" id="addSup">+ Support</button></div>
+  </fieldset>
+
+  <fieldset id="fsVal"><legend>Valorisation et évolution de l'encours</legend><div class="fgrid">
+    ${field("fRdt", "Rendement annuel estimé (%)", c.rendement, `inputmode="decimal" placeholder="${S.revalo ? "réglage par produit" : "0 (revalorisation désactivée)"}"`)}
+  </div>
+    <div class="hint">Saisis la valeur réelle du contrat lue sur le relevé ou l'extranet. À cette date, elle remplace le calcul : l'encours et le linéaire repartent de là.</div>
+    <div id="valos"></div><div><button type="button" id="addVal">+ Valorisation</button></div>
+  </fieldset>
 
   <fieldset><legend>Réseau et partage</legend><div class="fgrid">
     ${field("fRes", `Prélèvement ${esc(S.nomReseau)} (%)`, c.tauxReseau, `inputmode="decimal" placeholder="${S.tauxReseau} (par défaut)"`)}
@@ -555,6 +597,30 @@ function openForm(c) {
     <div class="row"><button type="button" id="fCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div>
   </div>`;
   let libres = (c.libres || []).map(l => ({ ...l }));
+  let supports = (c.supports || []).map(l => ({ ...l }));
+  let valos = (c.valos || []).map(l => ({ ...l }));
+  const drawSup = () => {
+    $("#supports").innerHTML = supports.length ? `<table><thead><tr><th>Support</th><th class="n">Montant €</th><th class="n">Frais du fonds %</th><th class="n">Ta rétro</th><th>Exprimée en</th><th class="n">Tu touches /an</th><th></th></tr></thead><tbody>${supports.map((l, i) => `<tr>
+      <td><input id="sN${i}" aria-label="Nom du support" value="${esc(l.nom || "")}" placeholder="ex. FCPR Eurazeo"></td>
+      <td><input id="sM${i}" aria-label="Montant" inputmode="decimal" value="${esc(l.montant ?? "")}"></td>
+      <td><input id="sF${i}" aria-label="Frais du fonds" inputmode="decimal" value="${esc(l.fraisFonds ?? "")}"></td>
+      <td><input id="sR${i}" aria-label="Rétrocession" inputmode="decimal" value="${esc(l.retro ?? "")}"></td>
+      <td><select id="sU${i}" aria-label="Unité"><option value="encours" ${l.unite !== "frais" ? "selected" : ""}>% de la ligne</option><option value="frais" ${l.unite === "frais" ? "selected" : ""}>% des frais</option></select></td>
+      <td class="n" id="sE${i}">${eur(num(l.montant) * tauxSupport(l), 2)}</td>
+      <td><button type="button" data-rms="${i}" aria-label="Retirer">✕</button></td></tr>`).join("")}</tbody>
+      <tfoot><tr><td>Total</td><td class="n">${eur(supports.reduce((t, l) => t + num(l.montant), 0))}</td><td colspan="3"></td><td class="n" id="sTot"></td><td></td></tr></tfoot></table>` : "";
+    supports.forEach((l, i) => {
+      const upd = () => { $("#sE" + i).textContent = eur(num(l.montant) * tauxSupport(l), 2); $("#sTot").textContent = eur(supports.reduce((t, x) => t + num(x.montant) * tauxSupport(x), 0), 2); prev(); };
+      [["sN", "nom"], ["sM", "montant"], ["sF", "fraisFonds"], ["sR", "retro"], ["sU", "unite"]].forEach(([k, f]) => { $("#" + k + i).oninput = $("#" + k + i).onchange = e => { l[f] = e.target.value; upd(); }; });
+    });
+    if (supports.length) $("#sTot").textContent = eur(supports.reduce((t, x) => t + num(x.montant) * tauxSupport(x), 0), 2);
+    document.querySelectorAll("[data-rms]").forEach(b => b.onclick = () => { supports.splice(+b.dataset.rms, 1); drawSup(); prev(); });
+  };
+  const drawVal = () => {
+    $("#valos").innerHTML = valos.map((l, i) => `<div class="libre-row"><input type="date" id="vD${i}" aria-label="Date de valorisation" value="${esc(l.date)}"><input id="vV${i}" inputmode="decimal" aria-label="Valeur" placeholder="Valeur du contrat €" value="${esc(l.valeur ?? "")}"><button type="button" data-rmv="${i}" aria-label="Retirer">✕</button></div>`).join("");
+    valos.forEach((l, i) => { $("#vD" + i).oninput = e => { l.date = e.target.value; prev(); }; $("#vV" + i).oninput = e => { l.valeur = e.target.value; prev(); }; });
+    document.querySelectorAll("[data-rmv]").forEach(b => b.onclick = () => { valos.splice(+b.dataset.rmv, 1); drawVal(); prev(); });
+  };
   const drawLib = () => {
     $("#libres").innerHTML = libres.map((l, i) => `<div class="libre-row"><input type="date" id="lD${i}" aria-label="Date" value="${esc(l.date)}"><input id="lM${i}" inputmode="decimal" aria-label="Montant" placeholder="Montant €" value="${esc(l.montant ?? "")}"><button type="button" data-rm="${i}" aria-label="Retirer">✕</button></div>`).join("");
     libres.forEach((l, i) => { $("#lD" + i).oninput = e => { l.date = e.target.value; prev(); }; $("#lM" + i).oninput = e => { l.montant = e.target.value; prev(); }; });
@@ -565,6 +631,9 @@ function openForm(c) {
     montant: num($("#fMontant").value), statut: $("#fStatut").value, dateFin: $("#fFin").value || "",
     vpMontant: num($("#fVp").value), vpFrequence: num($("#fVpF").value), vpDebut: $("#fVpD").value || "", vpDuree: $("#fVpDur").value === "" ? "" : num($("#fVpDur").value),
     libres: libres.filter(l => l.date && num(l.montant)).map(l => ({ date: l.date, montant: num(l.montant) })),
+    supports: supports.filter(l => l.nom || num(l.montant)).map(l => ({ nom: (l.nom || "").trim(), montant: num(l.montant), fraisFonds: num(l.fraisFonds), retro: num(l.retro), unite: l.unite === "frais" ? "frais" : "encours" })),
+    valos: valos.filter(l => l.date && l.valeur !== "" && l.valeur != null).map(l => ({ date: l.date, valeur: num(l.valeur) })),
+    paiementLin: num($("#fPay").value) || 3,
     tauxUpfront: num($("#fTu").value), tauxUpfrontVP: $("#fTuVp").value === "" ? "" : num($("#fTuVp").value), tauxLineaire: num($("#fTl").value),
     lineaireDebut: $("#fLd").value, dureeLineaire: $("#fLdur").value === "" ? "" : num($("#fLdur").value),
     partFrais: num($("#fPf").value), fraisGestion: num($("#fFg").value), rendement: $("#fRdt").value === "" ? null : num($("#fRdt").value),
@@ -574,15 +643,17 @@ function openForm(c) {
   const prev = () => {
     const x = read(), isP = PRIME.has(x.produit);
     $("#fMontantHint").textContent = isP ? "Pour l'emprunteur et la prévoyance, indique la prime annuelle : elle sert d'assiette et n'entre pas dans la collecte." : x.produit === "Girardin" ? "Le Girardin compte dans la collecte mais ne crée pas d'encours." : "";
-    $("#fsVers").hidden = isP;
+    $("#fsVers").hidden = $("#fsSup").hidden = $("#fsVal").hidden = isP;
     const sim = simulate(x, endIdx());
     let up = ZERO(), m12 = 0, encN = 0, linY = 0;
     const s0 = idxOf(x.date);
-    for (const [m, v] of sim) { if (m < s0 + 12) { addTo(up, split(x, v.up, 0, m)); m12 += v.vers; } if (m >= s0 + 12 && m < s0 + 24) linY += v.lin + v.fr; if (m === s0 + 11) encN = v.enc; }
+    for (const [m, v] of sim) { if (m < s0 + 12) { addTo(up, split(x, v.up, 0, m)); m12 += v.vers; } if (m >= s0 + 12 && m < s0 + 24) linY += v.acc || 0; if (m === s0 + 11) encN = v.enc; }
     const sl = split(x, 0, linY, s0 + 12);
-    $("#fPrev").innerHTML = `<div><span class="small muted">Versé la 1re année</span><b>${eur(m12)}</b></div><div><span class="small muted">Upfront 1re année brut → net</span><b>${eur(up.up)} → ${eur(up.nUp)}</b></div><div><span class="small muted">Linéaire 2e année brut → net</span><b>${eur(sl.lin)} → ${eur(sl.nLin)}</b></div><div><span class="small muted">Encours après 12 mois</span><b>${isP ? "—" : eur(encN)}</b></div>`;
+    $("#fPrev").innerHTML = `<div><span class="small muted">Versé la 1re année</span><b>${eur(m12)}</b></div><div><span class="small muted">Upfront 1re année brut → net</span><b>${eur(up.up)} → ${eur(up.nUp)}</b></div><div><span class="small muted">Linéaire sur 12 mois (an 2) brut → net</span><b>${eur(sl.lin)} → ${eur(sl.nLin)}</b></div><div><span class="small muted">Encours après 12 mois</span><b>${isP ? "—" : eur(encN)}</b></div>`;
   };
-  drawLib(); prev();
+  drawLib(); drawSup(); drawVal(); prev();
+  $("#addSup").onclick = () => { supports.push({ nom: "", montant: "", fraisFonds: "", retro: "", unite: "encours" }); drawSup(); };
+  $("#addVal").onclick = () => { valos.push({ date: new Date().toISOString().slice(0, 10), valeur: "" }); drawVal(); };
   f.oninput = prev;
   $("#fPart").onchange = () => { const p = partenaires.find(p => p.nom === $("#fPart").value); if (!p) return; if (p.produit) $("#fProduit").value = p.produit; $("#fTu").value = p.tauxUpfront || ""; $("#fTl").value = p.tauxLineaire || ""; $("#fPf").value = p.partFrais || ""; $("#fFg").value = p.fraisGestion || ""; if (p.lineaireDebut) $("#fLd").value = p.lineaireDebut; prev(); };
   $("#addLib").onclick = () => { libres.push({ date: new Date().toISOString().slice(0, 10), montant: "" }); drawLib(); };
@@ -636,8 +707,8 @@ const csvCell = v => { const s = typeof v === "number" ? v.toFixed(2).replace(".
 const toCsv = rows => "﻿" + rows.map(r => r.map(csvCell).join(";")).join("\r\n");
 function exportCsv() {
   const R = compute();
-  const head = ["Client", "Produit", "Partenaire", "Statut", "Date souscription", "Versement initial", "VP montant", "VP fréquence (mois)", "Upfront %", "Linéaire %", "Part frais %", "Frais gestion %", "Réseau %", "Apporteur", "Apporteur %", "Versé à date", "Encours", "Upfront brut à date", "Upfront net à date", "Linéaire brut/an", "Linéaire net/an", "Notes"];
-  const rows = R.perC.map(p => { const c = p.c; return [c.client, c.produit, c.partenaire, c.statut, c.date, num(c.montant), num(c.vpMontant), num(c.vpFrequence), num(c.tauxUpfront), num(c.tauxLineaire), num(c.partFrais), num(c.fraisGestion), c.tauxReseau === "" || c.tauxReseau == null ? S.tauxReseau : num(c.tauxReseau), c.apporteurNom, num(c.tauxApporteur), p.vers, p.enc, p.cumul.up, p.cumul.nUp, p.recur.lin, p.recur.nLin, c.notes]; });
+  const head = ["Client", "Produit", "Partenaire", "Statut", "Date souscription", "Versement initial", "VP montant", "VP fréquence (mois)", "Upfront %", "Linéaire %", "Part frais %", "Frais gestion %", "Réseau %", "Apporteur", "Apporteur %", "Versé à date", "Encours", "Upfront brut à date", "Upfront net à date", "Linéaire brut/an", "Linéaire net/an", "Rétro supports %/an", "Notes"];
+  const rows = R.perC.map(p => { const c = p.c; return [c.client, c.produit, c.partenaire, c.statut, c.date, num(c.montant), num(c.vpMontant), num(c.vpFrequence), num(c.tauxUpfront), num(c.tauxLineaire), num(c.partFrais), num(c.fraisGestion), c.tauxReseau === "" || c.tauxReseau == null ? S.tauxReseau : num(c.tauxReseau), c.apporteurNom, num(c.tauxApporteur), p.vers, p.enc, p.cumul.up, p.cumul.nUp, p.recur.lin, p.recur.nLin, tauxSupports(c) * 100, c.notes]; });
   saveFile("contrats-commissions.csv", toCsv([head, ...rows]));
 }
 function exportPrev() {
