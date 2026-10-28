@@ -1,0 +1,670 @@
+<title>Registre des commissions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : bandeau de chiffres clés, onglets, puis une vue de travail à la fois (tableau de bord, contrats, prévisionnel, partenaires, réglages) */
+:root {
+  --bg: #f5f6f3; --surface: #ffffff; --ink: #18211f; --muted: #5d6965; --line: #dde2dd;
+  --accent: #1f6f5c; --accent-soft: #e2efe9; --upfront: #c27a2c; --upfront-soft: #f6eadb;
+  --good: #2c7a4b; --warn: #a2620f; --bad: #b23b3b;
+  --display: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121715; --surface: #1a211f; --ink: #e6ece9; --muted: #95a39e; --line: #2b3532;
+  --accent: #5fbf9f; --accent-soft: #1d3530; --upfront: #e0a160; --upfront-soft: #3a2b1b;
+  --good: #6ccf94; --warn: #e3a64e; --bad: #ec7f7f; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121715; --surface: #1a211f; --ink: #e6ece9; --muted: #95a39e; --line: #2b3532;
+  --accent: #5fbf9f; --accent-soft: #1d3530; --upfront: #e0a160; --upfront-soft: #3a2b1b;
+  --good: #6ccf94; --warn: #e3a64e; --bad: #ec7f7f; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.45 }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; display: grid; gap: 20px }
+h1 { font-family: var(--display); font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.01em; text-wrap: balance }
+h2 { font-family: var(--display); font-size: 17px; font-weight: 600; margin: 0; text-wrap: balance }
+h3 { font-size: 12px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted) }
+.num, td.n, th.n { font-family: var(--mono); font-variant-numeric: tabular-nums }
+td.n, th.n { text-align: right; white-space: nowrap }
+.muted { color: var(--muted) }
+.small { font-size: 12px }
+
+header.top { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between }
+header.top .sub { color: var(--muted); font-size: 13px }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+
+button, .btn { font: inherit; font-weight: 500; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 7px 12px; cursor: pointer }
+button:hover { border-color: var(--accent) }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface) }
+button.danger { color: var(--bad) }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+
+nav.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto }
+nav.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 10px 12px; color: var(--muted); white-space: nowrap }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent) }
+
+[data-view] { display: grid; gap: 16px; min-width: 0 }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 4px; min-width: 0 }
+.kpi .v { font-family: var(--mono); font-size: 21px; font-weight: 500; font-variant-numeric: tabular-nums }
+.kpi .d { font-size: 12px; color: var(--muted) }
+.kpi.up { box-shadow: inset 0 3px 0 var(--upfront) }
+.kpi.lin { box-shadow: inset 0 3px 0 var(--accent) }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 14px; min-width: 0 }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px }
+.scroll { overflow-x: auto }
+table { border-collapse: collapse; width: 100%; font-size: 13px }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap }
+td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top }
+tr.click { cursor: pointer }
+tr.click:hover td { background: var(--accent-soft) }
+tfoot td { font-weight: 600; border-bottom: 0; border-top: 2px solid var(--line) }
+
+.waterfall { display: grid; gap: 6px }
+.wf { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--line) }
+.wf:last-child { border-bottom: 0 }
+.wf .lbl { min-width: 0 }
+.wf.minus .n1, .wf.minus .n2 { color: var(--bad) }
+.wf.total { font-weight: 600 }
+.wf.total .n1, .wf.total .n2 { color: var(--good) }
+.wf .n1, .wf .n2 { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; min-width: 92px }
+.wf.head { border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em }
+
+.pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); white-space: nowrap }
+.pill.up { background: var(--upfront-soft); color: var(--upfront) }
+.pill.warn { background: var(--upfront-soft); color: var(--warn) }
+.pill.off { background: var(--line); color: var(--muted) }
+
+label.f { display: grid; gap: 4px; font-size: 12px; color: var(--muted); min-width: 0 }
+input, select, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 7px 9px; width: 100%; min-width: 0 }
+input[type="checkbox"] { width: auto }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px }
+fieldset { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 0; display: grid; gap: 12px; min-width: 0 }
+legend { font-weight: 600; padding: 0 6px; font-size: 13px }
+.hint { font-size: 12px; color: var(--muted) }
+
+dialog { border: 1px solid var(--line); border-radius: 12px; padding: 0; background: var(--surface); color: var(--ink); width: min(920px, calc(100vw - 24px)); max-height: calc(100dvh - 24px) }
+dialog::backdrop { background: rgba(10, 15, 13, 0.45) }
+dialog form { display: grid; gap: 14px; padding: 18px }
+.preview { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; background: var(--bg); border-radius: 8px; padding: 12px }
+.preview div { display: grid; gap: 2px }
+.preview b { font-family: var(--mono); font-weight: 500 }
+
+.empty { padding: 28px; text-align: center; color: var(--muted); display: grid; gap: 10px; justify-items: center }
+.toast { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 14px; border-radius: 8px; font-size: 13px }
+.chart svg { width: 100%; height: auto; display: block }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted) }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+.seg button { border: 0; border-radius: 0; padding: 5px 10px; font-size: 12px }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface) }
+.libre-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px }
+@media (prefers-reduced-motion: no-preference) { tr.click td { transition: background .12s } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Registre des commissions</h1>
+      <div class="sub" id="subline">Chargement des contrats…</div>
+    </div>
+    <div class="row">
+      <label class="row small muted" for="incPipe"><input type="checkbox" id="incPipe" checked> Inclure les contrats à venir</label>
+      <button class="primary" id="btnAdd">+ Nouveau contrat</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-tab="bord" aria-selected="true">Tableau de bord</button>
+    <button role="tab" data-tab="contrats" aria-selected="false">Contrats</button>
+    <button role="tab" data-tab="prev" aria-selected="false">Prévisionnel</button>
+    <button role="tab" data-tab="part" aria-selected="false">Partenaires</button>
+    <button role="tab" data-tab="reglages" aria-selected="false">Réglages &amp; sauvegarde</button>
+  </nav>
+
+  <section id="view-bord" data-view></section>
+  <section id="view-contrats" data-view hidden></section>
+  <section id="view-prev" data-view hidden></section>
+  <section id="view-part" data-view hidden></section>
+  <section id="view-reglages" data-view hidden></section>
+</div>
+
+<dialog id="dlg"><form id="frm" method="dialog"></form></dialog>
+<dialog id="dlgP"><form id="frmP" method="dialog"></form></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+const PRODUITS = ["SCPI", "Assurance-vie", "PER", "Girardin", "Private Equity", "Emprunteur", "Prévoyance", "Autre"];
+const PRIME = new Set(["Emprunteur", "Prévoyance"]);   // assiette = prime annuelle, pas de collecte
+const SANS_ENCOURS = new Set(["Girardin"]);            // collecte one-shot, pas d'encours
+const DEFAULTS = { tauxReseau: 36, nomReseau: "Fyneo", urssaf: 26.1, horizon: 5, baseApporteur: "apres", rendement: 0 };
+
+let db = null, S = { ...DEFAULTS }, contrats = [], partenaires = [], loaded = false;
+let chartMode = "net", tab = "bord", filtre = "";
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const eur = (v, d = 0) => (v || 0).toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: d, minimumFractionDigits: d });
+const pct = v => (v || 0).toLocaleString("fr-FR", { maximumFractionDigits: 3 }) + " %";
+const num = v => { const n = parseFloat(String(v ?? "").replace(/\s/g, "").replace(",", ".")); return isFinite(n) ? n : 0; };
+const idxOf = s => { if (!s) return null; const [y, m] = s.split("-").map(Number); return y * 12 + (m - 1); };
+const now = new Date();
+const TODAY = now.getFullYear() * 12 + now.getMonth();
+const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const lblIdx = i => MOIS[i % 12] + " " + Math.floor(i / 12);
+
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
+
+/* ---------- Moteur de calcul : simulation mois par mois ---------- */
+function simulate(c, endIdx) {
+  const out = new Map();
+  const sub = idxOf(c.date); if (sub == null) return out;
+  const fin = c.dateFin ? idxOf(c.dateFin) : null;
+  const tu = num(c.tauxUpfront) / 100;
+  const tuVP = c.tauxUpfrontVP === "" || c.tauxUpfrontVP == null ? tu : num(c.tauxUpfrontVP) / 100;
+  const tl = num(c.tauxLineaire) / 100;
+  const tf = num(c.partFrais) / 100 * num(c.fraisGestion) / 100;
+  const decal = c.lineaireDebut === "n2" ? 24 : c.lineaireDebut === "n1" ? 12 : 0;
+  const linStart = sub + decal, dureeLin = num(c.dureeLineaire) * 12;
+  const linOn = m => m >= linStart && (!dureeLin || m < linStart + dureeLin) && (fin == null || m <= fin);
+  const montant = num(c.montant);
+
+  if (PRIME.has(c.produit)) {
+    for (let m = sub; m <= endIdx; m++) {
+      const up = m === sub ? montant * tu : 0;
+      const lin = linOn(m) ? montant * tl / 12 : 0;
+      if (up || lin || m === sub) out.set(m, { vers: 0, prime: m === sub ? montant : 0, up, lin, fr: 0, enc: 0 });
+      if (fin != null && m > fin) break;
+    }
+    return out;
+  }
+  const g = Math.pow(1 + num(c.rendement ?? S.rendement) / 100, 1 / 12);
+  const vpM = num(c.vpMontant), freq = Math.max(1, num(c.vpFrequence) || 1);
+  const vpStart = c.vpDebut ? idxOf(c.vpDebut) : sub + freq, vpDur = num(c.vpDuree);
+  const libres = {}; (c.libres || []).forEach(l => { const i = idxOf(l.date); if (i != null) libres[i] = (libres[i] || 0) + num(l.montant); });
+  const garde = !SANS_ENCOURS.has(c.produit);
+  let enc = 0;
+  for (let m = sub; m <= endIdx; m++) {
+    if (fin != null && m > fin) break;
+    const init = m === sub ? montant : 0;
+    const vp = vpM && m >= vpStart && (m - vpStart) % freq === 0 && (!vpDur || m < vpStart + vpDur) ? vpM : 0;
+    const lib = libres[m] || 0;
+    const vers = init + vp + lib;
+    const up = (init + lib) * tu + vp * tuVP;
+    enc = garde ? enc * g + vers : 0;
+    const on = linOn(m);
+    out.set(m, { vers, prime: 0, up, lin: on ? enc * tl / 12 : 0, fr: on ? enc * tf / 12 : 0, enc, vp, init: init + lib });
+  }
+  return out;
+}
+
+function rates(c) {
+  return {
+    r: (c.tauxReseau === "" || c.tauxReseau == null ? S.tauxReseau : num(c.tauxReseau)) / 100,
+    rLin: c.reseauSurLineaire === false ? 0 : 1,
+    a: num(c.tauxApporteur) / 100,
+    aLin: c.apporteurSur === "tout",
+    u: S.urssaf / 100,
+  };
+}
+// Découpe une commission brute en réseau / apporteur / net / URSSAF / net-net
+function split(c, up, lin) {
+  const k = rates(c);
+  const rUp = up * k.r, rLin = lin * k.r * k.rLin;
+  const baseUp = S.baseApporteur === "brut" ? up : up - rUp;
+  const baseLin = S.baseApporteur === "brut" ? lin : lin - rLin;
+  const aUp = baseUp * k.a, aLin = k.aLin ? baseLin * k.a : 0;
+  const nUp = up - rUp - aUp, nLin = lin - rLin - aLin;
+  return { up, lin, rUp, rLin, aUp, aLin, nUp, nLin, uUp: nUp * k.u, uLin: nLin * k.u, nnUp: nUp * (1 - k.u), nnLin: nLin * (1 - k.u) };
+}
+const ZERO = () => ({ up: 0, lin: 0, rUp: 0, rLin: 0, aUp: 0, aLin: 0, nUp: 0, nLin: 0, uUp: 0, uLin: 0, nnUp: 0, nnLin: 0 });
+const addTo = (acc, s) => { for (const k in s) acc[k] = (acc[k] || 0) + s[k]; return acc; };
+
+function actifs() { return contrats.filter(c => c.statut !== "prevu" || $("#incPipe").checked); }
+function endIdx() { return (now.getFullYear() + S.horizon) * 12 + 11; }
+
+function compute() {
+  const E = endIdx(), Y0 = now.getFullYear();
+  const years = {}; for (let y = Y0; y <= Y0 + S.horizon; y++) years[y] = { ...ZERO(), vers: 0, prime: 0, encFin: 0, encRem: 0, vp: 0 };
+  const T = { cumul: ZERO(), vers: 0, versUp: 0, versLin: 0, primes: 0, enc: 0, encRem: 0, recur: ZERO(), next12: ZERO(), vp12: 0 };
+  const perC = [];
+  let minYear = Y0;
+  for (const c of actifs()) {
+    const sim = simulate(c, E);
+    const remun = num(c.tauxLineaire) > 0 || num(c.partFrais) > 0;
+    const pc = { c, cumul: ZERO(), vers: 0, enc: 0, recur: ZERO(), up: 0 };
+    for (const [m, x] of sim) {
+      const s = split(c, x.up, x.lin + x.fr);
+      const y = Math.floor(m / 12);
+      if (y < minYear) minYear = y;
+      if (!years[y]) years[y] = { ...ZERO(), vers: 0, prime: 0, encFin: 0, encRem: 0, vp: 0 };
+      addTo(years[y], s); years[y].vers += x.vers; years[y].prime += x.prime; years[y].vp += x.vp || 0;
+      if (m % 12 === 11 || m === E) { years[y].encFin += x.enc; if (remun) years[y].encRem += x.enc; }
+      if (m <= TODAY) {
+        addTo(T.cumul, s); addTo(pc.cumul, s);
+        T.vers += x.vers; pc.vers += x.vers; T.primes += x.prime;
+        if (num(c.tauxUpfront) > 0 || num(c.tauxUpfrontVP) > 0) T.versUp += x.vers;
+        if (remun) T.versLin += x.vers;
+      }
+      if (m > TODAY && m <= TODAY + 12) { addTo(T.next12, s); T.vp12 += x.vp || 0; }
+      if (m === TODAY) {
+        pc.enc = x.enc; T.enc += x.enc; if (remun) T.encRem += x.enc;
+        const r = split(c, 0, (x.lin + x.fr) * 12); addTo(T.recur, r); addTo(pc.recur, r);
+      }
+    }
+    // contrat souscrit dans le futur : encours = 0 aujourd'hui, mais garder une trace
+    perC.push(pc);
+  }
+  // les encours de fin d'année des contrats terminés avant décembre ne sont pas comptés : voulu
+  for (const y in years) if (+y < minYear) delete years[y];
+  return { years, T, perC };
+}
+
+/* ---------- Rendu ---------- */
+function kpi(cls, h, v, d) { return `<div class="kpi ${cls}"><h3>${h}</h3><div class="v">${v}</div><div class="d">${d}</div></div>`; }
+function wfRow(lbl, a, b, cls = "") { return `<div class="wf ${cls}"><div class="lbl">${lbl}</div><div class="n1">${a}</div><div class="n2">${b}</div></div>`; }
+
+function renderBord(R) {
+  const { T } = R, cu = T.cumul, re = T.recur;
+  const tauxMoy = T.encRem ? re.lin / T.encRem * 100 : 0;
+  const nC = actifs().length;
+  if (!contrats.length) { $("#view-bord").innerHTML = emptyState(); return; }
+  $("#view-bord").innerHTML = `
+  <div class="kpis">
+    ${kpi("", "Collecte totale", eur(T.vers), `dont ${eur(T.versUp)} sur contrats upfront · ${eur(T.versLin)} sur contrats linéaires`)}
+    ${kpi("lin", "Encours global", eur(T.enc), `dont ${eur(T.encRem)} rémunéré en linéaire`)}
+    ${kpi("lin", "Linéaire annualisé", eur(re.lin), `taux moyen pondéré ${pct(tauxMoy)} · net ${eur(re.nLin)}/an`)}
+    ${kpi("up", "Upfront encaissé", eur(cu.up), `net après réseau et apporteur ${eur(cu.nUp)}`)}
+    ${kpi("", "Net-net à date", eur(cu.nnUp + cu.nnLin), `après URSSAF ${pct(S.urssaf)}`)}
+    ${kpi("", "12 prochains mois", eur(T.next12.nnUp + T.next12.nnLin), `net-net prévu · dont ${eur(T.vp12)} de versements programmés`)}
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <div><h2>Où part l'argent, à date</h2><div class="hint">Cumul de toutes les commissions générées jusqu'à ${lblIdx(TODAY)}.</div></div>
+      <div class="waterfall">
+        ${wfRow("", "Upfront", "Linéaire", "head")}
+        ${wfRow("Commission brute", eur(cu.up), eur(cu.lin))}
+        ${wfRow(`− Réseau (${esc(S.nomReseau)})`, eur(-cu.rUp), eur(-cu.rLin), "minus")}
+        ${wfRow("− Apporteurs", eur(-cu.aUp), eur(-cu.aLin), "minus")}
+        ${wfRow("= Commission nette", eur(cu.nUp), eur(cu.nLin))}
+        ${wfRow(`− URSSAF (${pct(S.urssaf)})`, eur(-cu.uUp), eur(-cu.uLin), "minus")}
+        ${wfRow("= Net-net dans ta poche", eur(cu.nnUp), eur(cu.nnLin), "total")}
+      </div>
+    </div>
+    <div class="panel">
+      <div><h2>Ce que ton encours te rapporte chaque année</h2><div class="hint">Rémunération récurrente si rien ne bouge, calculée sur l'encours de ${lblIdx(TODAY)}.</div></div>
+      <div class="waterfall">
+        ${wfRow("", "Par an", "Par trimestre", "head")}
+        ${wfRow("Linéaire brut", eur(re.lin), eur(re.lin / 4))}
+        ${wfRow(`− Réseau (${esc(S.nomReseau)})`, eur(-re.rLin), eur(-re.rLin / 4), "minus")}
+        ${wfRow("− Apporteurs", eur(-re.aLin), eur(-re.aLin / 4), "minus")}
+        ${wfRow("= Net", eur(re.nLin), eur(re.nLin / 4))}
+        ${wfRow("− URSSAF", eur(-re.uLin), eur(-re.uLin / 4), "minus")}
+        ${wfRow("= Net-net récurrent", eur(re.nnLin), eur(re.nnLin / 4), "total")}
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="row" style="justify-content:space-between"><h2>Trajectoire</h2>${chartSeg()}</div>
+    <div class="chart" id="chart1">${chart(R.years)}</div>
+    <div class="legend"><span><span class="sw" style="background:var(--upfront)"></span>Upfront</span><span><span class="sw" style="background:var(--accent)"></span>Linéaire</span><span class="muted">${nC} contrats pris en compte</span></div>
+  </div>
+  <div class="grid2">${repartition(R, "produit", "Par produit")}${repartition(R, "partenaire", "Par partenaire")}</div>`;
+  bindSeg();
+}
+
+function repartition(R, key, title) {
+  const g = {};
+  for (const p of R.perC) {
+    const k = p.c[key] || "Non renseigné";
+    g[k] = g[k] || { n: 0, vers: 0, enc: 0, up: 0, lin: 0 };
+    g[k].n++; g[k].vers += p.vers; g[k].enc += p.enc; g[k].up += p.cumul.nUp; g[k].lin += p.recur.nLin;
+  }
+  const rows = Object.entries(g).sort((a, b) => (b[1].up + b[1].lin) - (a[1].up + a[1].lin));
+  return `<div class="panel"><h2>${title}</h2><div class="scroll"><table>
+    <thead><tr><th>${key === "produit" ? "Produit" : "Partenaire"}</th><th class="n">Contrats</th><th class="n">Collecte</th><th class="n">Encours</th><th class="n">Upfront net</th><th class="n">Linéaire net/an</th></tr></thead>
+    <tbody>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${v.n}</td><td class="n">${eur(v.vers)}</td><td class="n">${eur(v.enc)}</td><td class="n">${eur(v.up)}</td><td class="n">${eur(v.lin)}</td></tr>`).join("")}</tbody>
+  </table></div></div>`;
+}
+
+function chartSeg() {
+  const o = [["brut", "Brut"], ["net", "Net"], ["nn", "Net-net"]];
+  return `<div class="seg" role="group" aria-label="Niveau affiché">${o.map(([k, l]) => `<button type="button" data-cm="${k}" aria-pressed="${chartMode === k}">${l}</button>`).join("")}</div>`;
+}
+function bindSeg() { document.querySelectorAll("[data-cm]").forEach(b => b.onclick = () => { chartMode = b.dataset.cm; render(); }); }
+function pick(y) { return chartMode === "brut" ? [y.up, y.lin] : chartMode === "net" ? [y.nUp, y.nLin] : [y.nnUp, y.nnLin]; }
+
+function chart(years) {
+  const ys = Object.keys(years).map(Number).sort((a, b) => a - b);
+  const vals = ys.map(y => pick(years[y]));
+  const max = Math.max(1, ...vals.map(v => v[0] + v[1]));
+  const step = niceStep(max / 4), top = Math.ceil(max / step) * step;
+  const W = 760, H = 280, L = 64, B = 30, Tp = 22, R = 10;
+  const bw = (W - L - R) / ys.length;
+  const y = v => H - B - (v / top) * (H - B - Tp);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Commissions par année">`;
+  for (let t = 0; t <= top + 1e-6; t += step) s += `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L - 8}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${kfmt(t)}</text>`;
+  ys.forEach((yr, i) => {
+    const [u, l] = vals[i], x = L + i * bw + bw * 0.2, w = bw * 0.6;
+    const cur = yr === now.getFullYear();
+    s += `<rect x="${x}" y="${y(u)}" width="${w}" height="${Math.max(0, y(0) - y(u))}" fill="var(--upfront)"/>`;
+    s += `<rect x="${x}" y="${y(u + l)}" width="${w}" height="${Math.max(0, y(u) - y(u + l))}" fill="var(--accent)"/>`;
+    s += `<text x="${x + w / 2}" y="${y(u + l) - 6}" text-anchor="middle" font-size="11" fill="var(--ink)" font-family="var(--mono)">${kfmt(u + l)}</text>`;
+    s += `<text x="${x + w / 2}" y="${H - 10}" text-anchor="middle" font-size="12" fill="${cur ? "var(--ink)" : "var(--muted)"}" font-weight="${cur ? 600 : 400}">${yr}</text>`;
+  });
+  return s + `</svg>`;
+}
+function niceStep(x) { const p = Math.pow(10, Math.floor(Math.log10(x || 1))); const f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
+function kfmt(v) { return v >= 1000 ? (v / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " k€" : Math.round(v) + " €"; }
+
+function renderContrats(R) {
+  if (!contrats.length) { $("#view-contrats").innerHTML = emptyState(); return; }
+  const q = filtre.toLowerCase();
+  const list = R.perC.concat(contrats.filter(c => c.statut === "prevu" && !$("#incPipe").checked).map(c => ({ c, cumul: ZERO(), recur: ZERO(), enc: 0, vers: 0, off: true })))
+    .filter(p => !q || [p.c.client, p.c.produit, p.c.partenaire, p.c.apporteurNom].join(" ").toLowerCase().includes(q))
+    .sort((a, b) => (a.c.client || "").localeCompare(b.c.client || "", "fr") || (a.c.date || "").localeCompare(b.c.date || ""));
+  const tot = list.reduce((t, p) => (addTo(t.cu, p.cumul), addTo(t.re, p.recur), t.enc += p.enc, t.vers += p.vers, t), { cu: ZERO(), re: ZERO(), enc: 0, vers: 0 });
+  $("#view-contrats").innerHTML = `<div class="panel">
+    <div class="row" style="justify-content:space-between">
+      <h2>${list.length} contrat${list.length > 1 ? "s" : ""}</h2>
+      <input id="q" type="search" placeholder="Chercher un client, produit, partenaire…" value="${esc(filtre)}" style="max-width:320px">
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>Client</th><th>Produit</th><th>Souscrit</th><th class="n">Versé initial</th><th class="n">Prog.</th><th class="n">Encours</th><th class="n">Taux</th><th class="n">Upfront brut</th><th class="n">Upfront net</th><th class="n">Linéaire net/an</th><th></th></tr></thead>
+      <tbody>${list.map(p => rowC(p)).join("")}</tbody>
+      <tfoot><tr><td colspan="5">Total</td><td class="n">${eur(tot.enc)}</td><td></td><td class="n">${eur(tot.cu.up)}</td><td class="n">${eur(tot.cu.nUp)}</td><td class="n">${eur(tot.re.nLin)}</td><td></td></tr></tfoot>
+    </table></div>
+    <div class="hint">Clique une ligne pour la modifier. « Linéaire net/an » = ce que le contrat te verse sur 12 mois au rythme d'aujourd'hui, après réseau et apporteur.</div>
+  </div>`;
+  const qi = $("#q"); qi.oninput = () => { filtre = qi.value; const pos = qi.selectionStart; renderContrats(compute()); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
+  document.querySelectorAll("tr[data-id]").forEach(tr => tr.onclick = () => openForm(contrats.find(c => c.id === tr.dataset.id)));
+}
+function rowC(p) {
+  const c = p.c, isP = PRIME.has(c.produit);
+  const tags = [];
+  if (c.statut === "prevu") tags.push(`<span class="pill off">à venir</span>`);
+  if (c.statut === "resilie") tags.push(`<span class="pill off">résilié</span>`);
+  if (c.aVerifier) tags.push(`<span class="pill warn" title="${esc(c.aVerifier)}">à vérifier</span>`);
+  if (c.apporteurNom || num(c.tauxApporteur)) tags.push(`<span class="pill">apporteur ${pct(num(c.tauxApporteur))}</span>`);
+  const taux = [num(c.tauxUpfront) ? `<span class="pill up">${pct(num(c.tauxUpfront))} UF</span>` : "", num(c.tauxLineaire) ? `<span class="pill">${pct(num(c.tauxLineaire))}/an</span>` : "", num(c.partFrais) ? `<span class="pill">${pct(num(c.partFrais))} frais</span>` : ""].join(" ");
+  const vp = num(c.vpMontant) ? `${eur(num(c.vpMontant))}/${({ 1: "mois", 3: "trim.", 6: "sem.", 12: "an" })[num(c.vpFrequence) || 1]}` : "—";
+  return `<tr class="click" data-id="${esc(c.id)}"><td><b>${esc(c.client)}</b><div class="small muted">${esc(c.partenaire || "")}</div></td>
+    <td>${esc(c.produit)}${isP ? `<div class="small muted">prime annuelle</div>` : ""}</td>
+    <td class="num small">${c.date ? new Date(c.date).toLocaleDateString("fr-FR") : "—"}</td>
+    <td class="n">${eur(num(c.montant))}</td><td class="n small">${vp}</td><td class="n">${isP ? "—" : eur(p.enc)}</td>
+    <td class="n">${taux}</td><td class="n">${eur(p.cumul.up)}</td><td class="n">${eur(p.cumul.nUp)}</td><td class="n">${eur(p.recur.nLin)}</td>
+    <td>${tags.join(" ")}</td></tr>`;
+}
+
+function renderPrev(R) {
+  if (!contrats.length) { $("#view-prev").innerHTML = emptyState(); return; }
+  const ys = Object.keys(R.years).map(Number).sort((a, b) => a - b);
+  const cols = ys.map(y => R.years[y]);
+  const line = (lbl, f, cls = "") => `<tr class="${cls}"><td>${lbl}</td>${cols.map(y => `<td class="n">${eur(f(y))}</td>`).join("")}</tr>`;
+  $("#view-prev").innerHTML = `<div class="panel">
+    <div class="row" style="justify-content:space-between"><div><h2>Prévisionnel sur ${S.horizon} ans</h2><div class="hint">Projection à contrats constants : versements programmés poursuivis, rendement de ${pct(S.rendement)} par an sur l'encours (sauf réglage par contrat), aucune nouvelle souscription.</div></div>${chartSeg()}</div>
+    <div class="chart">${chart(R.years)}</div>
+    <div class="scroll"><table>
+      <thead><tr><th></th>${ys.map(y => `<th class="n">${y}${y === now.getFullYear() ? " · en cours" : ""}</th>`).join("")}</tr></thead>
+      <tbody>
+        ${line("Collecte de l'année", y => y.vers)}
+        ${line("dont versements programmés", y => y.vp, "muted")}
+        ${line("Primes assurance (emprunteur…)", y => y.prime, "muted")}
+        ${line("Encours fin d'année", y => y.encFin)}
+        ${line("dont encours rémunéré", y => y.encRem, "muted")}
+        ${line("Upfront brut", y => y.up)}
+        ${line("Linéaire brut", y => y.lin)}
+        ${line(`− Réseau (${esc(S.nomReseau)})`, y => -(y.rUp + y.rLin))}
+        ${line("− Apporteurs", y => -(y.aUp + y.aLin))}
+        ${line("<b>Commission nette</b>", y => y.nUp + y.nLin)}
+        ${line("− URSSAF", y => -(y.uUp + y.uLin))}
+        ${line("<b>Net-net</b>", y => y.nnUp + y.nnLin)}
+        ${line("Net-net par mois", y => (y.nnUp + y.nnLin) / 12, "muted")}
+      </tbody></table></div>
+  </div>`;
+  bindSeg();
+}
+
+function renderPart() {
+  $("#view-part").innerHTML = `<div class="panel">
+    <div class="row" style="justify-content:space-between"><div><h2>Grille partenaires</h2><div class="hint">Les taux d'un partenaire pré-remplissent un nouveau contrat. Tu peux toujours les modifier contrat par contrat.</div></div><button id="addP">+ Partenaire</button></div>
+    ${partenaires.length ? `<div class="scroll"><table><thead><tr><th>Partenaire</th><th>Produit</th><th class="n">Upfront</th><th class="n">Linéaire /an</th><th class="n">Part des frais</th><th>Notes</th></tr></thead><tbody>
+    ${partenaires.slice().sort((a, b) => a.nom.localeCompare(b.nom, "fr")).map(p => `<tr class="click" data-pid="${esc(p.id)}"><td><b>${esc(p.nom)}</b></td><td>${esc(p.produit || "")}</td><td class="n">${num(p.tauxUpfront) ? pct(num(p.tauxUpfront)) : "—"}</td><td class="n">${num(p.tauxLineaire) ? pct(num(p.tauxLineaire)) : "—"}</td><td class="n">${num(p.partFrais) ? pct(num(p.partFrais)) + " de " + pct(num(p.fraisGestion)) : "—"}</td><td class="small muted">${esc(p.notes || "")}</td></tr>`).join("")}
+    </tbody></table></div>` : `<div class="empty">Aucun partenaire pour l'instant.</div>`}
+  </div>`;
+  $("#addP").onclick = () => openPart({});
+  document.querySelectorAll("tr[data-pid]").forEach(tr => tr.onclick = () => openPart(partenaires.find(p => p.id === tr.dataset.pid)));
+}
+
+function renderReglages() {
+  $("#view-reglages").innerHTML = `<div class="grid2">
+  <div class="panel"><h2>Hypothèses de calcul</h2>
+    <div class="fgrid">
+      <label class="f" for="sNom">Nom du réseau<input id="sNom" value="${esc(S.nomReseau)}"></label>
+      <label class="f" for="sRes">Prélèvement réseau (%)<input id="sRes" inputmode="decimal" value="${S.tauxReseau}"></label>
+      <label class="f" for="sUrs">Cotisations URSSAF (%)<input id="sUrs" inputmode="decimal" value="${S.urssaf}"></label>
+      <label class="f" for="sHor">Horizon du prévisionnel (ans)<input id="sHor" inputmode="numeric" value="${S.horizon}"></label>
+      <label class="f" for="sRdt">Rendement annuel par défaut de l'encours (%)<input id="sRdt" inputmode="decimal" value="${S.rendement}"></label>
+      <label class="f" for="sBase">L'apporteur est payé sur<select id="sBase"><option value="apres" ${S.baseApporteur === "apres" ? "selected" : ""}>la commission après réseau</option><option value="brut" ${S.baseApporteur === "brut" ? "selected" : ""}>la commission brute</option></select></label>
+    </div>
+    <div class="hint">Micro-entreprise BNC : vérifie ton taux réel sur autoentrepreneur.urssaf.fr (il a augmenté chaque année depuis 2024). Ajoute 2,2 % si tu as opté pour le versement libératoire de l'impôt.</div>
+    <div><button class="primary" id="sSave">Enregistrer les hypothèses</button></div>
+  </div>
+  <div class="panel"><h2>Sauvegarde et export</h2>
+    <p class="hint" style="margin:0">Tout est enregistré en ligne automatiquement à chaque modification. Les exports servent de copie de sécurité ou pour Excel.</p>
+    <div class="row"><button id="xCsv">Exporter les contrats (CSV Excel)</button><button id="xPrev">Exporter le prévisionnel (CSV)</button><button id="xJson">Copie de sécurité complète (JSON)</button></div>
+    <label class="f" for="iJson">Restaurer une copie de sécurité JSON<input type="file" id="iJson" accept=".json,application/json"></label>
+    <div class="hint" id="ioMsg"></div>
+  </div></div>`;
+  $("#sSave").onclick = async () => {
+    const n = { nomReseau: $("#sNom").value.trim() || "Réseau", tauxReseau: num($("#sRes").value), urssaf: num($("#sUrs").value), horizon: Math.min(15, Math.max(1, Math.round(num($("#sHor").value)) || 5)), rendement: num($("#sRdt").value), baseApporteur: $("#sBase").value };
+    S = { ...S, ...n }; render();
+    try { await db.doc("config/reglages").set(S); toast("Hypothèses enregistrées"); } catch (e) { toast("Échec de l'enregistrement : " + (e.message || e.code)); }
+  };
+  $("#xCsv").onclick = () => exportCsv();
+  $("#xPrev").onclick = () => exportPrev();
+  $("#xJson").onclick = () => saveFile("registre-commissions-sauvegarde.json", JSON.stringify({ reglages: S, contrats, partenaires }, null, 2));
+  $("#iJson").onchange = e => importJson(e.target.files[0]);
+}
+
+function emptyState() {
+  return `<div class="panel"><div class="empty">${loaded ? `<h2>Aucun contrat enregistré</h2><div>Ajoute ton premier contrat : client, produit, montant, versements programmés et taux. Le tableau de bord et le prévisionnel se calculent tout seuls.</div><button class="primary" onclick="document.getElementById('btnAdd').click()">+ Nouveau contrat</button>` : db === null ? `<h2>Stockage indisponible ici</h2><div>Ouvre le registre depuis claude.ai en étant connecté pour retrouver tes contrats.</div>` : `<div>Chargement de tes contrats…</div>`}</div></div>`;
+}
+
+function render() {
+  const R = compute();
+  const enc = R.T.enc;
+  $("#subline").textContent = loaded ? `${contrats.length} contrats · encours ${eur(enc)} · situation au ${now.toLocaleDateString("fr-FR")}` : (db === null ? "Stockage indisponible dans cette vue" : "Chargement des contrats…");
+  if (tab === "bord") renderBord(R);
+  if (tab === "contrats") renderContrats(R);
+  if (tab === "prev") renderPrev(R);
+  if (tab === "part") renderPart();
+  if (tab === "reglages") renderReglages();
+}
+
+/* ---------- Formulaire contrat ---------- */
+function field(id, label, val, attrs = "") { return `<label class="f" for="${id}">${label}<input id="${id}" value="${esc(val ?? "")}" ${attrs}></label>`; }
+function sel(id, label, val, opts) { return `<label class="f" for="${id}">${label}<select id="${id}">${opts.map(o => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}" ${String(v) === String(val ?? "") ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select></label>`; }
+
+function openForm(c) {
+  c = c || { produit: "SCPI", date: new Date().toISOString().slice(0, 10), statut: "actif", vpFrequence: 1, lineaireDebut: "immediat", apporteurSur: "upfront", reseauSurLineaire: true, libres: [] };
+  const isNew = !c.id;
+  const f = $("#frm");
+  f.innerHTML = `
+  <div class="row" style="justify-content:space-between"><h2>${isNew ? "Nouveau contrat" : esc(c.client) + " · " + esc(c.produit)}</h2><button type="button" id="fClose" aria-label="Fermer">✕</button></div>
+  ${c.aVerifier ? `<div class="pill warn" style="white-space:normal">À vérifier : ${esc(c.aVerifier)}</div>` : ""}
+  <fieldset><legend>Contrat</legend><div class="fgrid">
+    ${field("fClient", "Client", c.client, 'required list="clientsList"')}
+    ${sel("fProduit", "Produit", c.produit, PRODUITS)}
+    <label class="f" for="fPart">Partenaire<input id="fPart" list="partList" value="${esc(c.partenaire || "")}"></label>
+    ${field("fDate", "Date de souscription", c.date, 'type="date" required')}
+    ${field("fMontant", "Versement initial (€)", c.montant, 'inputmode="decimal"')}
+    ${sel("fStatut", "Statut", c.statut || "actif", [["actif", "En cours"], ["prevu", "À venir (pipeline)"], ["resilie", "Résilié / racheté"]])}
+    ${field("fFin", "Date de fin / rachat", c.dateFin, 'type="date"')}
+  </div>
+  <datalist id="clientsList">${[...new Set(contrats.map(x => x.client))].map(n => `<option value="${esc(n)}">`).join("")}</datalist>
+  <datalist id="partList">${partenaires.map(p => `<option value="${esc(p.nom)}">`).join("")}</datalist>
+  <div class="hint" id="fMontantHint"></div></fieldset>
+
+  <fieldset id="fsVers"><legend>Versements programmés et libres</legend><div class="fgrid">
+    ${field("fVp", "Versement programmé (€)", c.vpMontant, 'inputmode="decimal" placeholder="0"')}
+    ${sel("fVpF", "Fréquence", c.vpFrequence || 1, [[1, "Mensuel"], [3, "Trimestriel"], [6, "Semestriel"], [12, "Annuel"]])}
+    ${field("fVpD", "Premier prélèvement", c.vpDebut, 'type="date"')}
+    ${field("fVpDur", "Durée (mois, vide = sans fin)", c.vpDuree, 'inputmode="numeric"')}
+  </div>
+  <div class="grid" style="display:grid;gap:8px"><div class="hint">Versements libres complémentaires</div><div id="libres"></div><div><button type="button" id="addLib">+ Versement libre</button></div></div></fieldset>
+
+  <fieldset><legend>Rémunération</legend><div class="fgrid">
+    ${field("fTu", "Upfront (% du versement)", c.tauxUpfront, 'inputmode="decimal"')}
+    ${field("fTuVp", "Upfront sur versements programmés (%)", c.tauxUpfrontVP, 'inputmode="decimal" placeholder="identique"')}
+    ${field("fTl", "Linéaire (% par an)", c.tauxLineaire, 'inputmode="decimal"')}
+    ${sel("fLd", "Le linéaire démarre", c.lineaireDebut || "immediat", [["immediat", "Dès la souscription"], ["n1", "À N+1"], ["n2", "À N+2"]])}
+    ${field("fLdur", "Durée du linéaire (ans, vide = tant que le contrat vit)", c.dureeLineaire, 'inputmode="numeric"')}
+    ${field("fPf", "Part des frais de gestion (%)", c.partFrais, 'inputmode="decimal" placeholder="ex. 15"')}
+    ${field("fFg", "Frais de gestion du contrat (% par an)", c.fraisGestion, 'inputmode="decimal" placeholder="ex. 1"')}
+    ${field("fRdt", "Rendement annuel de l'encours (%)", c.rendement, `inputmode="decimal" placeholder="${S.rendement} (par défaut)"`)}
+  </div><div class="hint">Formule du type « 0,5 % + 15 % par trimestre » : 0,5 dans Linéaire, 15 dans Part des frais, et le taux de frais de gestion du contrat à côté.</div></fieldset>
+
+  <fieldset><legend>Réseau et apporteur</legend><div class="fgrid">
+    ${field("fRes", `Prélèvement ${esc(S.nomReseau)} (%)`, c.tauxReseau, `inputmode="decimal" placeholder="${S.tauxReseau} (par défaut)"`)}
+    ${sel("fResL", "Le réseau prélève aussi le linéaire", c.reseauSurLineaire === false ? "non" : "oui", [["oui", "Oui"], ["non", "Non"]])}
+    ${field("fApN", "Apporteur", c.apporteurNom)}
+    ${field("fApT", "Rétrocession apporteur (%)", c.tauxApporteur, 'inputmode="decimal"')}
+    ${sel("fApS", "L'apporteur touche", c.apporteurSur || "upfront", [["upfront", "L'upfront seulement"], ["tout", "Upfront et linéaire"]])}
+  </div></fieldset>
+  <label class="f" for="fNotes">Notes<textarea id="fNotes" rows="2">${esc(c.notes || "")}</textarea></label>
+  <div class="preview" id="fPrev"></div>
+  <div class="row" style="justify-content:space-between">
+    <div class="row">${isNew ? "" : `<button type="button" class="danger" id="fDel">Supprimer</button><span id="fDelC" hidden><button type="button" class="danger" id="fDelOk">Confirmer la suppression</button></span><button type="button" id="fDup">Dupliquer</button>`}</div>
+    <div class="row"><button type="button" id="fCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div>
+  </div>`;
+  let libres = (c.libres || []).map(l => ({ ...l }));
+  const drawLib = () => {
+    $("#libres").innerHTML = libres.map((l, i) => `<div class="libre-row"><input type="date" id="lD${i}" aria-label="Date" value="${esc(l.date)}"><input id="lM${i}" inputmode="decimal" aria-label="Montant" placeholder="Montant €" value="${esc(l.montant ?? "")}"><button type="button" data-rm="${i}" aria-label="Retirer">✕</button></div>`).join("");
+    libres.forEach((l, i) => { $("#lD" + i).oninput = e => { l.date = e.target.value; prev(); }; $("#lM" + i).oninput = e => { l.montant = e.target.value; prev(); }; });
+    document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { libres.splice(+b.dataset.rm, 1); drawLib(); prev(); });
+  };
+  const read = () => ({
+    ...c, client: $("#fClient").value.trim(), produit: $("#fProduit").value, partenaire: $("#fPart").value.trim(), date: $("#fDate").value,
+    montant: num($("#fMontant").value), statut: $("#fStatut").value, dateFin: $("#fFin").value || "",
+    vpMontant: num($("#fVp").value), vpFrequence: num($("#fVpF").value), vpDebut: $("#fVpD").value || "", vpDuree: $("#fVpDur").value === "" ? "" : num($("#fVpDur").value),
+    libres: libres.filter(l => l.date && num(l.montant)).map(l => ({ date: l.date, montant: num(l.montant) })),
+    tauxUpfront: num($("#fTu").value), tauxUpfrontVP: $("#fTuVp").value === "" ? "" : num($("#fTuVp").value), tauxLineaire: num($("#fTl").value),
+    lineaireDebut: $("#fLd").value, dureeLineaire: $("#fLdur").value === "" ? "" : num($("#fLdur").value),
+    partFrais: num($("#fPf").value), fraisGestion: num($("#fFg").value), rendement: $("#fRdt").value === "" ? null : num($("#fRdt").value),
+    tauxReseau: $("#fRes").value === "" ? "" : num($("#fRes").value), reseauSurLineaire: $("#fResL").value === "oui",
+    apporteurNom: $("#fApN").value.trim(), tauxApporteur: num($("#fApT").value), apporteurSur: $("#fApS").value, notes: $("#fNotes").value,
+  });
+  const prev = () => {
+    const x = read(), isP = PRIME.has(x.produit);
+    $("#fMontantHint").textContent = isP ? "Pour l'emprunteur et la prévoyance, indique la prime annuelle : elle sert d'assiette et n'entre pas dans la collecte." : x.produit === "Girardin" ? "Le Girardin compte dans la collecte mais ne crée pas d'encours." : "";
+    $("#fsVers").hidden = isP;
+    const sim = simulate(x, endIdx());
+    let up = ZERO(), m12 = 0, encN = 0, linY = 0;
+    const s0 = idxOf(x.date);
+    for (const [m, v] of sim) { if (m < s0 + 12) { addTo(up, split(x, v.up, 0)); m12 += v.vers; } if (m >= s0 + 12 && m < s0 + 24) linY += v.lin + v.fr; if (m === s0 + 11) encN = v.enc; }
+    const sl = split(x, 0, linY);
+    $("#fPrev").innerHTML = `<div><span class="small muted">Versé la 1re année</span><b>${eur(m12)}</b></div><div><span class="small muted">Upfront 1re année brut → net</span><b>${eur(up.up)} → ${eur(up.nUp)}</b></div><div><span class="small muted">Linéaire 2e année brut → net</span><b>${eur(sl.lin)} → ${eur(sl.nLin)}</b></div><div><span class="small muted">Encours après 12 mois</span><b>${isP ? "—" : eur(encN)}</b></div>`;
+  };
+  drawLib(); prev();
+  f.oninput = prev;
+  $("#fPart").onchange = () => { const p = partenaires.find(p => p.nom === $("#fPart").value); if (!p) return; if (p.produit) $("#fProduit").value = p.produit; $("#fTu").value = p.tauxUpfront || ""; $("#fTl").value = p.tauxLineaire || ""; $("#fPf").value = p.partFrais || ""; $("#fFg").value = p.fraisGestion || ""; if (p.lineaireDebut) $("#fLd").value = p.lineaireDebut; prev(); };
+  $("#addLib").onclick = () => { libres.push({ date: new Date().toISOString().slice(0, 10), montant: "" }); drawLib(); };
+  $("#fClose").onclick = $("#fCancel").onclick = () => $("#dlg").close();
+  if (!isNew) {
+    $("#fDel").onclick = () => { $("#fDelC").hidden = false; $("#fDel").hidden = true; };
+    $("#fDelOk").onclick = async () => { try { await db.doc("contrats/" + c.id).delete(); $("#dlg").close(); toast("Contrat supprimé"); } catch (e) { toast("Suppression impossible : " + (e.message || e.code)); } };
+    $("#fDup").onclick = () => { const x = read(); delete x.id; delete x.aVerifier; x.date = new Date().toISOString().slice(0, 10); openForm(x); };
+  }
+  f.onsubmit = async ev => {
+    ev.preventDefault();
+    const x = read();
+    if (!x.client || !x.date) { toast("Le client et la date de souscription sont obligatoires"); return; }
+    const id = x.id || db.collection("contrats").doc().id; x.id = id; x.maj = new Date().toISOString();
+    try { await db.doc("contrats/" + id).set(JSON.parse(JSON.stringify(x))); $("#dlg").close(); toast(isNew ? "Contrat ajouté" : "Contrat enregistré"); }
+    catch (e) { toast("Enregistrement impossible : " + (e.message || e.code)); }
+  };
+  $("#dlg").showModal();
+}
+
+function openPart(p) {
+  const isNew = !p.id, f = $("#frmP");
+  f.innerHTML = `<div class="row" style="justify-content:space-between"><h2>${isNew ? "Nouveau partenaire" : esc(p.nom)}</h2><button type="button" id="pClose" aria-label="Fermer">✕</button></div>
+  <div class="fgrid">${field("pNom", "Nom", p.nom, "required")}${sel("pProd", "Produit", p.produit || "", [["", "—"], ...PRODUITS])}
+  ${field("pTu", "Upfront (%)", p.tauxUpfront, 'inputmode="decimal"')}${field("pTl", "Linéaire (% par an)", p.tauxLineaire, 'inputmode="decimal"')}
+  ${sel("pLd", "Le linéaire démarre", p.lineaireDebut || "immediat", [["immediat", "Dès la souscription"], ["n1", "À N+1"], ["n2", "À N+2"]])}
+  ${field("pPf", "Part des frais de gestion (%)", p.partFrais, 'inputmode="decimal"')}${field("pFg", "Frais de gestion (% par an)", p.fraisGestion, 'inputmode="decimal"')}</div>
+  <label class="f" for="pNotes">Notes<textarea id="pNotes" rows="2">${esc(p.notes || "")}</textarea></label>
+  <div class="row" style="justify-content:space-between"><div>${isNew ? "" : `<button type="button" class="danger" id="pDel">Supprimer</button>`}</div><div class="row"><button type="button" id="pCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></div>`;
+  $("#pClose").onclick = $("#pCancel").onclick = () => $("#dlgP").close();
+  if (!isNew) $("#pDel").onclick = async () => { await db.doc("partenaires/" + p.id).delete(); $("#dlgP").close(); toast("Partenaire supprimé"); };
+  f.onsubmit = async ev => {
+    ev.preventDefault();
+    const x = { ...p, nom: $("#pNom").value.trim(), produit: $("#pProd").value, tauxUpfront: num($("#pTu").value), tauxLineaire: num($("#pTl").value), lineaireDebut: $("#pLd").value, partFrais: num($("#pPf").value), fraisGestion: num($("#pFg").value), notes: $("#pNotes").value };
+    if (!x.nom) return;
+    x.id = x.id || db.collection("partenaires").doc().id;
+    try { await db.doc("partenaires/" + x.id).set(x); $("#dlgP").close(); toast("Partenaire enregistré"); } catch (e) { toast("Enregistrement impossible : " + (e.message || e.code)); }
+  };
+  $("#dlgP").showModal();
+}
+
+/* ---------- Export / import ---------- */
+async function saveFile(filename, data) {
+  try {
+    const dl = await claude.use("downloads");
+    if (!dl) { $("#ioMsg").textContent = "Le téléchargement n'est pas disponible dans cette vue."; return; }
+    await dl.save({ filename, data });
+  } catch (e) { if (e.code !== "declined") $("#ioMsg").textContent = "Export impossible : " + (e.message || e.code); }
+}
+const csvCell = v => { const s = typeof v === "number" ? v.toFixed(2).replace(".", ",") : String(v ?? ""); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const toCsv = rows => "﻿" + rows.map(r => r.map(csvCell).join(";")).join("\r\n");
+function exportCsv() {
+  const R = compute();
+  const head = ["Client", "Produit", "Partenaire", "Statut", "Date souscription", "Versement initial", "VP montant", "VP fréquence (mois)", "Upfront %", "Linéaire %", "Part frais %", "Frais gestion %", "Réseau %", "Apporteur", "Apporteur %", "Versé à date", "Encours", "Upfront brut à date", "Upfront net à date", "Linéaire brut/an", "Linéaire net/an", "Notes"];
+  const rows = R.perC.map(p => { const c = p.c; return [c.client, c.produit, c.partenaire, c.statut, c.date, num(c.montant), num(c.vpMontant), num(c.vpFrequence), num(c.tauxUpfront), num(c.tauxLineaire), num(c.partFrais), num(c.fraisGestion), c.tauxReseau === "" || c.tauxReseau == null ? S.tauxReseau : num(c.tauxReseau), c.apporteurNom, num(c.tauxApporteur), p.vers, p.enc, p.cumul.up, p.cumul.nUp, p.recur.lin, p.recur.nLin, c.notes]; });
+  saveFile("contrats-commissions.csv", toCsv([head, ...rows]));
+}
+function exportPrev() {
+  const R = compute(), ys = Object.keys(R.years).sort();
+  const L = [["Collecte", y => y.vers], ["dont versements programmés", y => y.vp], ["Encours fin d'année", y => y.encFin], ["Encours rémunéré", y => y.encRem], ["Upfront brut", y => y.up], ["Linéaire brut", y => y.lin], ["Réseau", y => y.rUp + y.rLin], ["Apporteurs", y => y.aUp + y.aLin], ["Commission nette", y => y.nUp + y.nLin], ["URSSAF", y => y.uUp + y.uLin], ["Net-net", y => y.nnUp + y.nnLin]];
+  saveFile("previsionnel-commissions.csv", toCsv([["", ...ys], ...L.map(([l, f]) => [l, ...ys.map(y => f(R.years[y]))])]));
+}
+async function importJson(file) {
+  if (!file) return;
+  try {
+    const d = JSON.parse(await file.text());
+    if (!Array.isArray(d.contrats)) throw new Error("fichier sans liste de contrats");
+    let n = 0;
+    for (const c of d.contrats) { if (!c.id) c.id = db.collection("contrats").doc().id; await db.doc("contrats/" + c.id).set(c); n++; }
+    for (const p of d.partenaires || []) { if (!p.id) p.id = db.collection("partenaires").doc().id; await db.doc("partenaires/" + p.id).set(p); }
+    if (d.reglages) await db.doc("config/reglages").set({ ...DEFAULTS, ...d.reglages });
+    $("#ioMsg").textContent = `${n} contrats restaurés.`;
+  } catch (e) { $("#ioMsg").textContent = "Restauration impossible : " + (e.message || e.code); }
+}
+
+/* ---------- Démarrage ---------- */
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => {
+  tab = b.dataset.tab;
+  document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
+  document.querySelectorAll("[data-view]").forEach(v => v.hidden = v.id !== "view-" + tab);
+  render();
+});
+$("#incPipe").onchange = render;
+$("#btnAdd").onclick = () => { if (!db) { toast("Stockage indisponible : ouvre le registre depuis claude.ai"); return; } openForm(); };
+render();
+
+(async () => {
+  db = window.claude?.use ? await claude.use("db") : null;
+  if (!db) { db = null; render(); return; }
+  let got = 0; const ready = () => { if (++got >= 2) { loaded = true; render(); } };
+  db.doc("config/reglages").onSnapshot(s => { S = { ...DEFAULTS, ...(s.exists ? s.data() : {}) }; if (loaded) render(); }, () => {});
+  db.collection("contrats").onSnapshot(s => { contrats = s.docs.map(d => ({ ...d.data(), id: d.id })); loaded ? render() : ready(); }, e => toast("Lecture des contrats impossible : " + e.code));
+  db.collection("partenaires").onSnapshot(s => { partenaires = s.docs.map(d => ({ ...d.data(), id: d.id })); loaded ? render() : ready(); }, () => ready());
+})();
+})();
+</script>
