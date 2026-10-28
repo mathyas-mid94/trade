@@ -100,7 +100,9 @@ SC("04", "MA MÉTHODE", (g, A) => {
   const cer = big(g, 960, 190, "Le cercle de conseil du MIC", 52);
   const ring = el("circle", { ...D.line, stroke: C.accent, "stroke-width": 4, "stroke-dasharray": "12 12", cx: 960, cy: 600, r: 290 }, g); draw(ring, m(8) - 0.3, m(8) + 0.9);
   const moi = el("g", {}, g); el("circle", { ...D.line, fill: C.ink, r: 140 }, moi); txt(moi, 0, -6, "Mathyas", 40, { font: "Serif", weight: 700, fill: C.paper }); txt(moi, 0, 40, "LE STRATÈGE", 22, { weight: 800, ls: 4, fill: C.accent });
-  const X = [["Courtier", 9, -90], ["Notaire", 10, 30], ["Avocat fiscaliste", 11, 150]].map(([s, k, a]) => { const c = el("g", {}, g); el("circle", { ...D.line, fill: C.accent, r: 100 }, c); txt(c, 0, 12, s, s.length > 10 ? 28 : 34, { font: "Serif", weight: 700 }); return { c, k, a: a * Math.PI / 180 }; });
+  const X = [["Courtier", 9, -90], ["Notaire", 10, 30], ["Avocat fiscaliste", 11, 150]].map(([s, k, a]) => { const c = el("g", {}, g); el("circle", { ...D.line, fill: C.accent, r: 100 }, c); txt(c, 0, s === "Courtier" ? 0 : 12, s, s.length > 10 ? 28 : 34, { font: "Serif", weight: 700 });
+    if (s === "Courtier") { txt(c, 0, 28, "crédit immobilier", 17, { weight: 700, fill: C.ink }); txt(c, 0, 48, "& financement", 17, { weight: 700, fill: C.ink }); }
+    return { c, k, a: a * Math.PI / 180 }; });
   const u1 = pl(g, 560, 1000, "UN SEUL INTERLOCUTEUR", { bg: C.ink, fg: C.paper, size: 24 }), u2 = pl(g, 1360, 1000, "TOUTES LES EXPERTISES", { bg: C.accent, size: 24 });
   return t => {
     const kA = out(t, m(8) - 0.6);

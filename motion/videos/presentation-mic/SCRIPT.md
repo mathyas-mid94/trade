@@ -49,7 +49,7 @@ Ma méthode tient en trois étapes. [1]
 Le diagnostic : [2] votre situation, votre fiscalité, vos objectifs de vie. [3]
 L'analyse : [4] vos actifs, et les opportunités adaptées à votre profil. [5]
 La préconisation : [6] une stratégie sur mesure, expliquée, et validée avec vous. [7]
-Et autour de moi, il y a le cercle de conseil de Midelton Investment Capital : [8] un courtier, [9] un notaire, [10] un avocat fiscaliste. [11] Ils interviennent quand votre situation l'exige.
+Et autour de moi, il y a le cercle de conseil de Midelton Investment Capital : [8] un courtier en crédit immobilier et en financement de projets, [9] un notaire, [10] un avocat fiscaliste. [11] Ils interviennent quand votre situation l'exige.
 Un seul interlocuteur. [12] Toutes les expertises. [13]
 
 ## 05 · Transparence
