@@ -211,16 +211,28 @@ const statutEff = r => r.statut || (idxOf(r.date) <= TODAY ? "percue" : "a_perce
 // montant attendu mais pas encore reçu alors que l'échéance est passée
 const enAttente = cs => cs.flatMap(c => c.reels || []).filter(r => r.date && statutEff(r) === "a_percevoir" && idxOf(r.date) <= TODAY).reduce((t, r) => t + num(r.montant), 0);
 
-function simulate(c, endIdx) {
-  const out = simulateCalc(c, endIdx);
+// toutes les échéances des commissions saisies à la main (lignes répétées dépliées)
+function reelsOcc(c, endIdx) {
   // une commission « à percevoir » dont la date est passée est attendue le mois prochain
   const decale = (r, m) => statutEff(r) === "a_percevoir" && m <= TODAY ? TODAY + 1 : m;
   // une ligne répétée (chaque mois, trimestre, année) devient une occurrence par échéance
-  const R = (c.reels || []).filter(r => r.date && num(r.montant)).flatMap(r => {
+  return (c.reels || []).filter(r => r.date && num(r.montant)).flatMap(r => {
     const d = idxOf(r.date), f = num(r.repet), fin = r.jusquau ? idxOf(r.jusquau) : endIdx;
     if (!f) return [{ ...r, m: decale(r, d) }];
     const o = []; for (let m = d; m <= Math.min(fin, endIdx); m += f) o.push({ ...r, m: decale(r, m) }); return o;
   });
+}
+// linéaire saisi à la main sur les 12 prochains mois ; null si aucun, et le calcul reprend la main
+function recurReels(c, endIdx) {
+  const L = reelsOcc(c, endIdx).filter(r => r.type === "lineaire" && r.m > TODAY && r.m <= TODAY + 12);
+  if (!L.length) return null;
+  const brut = L.filter(r => r.base === "brut").reduce((t, r) => t + num(r.montant), 0);
+  return split(c, 0, brut, TODAY + 1, 0, L.reduce((t, r) => t + num(r.montant), 0) - brut);
+}
+
+function simulate(c, endIdx) {
+  const out = simulateCalc(c, endIdx);
+  const R = reelsOcc(c, endIdx);
   if (!R.length) return out;
   const vide = () => ({ vers: 0, prime: 0, up: 0, lin: 0, fr: 0, acc: 0, enc: 0 });
   const hasUp = R.some(r => r.type !== "lineaire");
@@ -316,13 +328,14 @@ function endIdx() { return (now.getFullYear() + S.horizon) * 12 + 11; }
 function compute() {
   const E = endIdx(), Y0 = now.getFullYear();
   const years = {}; for (let y = Y0; y <= Y0 + S.horizon; y++) years[y] = { ...ZERO(), vers: 0, prime: 0, encFin: 0, encRem: 0, vp: 0 };
-  const T = { cumul: ZERO(), vers: 0, versUp: 0, versLin: 0, primes: 0, enc: 0, encRem: 0, recur: ZERO(), next12: ZERO(), vp12: 0, perte: ZERO() };
+  const T = { cumul: ZERO(), vers: 0, versUp: 0, versLin: 0, primes: 0, enc: 0, encRem: 0, recur: ZERO(), next12: ZERO(), vp12: 0, perte: ZERO(), linEnc: 0 };
   const perC = [];
   let minYear = Y0;
   for (const c of actifs()) {
     const sim = simulate(c, E);
     const remun = tauxLin(c) > 0 || num(c.partFrais) > 0 || tauxSupports(c) > 0;
     const pc = { c, cumul: ZERO(), vers: 0, enc: 0, recur: ZERO(), up: 0, perte: ZERO() };
+    let rCalc = null;
     for (const [m, x] of sim) {
       const s = split(c, x.up, x.lin + x.fr, m, x.upN, x.linN);
       const y = Math.floor(m / 12);
@@ -340,9 +353,11 @@ function compute() {
       if (m === TODAY) {
         pc.enc = x.enc; T.enc += x.enc; if (remun) T.encRem += x.enc;
         if (perteEnv(c)) { const pe = split(c, 0, x.enc * perteEnv(c) / 100, m); addTo(pc.perte, pe); addTo(T.perte, pe); }
-        const r = split(c, 0, x.acc * 12, m); addTo(T.recur, r); addTo(pc.recur, r);
+        rCalc = split(c, 0, x.acc * 12, m);
       }
     }
+    const rr = recurReels(c, E) || rCalc;
+    if (rr) { addTo(T.recur, rr); addTo(pc.recur, rr); if (!PRIME.has(c.produit)) T.linEnc += rr.lin; }
     // contrat souscrit dans le futur : encours = 0 aujourd'hui, mais garder une trace
     perC.push(pc);
   }
@@ -357,7 +372,7 @@ function wfRow(lbl, a, b, cls = "") { return `<div class="wf ${cls}"><div class=
 
 function renderBord(R) {
   const { T } = R, cu = T.cumul, re = T.recur;
-  const tauxMoy = T.encRem ? re.lin / T.encRem * 100 : 0;
+  const tauxMoy = T.encRem ? T.linEnc / T.encRem * 100 : 0;
   const nC = actifs().length;
   if (!contrats.length) { $("#view-bord").innerHTML = emptyState(); return; }
   $("#view-bord").innerHTML = `
@@ -848,10 +863,10 @@ function openForm(c) {
       $("#fEnvMsg").innerHTML = `Ta marge sur l'enveloppe : <b>${pct(mg)}</b> par an, soit ${eur(enc * mg / 100)}/an sur ${eur(enc)}.` + (st != null && st > mg ? ` Au tarif standard tu toucherais ${pct(st)} : <b style="color:var(--bad)">${eur(enc * (st - mg) / 100)}/an de moins</b> à cause de la remise.` : "") + ` Le champ « Linéaire » est remplacé par cette marge.`;
     } else $("#fEnvMsg").textContent = "Ta marge = frais facturés − part de l'assureur. Une fois ces champs remplis, elle remplace le taux « Linéaire ».";
     const sim = simulate(x, endIdx());
-    let up = ZERO(), m12 = 0, encN = 0, linY = 0;
+    let up = ZERO(), m12 = 0, encN = 0, linY = 0, linYN = 0;
     const s0 = idxOf(x.date);
-    for (const [m, v] of sim) { if (m < s0 + 12) { addTo(up, split(x, v.up, 0, m, v.upN)); m12 += v.vers; } if (m >= s0 + 12 && m < s0 + 24) linY += v.acc || 0; if (m === s0 + 11) encN = v.enc; }
-    const sl = split(x, 0, linY, s0 + 12);
+    for (const [m, v] of sim) { if (m < s0 + 12) { addTo(up, split(x, v.up, 0, m, v.upN)); m12 += v.vers; } if (m >= s0 + 12 && m < s0 + 24) { linY += v.lin + v.fr; linYN += v.linN || 0; } if (m === s0 + 11) encN = v.enc; }
+    const sl = split(x, 0, linY, s0 + 12, 0, linYN);
     $("#fPrev").innerHTML = `<div><span class="small muted">Versé la 1re année</span><b>${eur(m12)}</b></div><div><span class="small muted">Upfront 1re année brut → net</span><b>${eur(up.up)} → ${eur(up.nUp)}</b></div><div><span class="small muted">Linéaire sur 12 mois (an 2) brut → net</span><b>${eur(sl.lin)} → ${eur(sl.nLin)}</b></div><div><span class="small muted">Encours après 12 mois</span><b>${isP ? "—" : eur(encN)}</b></div>`;
   };
   drawLib(); drawSup(); drawVal(); drawReel(); prev();
