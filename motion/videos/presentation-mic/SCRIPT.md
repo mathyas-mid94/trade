@@ -60,4 +60,4 @@ Le tout dans un cadre réglementé, sous le contrôle de l'A.M.F. [5]
 ## 06 · Passer à l'action
 Le plus simple, maintenant, c'est d'en parler. [1]
 Prenez rendez-vous pour un premier échange découverte, [2] directement sur midelton-capital.fr. [3]
-Votre patrimoine mérite une stratégie. [4] Construisons-la ensemble. [5]
+Votre patrimoine mérite une stratégie. [4] Le meilleur moment pour commencer, c'était hier. [5] Le deuxième, c'est aujourd'hui. [6]
