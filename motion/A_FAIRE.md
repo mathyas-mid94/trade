@@ -36,6 +36,11 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
 - Textes ElevenLabs : `tools/elevenlabs.py <SCRIPT.md> <dossier> [n]` (sigles écrits S.C.P.I., E.D.R.… : validé ; les tirets « esse-cé-pé-i » faisaient bégayer, < 10 000 car. par fichier).
 - Vérifier systématiquement les respirations (réécoute Whisper autour de chaque silence ≥ 1,1 s), cf. bug corrigé à 6:22.
 
+## Vidéo « Présentation du cabinet MIC » (`videos/presentation-mic/`)
+- [x] Script (`SCRIPT.md`, 7 parties, ~2 min, vouvoiement, personnage masculin) d'après la présentation MIC (12 slides) + consignes orales → 1 texte ElevenLabs (~2 500 car.) + test
+- [ ] À trancher : « master » (oral) ou « MBA » (slide 2) ; « indépendant » au sens MIF2 (rétrocessions) ; honoraires 0–1,20 % (vidéo CTO/PEA) vs « pas d'honoraires »
+- [ ] MP3 → calage → scènes très animées (objectifs : 5 000 → 150 000 €, impôts → 0, immeubles qui poussent, retraite 1 000 → 3 000 €, transat, impact, holding, transmission, reprise en main)
+
 ## Vidéo « Les obligations » (`videos/obligations/`)
 - [x] Script (`SCRIPT.md`, 17 parties, ~7 min 30) d'après les 13 slides + insistance sur le pull to par → 1 texte ElevenLabs (~8 100 car.) + test de prononciation
 - [x] Voix calée (17 parties, marges OK, respirations entre phrases), 17 scènes, intro/outro « OBLIGATIONS » (nouvelle icône titre + coupons)
