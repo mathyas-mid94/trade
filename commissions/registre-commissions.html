@@ -192,7 +192,7 @@ function tauxSupports(c) {
 }
 
 let db = null, S = { ...DEFAULTS }, contrats = [], partenaires = [], loaded = false;
-let OBJ = { lignes: [1, 2, 3, 4, 5].map(h => ({ h, encRem: "", linNN: "", upNN: "" })), ticketLin: "", ticketUp: "" };
+let OBJ = { lignes: [1, 2, 3, 4, 5].map(h => ({ h, encRem: "", linNN: "", upNN: "" })), capLin: "", capUp: "", ticketInit: "", vpReal: "" };
 let chartMode = "net", tab = "bord", filtre = "", cumul = false;
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -448,7 +448,7 @@ function objPanel(R) {
   if (b.encVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Encours rémunéré aujourd'hui</span><b class="num">${eur(R.T.encRem)} / ${eur(b.encVise)}</b></div>${barre(R.T.encRem, b.encVise)}</div>`);
   if (b.linVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Linéaire net-net projeté ${b.Y}</span><b class="num">${eur(b.P.nnLin)} / ${eur(b.linVise)}</b></div>${barre(b.P.nnLin, b.linVise)}</div>`);
   if (b.upVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Upfront net-net projeté ${b.Y}</span><b class="num">${eur(b.P.nnUp)} / ${eur(b.upVise)}</b></div>${barre(b.P.nnUp, b.upVise)}</div>`);
-  return `<div class="panel"><div class="row" style="justify-content:space-between"><h2>Objectif à ${l.h} an${l.h > 1 ? "s" : ""} (fin ${b.Y})</h2><span class="hint">${b.nLin ? `<b>${b.nLin}</b> contrats linéaires à signer` : ""}${b.nLin && b.nUp ? " · " : ""}${b.nUp ? `<b>${b.nUp}</b> contrats upfront en ${b.Y}` : ""}</span></div>${items.join("")}</div>`;
+  return `<div class="panel"><div class="row" style="justify-content:space-between"><h2>Objectif à ${l.h} an${l.h > 1 ? "s" : ""} (fin ${b.Y})</h2><span class="hint">${b.encAjout > 0 ? `À ${fx(M.capLin, 0)} contrats/an : ticket de <b>${eur(b.encAjout / (M.capLin * l.h))}</b> par contrat linéaire` : ""}${b.manqueUp > 0 ? ` · <b>${eur(b.manqueUp / M.capUp)}</b> d'upfront net-net par contrat` : ""}</span></div>${items.join("")}</div>`;
 }
 
 function remisesPanel(R) {
@@ -610,10 +610,16 @@ function moyennes(R) {
   const encL = L.reduce((t, p) => t + p.enc, 0);
   return {
     nLin: L.length, nUp: U.length,
-    ticketLin: num(OBJ.ticketLin) || (L.length ? L.reduce((t, p) => t + p.vers, 0) / L.length : 0),
+    ticketLin: (L.length ? L.reduce((t, p) => t + p.vers, 0) / L.length : 0),
     tauxNN: encL ? L.reduce((t, p) => t + p.recur.nnLin, 0) / encL : 0,
     tauxBrut: encL ? L.reduce((t, p) => t + p.recur.lin, 0) / encL : 0,
-    upNN: num(OBJ.ticketUp) || (U.length ? U.reduce((t, p) => t + p.cumul.nnUp, 0) / U.length : 0),
+    upNN: U.length ? U.reduce((t, p) => t + p.cumul.nnUp, 0) / U.length : 0,
+    // upfront net-net par euro investi (hors emprunteur, qui n'a pas de versement)
+    tauxUp: (() => { const V = U.filter(p => p.vers > 0), v = V.reduce((t, p) => t + p.vers, 0); return v ? V.reduce((t, p) => t + p.cumul.nnUp, 0) / v : 0; })(),
+    vpMoy: L.length ? L.reduce((t, p) => t + num(p.c.vpMontant) / (num(p.c.vpFrequence) || 1), 0) / L.length : 0,
+    capLin: num(OBJ.capLin) || 24, capUp: num(OBJ.capUp) || 24,
+    vpReal: num(OBJ.vpReal) || (L.length ? Math.max(100, Math.round(L.reduce((t, p) => t + num(p.c.vpMontant) / (num(p.c.vpFrequence) || 1), 0) / L.length / 50) * 50) : 150),
+    ticketInit: num(OBJ.ticketInit) || (L.length ? Math.round(L.reduce((t, p) => t + p.vers, 0) / L.length / 1000) * 1000 : 10000) || 10000,
   };
 }
 function besoins(R, M, l) {
@@ -628,6 +634,46 @@ function besoins(R, M, l) {
   const nUp = M.upNN ? Math.ceil(manqueUp / M.upNN) : null;
   return { Y, P, encVise, linVise, upVise, encAjout, manqueEnc, manqueRev, nLin, nUp, manqueUp, total: linVise + upVise, totalProj: P.nnLin + P.nnUp };
 }
+const fx = (v, d = 1) => v.toLocaleString("fr-FR", { maximumFractionDigits: d });
+function carteObj(l, b, M) {
+  const h = l.h, C = M.capLin * h;
+  // linéaire : encours à apporter réparti sur les contrats signables d'ici l'horizon
+  const parContrat = C ? b.encAjout / C : 0, moisVP = h * 12 / 2;
+  const vpNeed = Math.max(0, parContrat - M.ticketInit) / moisVP;
+  const atteint = b.P.encRem + C * (M.ticketInit + M.vpReal * moisVP), revAtteint = b.P.nnLin + C * (M.ticketInit + M.vpReal * moisVP) * M.tauxNN;
+  const commande = b.manqueRev > b.manqueEnc ? "rev" : "enc";
+  const tauxRequis = b.encVise && b.linVise ? b.linVise / b.encVise : 0;
+  const lin = !(b.encVise || b.linVise) ? `<div class="muted">Pas d'objectif linéaire.</div>` : b.encAjout <= 0 ? `<div><span class="pill">objectif atteint par ton portefeuille actuel</span></div>` : `
+    <div class="small muted">Projeté ${b.Y} : ${eur(b.P.encRem)} d'encours rémunéré · ${eur(b.P.nnLin)}/an net-net</div>
+    <div>Il faut <b>${eur(b.encAjout)}</b> d'encours rémunéré en plus.</div>
+    ${b.encVise && b.linVise && Math.abs(tauxRequis - M.tauxNN) / Math.max(M.tauxNN, 1e-9) > 0.15 ? `<div class="hint" style="color:var(--warn)">Tes deux objectifs ne collent pas : ${eur(b.encVise)} à ${pct(M.tauxNN * 100)} net-net rapportent ${eur(b.encVise * M.tauxNN)}/an, pas ${eur(b.linVise)}. ${commande === "rev" ? `C'est ton objectif de revenu qui commande. L'autre voie : obtenir ${pct(tauxRequis * 100)} net-net sur ${eur(b.encVise)} (meilleures conditions, moins de remises, plus de rétro fonds).` : `C'est ton objectif d'encours qui commande.`}</div>` : ""}
+    <div style="display:grid;gap:8px;padding:10px;border-radius:8px;background:var(--bg)">
+      <div class="small muted">À ${fx(M.capLin, 0)} contrats par an, soit ${fx(C, 0)} contrats d'ici ${b.Y} :</div>
+      <div>• Sans versement programmé : ticket initial de <b>${eur(parContrat)}</b> par contrat${M.ticketLin ? ` <span class="muted small">(${fx(parContrat / M.ticketLin)}× ton ticket actuel)</span>` : ""}</div>
+      <div>• Avec ${eur(M.ticketInit)} au départ : versement programmé de <b>${eur(vpNeed)}/mois</b> par contrat${vpNeed <= 0 ? " (le ticket initial suffit)" : ""}</div>
+      ${M.ticketLin ? `<div class="small muted">Pour comparaison, avec ton ticket actuel de ${eur(M.ticketLin)} sans VP : ${fx(Math.ceil(b.encAjout / M.ticketLin), 0)} contrats.</div>` : ""}
+    </div>
+    <div style="display:grid;gap:4px;padding:10px;border-radius:8px;border:1px dashed var(--accent)">
+      <div class="small muted">Ce que tu atteins à ton rythme réaliste (${fx(M.capLin, 0)}/an à ${eur(M.ticketInit)} + ${eur(M.vpReal)}/mois) :</div>
+      <div><b>${eur(atteint)}</b> d'encours rémunéré et <b>${eur(revAtteint)}/an</b> net-net de linéaire en ${b.Y}${b.encVise ? ` <span class="muted small">(${fx(atteint / b.encVise * 100, 0)} % de ton objectif d'encours)</span>` : ""}</div>
+    </div>`;
+  // upfront : rythme à tenir dans l'année visée
+  const parUp = M.capUp ? b.manqueUp / M.capUp : 0;
+  const up = !b.upVise ? `<div class="muted">Pas d'objectif upfront.</div>` : b.manqueUp <= 0 ? `<div><span class="pill">objectif atteint</span></div>` : `
+    <div class="small muted">Projeté ${b.Y} : ${eur(b.P.nnUp)} net-net (versements programmés existants)</div>
+    <div>Il faut <b>${eur(b.manqueUp)}</b> d'upfront net-net en ${b.Y}.</div>
+    <div style="display:grid;gap:8px;padding:10px;border-radius:8px;background:var(--bg)">
+      <div class="small muted">À ${fx(M.capUp, 0)} contrats upfront dans l'année :</div>
+      <div>• <b>${eur(parUp)}</b> d'upfront net-net par contrat${M.upNN ? ` <span class="muted small">(${fx(parUp / M.upNN)}× ta moyenne)</span>` : ""}</div>
+      ${M.tauxUp ? `<div>• soit un montant investi d'environ <b>${eur(parUp / M.tauxUp)}</b> par contrat <span class="muted small">(à ${pct(M.tauxUp * 100)} net-net)</span></div>` : ""}
+      ${M.upNN ? `<div class="small muted">Avec ta moyenne actuelle de ${eur(M.upNN)} par contrat : ${fx(Math.ceil(b.manqueUp / M.upNN), 0)} contrats, soit ${fx(Math.ceil(b.manqueUp / M.upNN) / 12)} par mois.</div>` : ""}
+    </div>`;
+  return `<div style="display:grid;gap:12px;padding-block:14px;border-top:1px solid var(--line)">
+    <div class="row" style="justify-content:space-between"><h3 style="font-size:13px;color:var(--ink)">Horizon ${h} an${h > 1 ? "s" : ""} · fin ${b.Y}</h3><span class="small muted">Total net-net projeté ${eur(b.totalProj)}/an → visé ${b.total ? eur(b.total) + "/an (" + eur(b.total / 12) + "/mois)" : "—"}</span></div>
+    <div class="grid2"><div style="display:grid;gap:8px;min-width:0"><h3>Linéaire</h3>${lin}</div><div style="display:grid;gap:8px;min-width:0"><h3>Upfront</h3>${up}</div></div>
+  </div>`;
+}
+
 function renderObj(R) {
   if (!contrats.length) { $("#view-obj").innerHTML = emptyState(); return; }
   const M = moyennes(R), Y0 = now.getFullYear();
@@ -638,7 +684,7 @@ function renderObj(R) {
   });
   const tag = (ok, txt) => `<span class="pill ${ok ? "" : "warn"}">${txt}</span>`;
   $("#view-obj").innerHTML = `<div class="panel">
-    <div><h2>Objectifs</h2><div class="hint">Fixe ce que tu vises à chaque horizon. L'outil compare avec ce que ton portefeuille actuel produira de lui-même (prévisionnel, versements programmés compris), puis traduit l'écart en contrats à signer d'après tes moyennes réelles.</div></div>
+    <div><h2>Objectifs</h2><div class="hint">Fixe ce que tu vises à chaque horizon. L'outil compare avec ce que ton portefeuille actuel produira de lui-même (prévisionnel, versements programmés compris), puis traduit l'écart en ticket et en versement programmé à viser, à ton rythme de signature.</div></div>
     <div class="scroll"><table>
       <thead><tr><th>Horizon</th><th class="n">Encours rémunéré visé</th><th class="n">Linéaire net-net visé /an</th><th class="n">Upfront net-net visé /an</th><th class="n">Rémunération totale visée /an</th></tr></thead>
       <tbody>${rows.map(({ l, i }) => `<tr><td><b>${l.h} an${l.h > 1 ? "s" : ""}</b> <span class="muted small">fin ${Y0 + l.h}</span></td>${cell(i, "encRem", l.encRem)}${cell(i, "linNN", l.linNN)}${cell(i, "upNN", l.upNN)}<td class="n" id="o_tot_${i}">${num(l.linNN) + num(l.upNN) ? eur(num(l.linNN) + num(l.upNN)) : "—"}</td></tr>`).join("")}</tbody>
@@ -647,36 +693,33 @@ function renderObj(R) {
   </div>
 
   <div class="panel">
-    <div><h2>Ce qu'il te faut signer</h2><div class="hint">Linéaire : l'encours se cumule, les contrats signés d'ici là comptent tous. Upfront : il repart de zéro chaque année, c'est un rythme à tenir dans l'année visée. Hypothèse : les nouveaux contrats sont signés avant l'année visée et ressemblent à tes contrats actuels.</div></div>
-    ${rows.some(r => r.b) ? `<div class="scroll"><table>
-      <thead><tr><th>Horizon</th><th class="n">Encours rémunéré projeté → visé</th><th class="n">Linéaire net-net projeté → visé</th><th class="n">Contrats linéaires à signer</th><th class="n">Upfront net-net projeté → visé</th><th class="n">Contrats upfront dans l'année</th><th class="n">Total net-net projeté → visé</th></tr></thead>
-      <tbody>${rows.filter(r => r.b || num(r.l.encRem) || num(r.l.linNN) || num(r.l.upNN)).map(({ l, b }) => !b ? `<tr><td>${l.h} ans</td><td colspan="6" class="muted">Au-delà de l'horizon du prévisionnel (${S.horizon} ans) : augmente-le dans Réglages.</td></tr>` : `<tr>
-        <td><b>${l.h} an${l.h > 1 ? "s" : ""}</b><div class="small muted">${b.Y}</div></td>
-        <td class="n">${eur(b.P.encRem)} → ${b.encVise ? eur(b.encVise) : "—"}${b.encVise ? `<div>${tag(b.P.encRem >= b.encVise, b.P.encRem >= b.encVise ? "atteint" : "manque " + eur(b.manqueEnc))}</div>` : ""}</td>
-        <td class="n">${eur(b.P.nnLin)} → ${b.linVise ? eur(b.linVise) : "—"}${b.linVise ? `<div>${tag(b.P.nnLin >= b.linVise, b.P.nnLin >= b.linVise ? "atteint" : "manque " + eur(b.linVise - b.P.nnLin))}</div>` : ""}</td>
-        <td class="n">${b.encVise || b.linVise ? (b.nLin == null ? "—" : `<b style="font-size:16px">${b.nLin}</b><div class="small muted">${eur(b.encAjout)} d'encours à apporter${b.nLin ? ` · ${(b.nLin / l.h).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} par an · ${(b.nLin / l.h / 12).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} par mois` : ""}</div>`) : "—"}</td>
-        <td class="n">${eur(b.P.nnUp)} → ${b.upVise ? eur(b.upVise) : "—"}${b.upVise ? `<div>${tag(b.P.nnUp >= b.upVise, b.P.nnUp >= b.upVise ? "atteint" : "manque " + eur(b.manqueUp))}</div>` : ""}</td>
-        <td class="n">${b.upVise ? (b.nUp == null ? "—" : `<b style="font-size:16px">${b.nUp}</b><div class="small muted">en ${b.Y} · ${(b.nUp / 12).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} par mois</div>`) : "—"}</td>
-        <td class="n">${eur(b.totalProj)} → ${b.total ? eur(b.total) : "—"}${b.total ? `<div class="small muted">${eur(b.total / 12)}/mois visé</div>` : ""}</td></tr>`).join("")}</tbody></table></div>`
-      : `<div class="empty">Remplis au moins un objectif ci-dessus pour voir combien de contrats signer.</div>`}
+    <div><h2>Ton rythme réaliste</h2><div class="hint">Combien de contrats tu peux vraiment signer par an. À partir de là, l'outil te dit quel ticket et quel versement programmé viser, au lieu d'un nombre de contrats irréaliste.</div></div>
+    <div class="fgrid">
+      <label class="f" for="oCL">Contrats linéaires signables par an<input id="oCL" inputmode="numeric" value="${esc(OBJ.capLin)}" placeholder="24"></label>
+      <label class="f" for="oCU">Contrats upfront signables par an<input id="oCU" inputmode="numeric" value="${esc(OBJ.capUp)}" placeholder="24"></label>
+      <label class="f" for="oTI">Ticket initial que tu juges réaliste (€)<input id="oTI" inputmode="decimal" value="${esc(OBJ.ticketInit)}" placeholder="${M.ticketInit}"></label>
+      <label class="f" for="oVP">Versement programmé réaliste (€/mois)<input id="oVP" inputmode="decimal" value="${esc(OBJ.vpReal)}" placeholder="${M.vpReal}"></label>
+    </div>
+    <div class="row"><button class="primary" id="oSave2">Recalculer et enregistrer</button></div>
   </div>
 
   <div class="panel">
-    <div><h2>Tes moyennes, base du calcul</h2><div class="hint">Calculées sur tes contrats enregistrés. Tu peux les remplacer si tu vises un autre type de client (ticket plus gros, autre produit).</div></div>
+    <div><h2>Ce qu'il te faut viser</h2><div class="hint">Linéaire : l'encours se cumule, tous les contrats signés d'ici l'horizon comptent, avec des versements programmés qui tournent en moyenne la moitié de la période. Upfront : il repart de zéro chaque année, c'est un rythme à tenir dans l'année visée. Revalorisation des nouveaux contrats non comptée, par prudence.</div></div>
+    ${rows.some(r => r.b) ? rows.filter(r => r.b).map(({ l, b }) => carteObj(l, b, M)).join("") : rows.some(r => num(r.l.encRem) || num(r.l.linNN) || num(r.l.upNN)) ? `<div class="empty">Tes objectifs dépassent l'horizon du prévisionnel (${S.horizon} ans) : augmente-le dans Réglages.</div>` : `<div class="empty">Remplis au moins un objectif ci-dessus.</div>`}
+  </div>
+
+  <div class="panel">
+    <div><h2>Tes moyennes actuelles</h2><div class="hint">Calculées sur tes contrats enregistrés. Elles servent de point de comparaison et de taux de rémunération pour les nouveaux contrats.</div></div>
     <div class="kpis">
-      ${kpi("lin", "Ticket moyen linéaire", eur(M.ticketLin), `versé par contrat · ${M.nLin} contrats linéaires${num(OBJ.ticketLin) ? " · valeur saisie" : ""}`)}
+      ${kpi("lin", "Ticket moyen linéaire", eur(M.ticketLin), `versé par contrat · ${M.nLin} contrats · VP moyen ${eur(M.vpMoy)}/mois`)}
       ${kpi("lin", "Rendement net-net du linéaire", pct(M.tauxNN * 100) + "/an", `brut ${pct(M.tauxBrut * 100)} · soit ${eur(M.ticketLin * M.tauxNN)}/an par contrat moyen`)}
-      ${kpi("up", "Upfront net-net moyen", eur(M.upNN), `par contrat · ${M.nUp} contrats upfront${num(OBJ.ticketUp) ? " · valeur saisie" : ""}`)}
-    </div>
-    <div class="fgrid">
-      <label class="f" for="oTL">Remplacer le ticket moyen linéaire (€)<input id="oTL" inputmode="decimal" value="${esc(OBJ.ticketLin)}" placeholder="${Math.round(M.ticketLin)}"></label>
-      <label class="f" for="oTU">Remplacer l'upfront net-net moyen (€)<input id="oTU" inputmode="decimal" value="${esc(OBJ.ticketUp)}" placeholder="${Math.round(M.upNN)}"></label>
+      ${kpi("up", "Upfront net-net moyen", eur(M.upNN), `par contrat · ${M.nUp} contrats${M.tauxUp ? " · " + pct(M.tauxUp * 100) + " net-net du montant investi" : ""}`)}
     </div>
   </div>`;
   OBJ.lignes.forEach((l, i) => ["encRem", "linNN", "upNN"].forEach(k => { $(`#o_${k}_${i}`).oninput = e => { l[k] = e.target.value; $("#o_tot_" + i).textContent = num(l.linNN) + num(l.upNN) ? eur(num(l.linNN) + num(l.upNN)) : "—"; }; }));
-  $("#oSave").onclick = async () => {
-    OBJ.ticketLin = $("#oTL").value; OBJ.ticketUp = $("#oTU").value;
-    const d = { lignes: OBJ.lignes.map(l => ({ h: l.h, encRem: l.encRem === "" ? "" : num(l.encRem), linNN: l.linNN === "" ? "" : num(l.linNN), upNN: l.upNN === "" ? "" : num(l.upNN) })), ticketLin: OBJ.ticketLin === "" ? "" : num(OBJ.ticketLin), ticketUp: OBJ.ticketUp === "" ? "" : num(OBJ.ticketUp) };
+  $("#oSave").onclick = $("#oSave2").onclick = async () => {
+    const v = id => $(id).value === "" ? "" : num($(id).value);
+    const d = { lignes: OBJ.lignes.map(l => ({ h: l.h, encRem: l.encRem === "" ? "" : num(l.encRem), linNN: l.linNN === "" ? "" : num(l.linNN), upNN: l.upNN === "" ? "" : num(l.upNN) })), capLin: v("#oCL"), capUp: v("#oCU"), ticketInit: v("#oTI"), vpReal: v("#oVP") };
     OBJ = { ...OBJ, ...d }; render();
     try { await db.doc("config/objectifs").set(d); toast("Objectifs enregistrés"); } catch (e) { toast("Échec de l'enregistrement : " + (e.message || e.code)); }
   };
