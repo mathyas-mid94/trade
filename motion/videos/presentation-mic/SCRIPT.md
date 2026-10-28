@@ -16,16 +16,16 @@ Pour ElevenLabs : coller le fichier `elevenlabs/texte_a_coller_1.txt`.
 ---
 
 ## 00 · Accroche
-Votre argent dort ? [1] Vos impôts grimpent ? [2] Votre retraite vous inquiète ? [3]
-Ne rien faire, [4] c'est déjà choisir. [5]
+Vous travaillez dur pour votre argent. [1] Mais lui, est-ce qu'il travaille pour vous ? [2]
+Votre banquier gère vos comptes. [3] Mais qui pense votre stratégie ? [4]
+Dans le trading, une erreur peut coûter très cher. [5] J'ai appris à ne pas en faire. [6]
 
 ## 01 · Qui je suis
 Je m'appelle Mathyas Midelton, [1] fondateur de Midelton Investment Capital. [2]
 Conseiller en gestion de patrimoine, [3] et conseiller en investissement financier enregistré. [4]
 Mon parcours : un master en finance de marché et en trading. [5]
-Je viens d'un métier où l'on n'a pas le droit à l'erreur. [6]
-J'ai gardé l'âme d'un trader : [7] la rigueur, [8] la lecture des marchés, [9] et le sang-froid. [10]
-Je suis un stratège. [11] Un professionnel des marchés financiers. [12]
+J'en ai gardé l'âme d'un trader : [6] la rigueur, [7] la lecture des marchés, [8] et le sang-froid. [9]
+Je suis un stratège. [10] Un professionnel des marchés financiers. [11]
 
 ## 02 · Ma philosophie
 Ma philosophie : [1] le bon conseil, ce n'est pas celui qui vous fait dire « oui ». [2] C'est celui qui vous fait dire : « je comprends ». [3]
