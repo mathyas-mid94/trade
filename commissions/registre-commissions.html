@@ -94,6 +94,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
 .preview { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; background: var(--bg); border-radius: 8px; padding: 12px }
 .preview div { display: grid; gap: 2px }
 .preview b { font-family: var(--mono); font-weight: 500 }
+.preview .st { justify-self: start; margin-top: 4px }
 
 .empty { padding: 28px; text-align: center; color: var(--muted); display: grid; gap: 10px; justify-items: center }
 .sync { font-size: 12px; font-weight: 600; margin-top: 6px; display: inline-flex; gap: 6px; align-items: center }
@@ -188,7 +189,7 @@ function tauxSupports(c) {
 }
 
 let db = null, S = { ...DEFAULTS }, contrats = [], partenaires = [], loaded = false;
-let chartMode = "net", tab = "bord", filtre = "";
+let chartMode = "net", tab = "bord", filtre = "", cumul = false;
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -209,17 +210,17 @@ function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = fal
 // statut saisi au clic, sinon déduit de la date
 const statutEff = r => r.statut || (idxOf(r.date) <= TODAY ? "percue" : "a_percevoir");
 // montant attendu mais pas encore reçu alors que l'échéance est passée
-const enAttente = cs => cs.flatMap(c => c.reels || []).filter(r => r.date && statutEff(r) === "a_percevoir" && idxOf(r.date) <= TODAY).reduce((t, r) => t + num(r.montant), 0);
 
 // toutes les échéances des commissions saisies à la main (lignes répétées dépliées)
 function reelsOcc(c, endIdx) {
   // une commission « à percevoir » dont la date est passée est attendue le mois prochain
   const decale = (r, m) => statutEff(r) === "a_percevoir" && m <= TODAY ? TODAY + 1 : m;
+  const marque = (r, m) => ({ ...r, m: decale(r, m), retard: decale(r, m) !== m });
   // une ligne répétée (chaque mois, trimestre, année) devient une occurrence par échéance
   return (c.reels || []).filter(r => r.date && num(r.montant)).flatMap(r => {
     const d = idxOf(r.date), f = num(r.repet), fin = r.jusquau ? idxOf(r.jusquau) : endIdx;
-    if (!f) return [{ ...r, m: decale(r, d) }];
-    const o = []; for (let m = d; m <= Math.min(fin, endIdx); m += f) o.push({ ...r, m: decale(r, m) }); return o;
+    if (!f) return [marque(r, d)];
+    const o = []; for (let m = d; m <= Math.min(fin, endIdx); m += f) o.push(marque(r, m)); return o;
   });
 }
 // linéaire saisi à la main sur les 12 prochains mois ; null si aucun, et le calcul reprend la main
@@ -233,14 +234,25 @@ function recurReels(c, endIdx) {
 function simulate(c, endIdx) {
   const out = simulateCalc(c, endIdx);
   const R = reelsOcc(c, endIdx);
-  if (!R.length) return out;
   const vide = () => ({ vers: 0, prime: 0, up: 0, lin: 0, fr: 0, acc: 0, enc: 0 });
   const hasUp = R.some(r => r.type !== "lineaire");
   const lastLin = Math.max(-Infinity, ...R.filter(r => r.type === "lineaire").map(r => r.m));
   for (const [m, x] of out) { if (hasUp) x.up = 0; if (m <= lastLin) x.lin = x.fr = 0; }
+  // commission calculée marquée « non perçue » : ce qui était dû est attendu le mois prochain
+  const att = (k, champs) => {
+    if (c[k] !== "a_percevoir") return;
+    let du = 0;
+    for (const [m, x] of out) if (m <= TODAY) for (const f of champs) { du += x[f] || 0; x[f] = 0; }
+    if (!du) return;
+    if (!out.has(TODAY + 1)) out.set(TODAY + 1, vide());
+    const x = out.get(TODAY + 1); x[champs[0]] += du; x.retard = (x.retard || 0) + du;
+  };
+  att("statutUpfront", ["up"]); att("statutLin", ["lin", "fr"]);
+  if (!R.length) return out;
   for (const r of R) {
     const m = r.m; if (!out.has(m)) out.set(m, vide());
     const x = out.get(m), net = r.base === "net", lin = r.type === "lineaire";
+    if (r.retard) x.retard = (x.retard || 0) + num(r.montant);
     if (lin) { if (net) x.linN = (x.linN || 0) + num(r.montant); else x.lin += num(r.montant); }
     else if (net) x.upN = (x.upN || 0) + num(r.montant); else x.up += num(r.montant);
   }
@@ -328,13 +340,13 @@ function endIdx() { return (now.getFullYear() + S.horizon) * 12 + 11; }
 function compute() {
   const E = endIdx(), Y0 = now.getFullYear();
   const years = {}; for (let y = Y0; y <= Y0 + S.horizon; y++) years[y] = { ...ZERO(), vers: 0, prime: 0, encFin: 0, encRem: 0, vp: 0 };
-  const T = { cumul: ZERO(), vers: 0, versUp: 0, versLin: 0, primes: 0, enc: 0, encRem: 0, recur: ZERO(), next12: ZERO(), vp12: 0, perte: ZERO(), linEnc: 0 };
+  const T = { cumul: ZERO(), vers: 0, versUp: 0, versLin: 0, primes: 0, enc: 0, encRem: 0, recur: ZERO(), next12: ZERO(), vp12: 0, perte: ZERO(), linEnc: 0, retard: 0 };
   const perC = [];
   let minYear = Y0;
   for (const c of actifs()) {
     const sim = simulate(c, E);
     const remun = tauxLin(c) > 0 || num(c.partFrais) > 0 || tauxSupports(c) > 0;
-    const pc = { c, cumul: ZERO(), vers: 0, enc: 0, recur: ZERO(), up: 0, perte: ZERO() };
+    const pc = { c, cumul: ZERO(), vers: 0, enc: 0, recur: ZERO(), up: 0, perte: ZERO(), retard: 0 };
     let rCalc = null;
     for (const [m, x] of sim) {
       const s = split(c, x.up, x.lin + x.fr, m, x.upN, x.linN);
@@ -350,6 +362,7 @@ function compute() {
         if (remun) T.versLin += x.vers;
       }
       if (m > TODAY && m <= TODAY + 12) { addTo(T.next12, s); T.vp12 += x.vp || 0; }
+      if (x.retard) { T.retard += x.retard; pc.retard += x.retard; }
       if (m === TODAY) {
         pc.enc = x.enc; T.enc += x.enc; if (remun) T.encRem += x.enc;
         if (perteEnv(c)) { const pe = split(c, 0, x.enc * perteEnv(c) / 100, m); addTo(pc.perte, pe); addTo(T.perte, pe); }
@@ -382,7 +395,7 @@ function renderBord(R) {
     ${kpi("lin", "Linéaire annualisé", eur(re.lin), `taux moyen pondéré ${pct(tauxMoy)} · net ${eur(re.nLin)}/an`)}
     ${kpi("up", "Upfront encaissé", eur(cu.up), `net après réseau et apporteur ${eur(cu.nUp)}`)}
     ${kpi("", "Net-net à date", eur(cu.nnUp + cu.nnLin), `après URSSAF ${pct(S.urssaf)}`)}
-    ${kpi("", "12 prochains mois", eur(T.next12.nnUp + T.next12.nnLin), `net-net prévu · dont ${eur(T.vp12)} de versements programmés` + (enAttente(actifs()) ? ` · <b style="color:var(--warn)">${eur(enAttente(actifs()))} en retard à percevoir</b>` : ""))}
+    ${kpi("", "12 prochains mois", eur(T.next12.nnUp + T.next12.nnLin), `net-net prévu · dont ${eur(T.vp12)} de versements programmés` + (T.retard ? ` · <b style="color:var(--warn)">${eur(T.retard)} en retard à percevoir</b>` : ""))}
   </div>
   <div class="grid2">
     <div class="panel">
@@ -457,6 +470,7 @@ function pick(y) { return chartMode === "brut" ? [y.up, y.lin] : chartMode === "
 function chart(years) {
   const ys = Object.keys(years).map(Number).sort((a, b) => a - b);
   const vals = ys.map(y => pick(years[y]));
+  if (cumul) vals.forEach((v, i) => { if (i) { v[0] += vals[i - 1][0]; v[1] += vals[i - 1][1]; } });
   const max = Math.max(1, ...vals.map(v => v[0] + v[1]));
   const step = niceStep(max / 4), top = Math.ceil(max / step) * step;
   const W = 760, H = 280, L = 64, B = 30, Tp = 22, R = 10;
@@ -506,7 +520,8 @@ function rowC(p) {
   if (c.statut === "resilie") tags.push(`<span class="pill off">résilié</span>`);
   const lv = (c.valos || []).filter(v => v.date).sort((a, b) => a.date.localeCompare(b.date)).pop();
   if (lv) tags.push(`<span class="pill" title="Dernière valorisation : ${eur(num(lv.valeur))}">valorisé ${new Date(lv.date).toLocaleDateString("fr-FR")}</span>`);
-  if ((c.reels || []).length) tags.push(`<span class="pill ${enAttente([c]) ? "warn" : "up"}" title="${esc(c.reels.map(r => r.date + " · " + (r.type === "lineaire" ? "linéaire" : "upfront") + " " + eur(num(r.montant)) + (num(r.repet) ? " répété" : "") + (r.note ? " (" + r.note + ")" : "")).join(" · "))}">${enAttente([c]) ? eur(enAttente([c])) + " à percevoir" : "perçu / à venir"}</span>`);
+  if (p.retard && !(c.reels || []).length) tags.push(`<span class="pill warn">${eur(p.retard)} à percevoir</span>`);
+  if ((c.reels || []).length) tags.push(`<span class="pill ${p.retard ? "warn" : "up"}" title="${esc(c.reels.map(r => r.date + " · " + (r.type === "lineaire" ? "linéaire" : "upfront") + " " + eur(num(r.montant)) + (num(r.repet) ? " répété" : "") + (r.note ? " (" + r.note + ")" : "")).join(" · "))}">${p.retard ? eur(p.retard) + " à percevoir" : "perçu / à venir"}</span>`);
   if (perteEnv(c)) tags.push(`<span class="pill warn">remise ${pct(num(c.fraisEnvStandard))} → ${pct(num(c.fraisEnveloppe))}</span>`);
   if ((c.supports || []).length) tags.push(`<span class="pill">${c.supports.length} support${c.supports.length > 1 ? "s" : ""}</span>`);
   if (c.aVerifier) tags.push(`<span class="pill warn" title="${esc(c.aVerifier)}">à vérifier</span>`);
@@ -529,7 +544,10 @@ function renderPrev(R) {
   const cols = ys.map(y => R.years[y]);
   const line = (lbl, f, cls = "") => `<tr class="${cls}"><td>${lbl}</td>${cols.map(y => `<td class="n">${eur(f(y))}</td>`).join("")}</tr>`;
   $("#view-prev").innerHTML = `<div class="panel">
-    <div class="row" style="justify-content:space-between"><div><h2>Prévisionnel sur ${S.horizon} ans</h2><div class="hint">Projection à contrats constants : versements programmés poursuivis, ${S.revalo ? "revalorisation de l'encours selon les taux par produit des Réglages" : "encours sans revalorisation (activable dans Réglages)"}, linéaire versé à chaque fin de trimestre, aucune nouvelle souscription.</div></div>${chartSeg()}</div>
+    <div class="row" style="justify-content:space-between"><div><h2>Prévisionnel sur ${S.horizon} ans</h2><div class="hint">Projection à contrats constants : versements programmés poursuivis, linéaire versé à chaque fin de trimestre, aucune nouvelle souscription.</div></div>
+      <div class="row"><div class="seg" role="group" aria-label="Affichage"><button type="button" data-cu="0" aria-pressed="${!cumul}">Par an</button><button type="button" data-cu="1" aria-pressed="${cumul}">Cumulé</button></div>${chartSeg()}</div></div>
+    <label class="row small" for="prevRev"><input type="checkbox" id="prevRev" ${S.revalo ? "checked" : ""}> Revaloriser l'encours (${REVALO_PRODUITS.filter(p => num((S.rdtProduit || {})[p])).map(p => esc(p) + " " + pct(num(S.rdtProduit[p]))).join(", ") || "taux à régler"}, modifiables dans Réglages)</label>
+    ${croissance(R, ys)}
     <div class="chart">${chart(R.years)}</div>
     <div class="scroll"><table>
       <thead><tr><th></th>${ys.map(y => `<th class="n">${y}${y === now.getFullYear() ? " · en cours" : ""}</th>`).join("")}</tr></thead>
@@ -547,9 +565,23 @@ function renderPrev(R) {
         ${line("− URSSAF", y => -(y.uUp + y.uLin))}
         ${line("<b>Net-net</b>", y => y.nnUp + y.nnLin)}
         ${line("Net-net par mois", y => (y.nnUp + y.nnLin) / 12, "muted")}
+        ${(() => { let t = 0; return line("<b>Net-net cumulé</b>", y => (t += y.nnUp + y.nnLin)); })()}
       </tbody></table></div>
   </div>`;
   bindSeg();
+  document.querySelectorAll("[data-cu]").forEach(b => b.onclick = () => { cumul = b.dataset.cu === "1"; render(); });
+  $("#prevRev").onchange = async e => {
+    S.revalo = e.target.checked; render();
+    try { await db.doc("config/reglages").set(S); toast(S.revalo ? "Revalorisation activée" : "Revalorisation désactivée"); } catch (er) { toast("Échec de l'enregistrement : " + (er.message || er.code)); }
+  };
+}
+// phrase qui chiffre l'effet des versements programmés sur le linéaire
+function croissance(R, ys) {
+  const a = R.years[ys[1]] || R.years[ys[0]], z = R.years[ys[ys.length - 1]];
+  if (!a || !z || ys.length < 3 || !a.lin) return "";
+  const k = chartMode === "brut" ? "lin" : chartMode === "net" ? "nLin" : "nnLin";
+  const g = (z[k] / a[k] - 1) * 100, vp = z.vp;
+  return `<div class="hint" style="font-size:13px;color:var(--ink)">Ton linéaire ${chartMode === "brut" ? "brut" : chartMode === "net" ? "net" : "net-net"} passe de <b>${eur(a[k])}</b> en ${ys[1]} à <b>${eur(z[k])}</b> en ${ys[ys.length - 1]} (${g >= 0 ? "+" : ""}${Math.round(g)} %). L'encours rémunéré passe de ${eur(a.encRem)} à ${eur(z.encRem)}, porté par ${eur(vp)} de versements programmés par an${S.revalo ? " et la revalorisation" : ""}. Cumulé sur la période : <b>${eur(ys.slice(1).reduce((t, y) => t + R.years[y][k], 0))}</b> de linéaire.</div>`;
 }
 
 /* ---------- Simulateur : marge enveloppe + rétro fonds ---------- */
@@ -790,6 +822,7 @@ function openForm(c) {
   let supports = (c.supports || []).map(l => ({ ...l }));
   let valos = (c.valos || []).map(l => ({ ...l }));
   let reels = (c.reels || []).map(l => ({ ...l }));
+  let stUp = c.statutUpfront || "", stLin = c.statutLin || "";
   const bindSt = i => {
     const l = reels[i]; $("#rS" + i).innerHTML = statutReel(l, i);
     $("#rSb" + i).onclick = () => { l.statut = statutEff(l) === "percue" ? "a_percevoir" : "percue"; bindSt(i); prev(); };
@@ -843,7 +876,7 @@ function openForm(c) {
     libres: libres.filter(l => l.date && num(l.montant)).map(l => ({ date: l.date, montant: num(l.montant) })),
     supports: supports.filter(l => l.nom || num(l.montant)).map(l => ({ nom: (l.nom || "").trim(), montant: num(l.montant), fraisFonds: num(l.fraisFonds), retro: num(l.retro), unite: l.unite === "frais" ? "frais" : "encours" })),
     valos: valos.filter(l => l.date && l.valeur !== "" && l.valeur != null).map(l => ({ date: l.date, valeur: num(l.valeur) })),
-    paiementLin: num($("#fPay").value) || 3,
+    paiementLin: num($("#fPay").value) || 3, statutUpfront: stUp, statutLin: stLin,
     reels: reels.filter(l => l.date && num(l.montant)).map(l => ({ date: l.date, type: l.type === "lineaire" ? "lineaire" : "upfront", montant: num(l.montant), base: l.base === "brut" ? "brut" : "net", statut: l.statut || "", repet: num(l.repet), jusquau: num(l.repet) ? l.jusquau || "" : "", note: (l.note || "").trim() })),
     fraisEnvStandard: $("#fEs").value === "" ? "" : num($("#fEs").value), fraisEnveloppe: $("#fEf").value === "" ? "" : num($("#fEf").value), coutAssureur: $("#fEc").value === "" ? "" : num($("#fEc").value),
     tauxUpfront: num($("#fTu").value), tauxUpfrontVP: $("#fTuVp").value === "" ? "" : num($("#fTuVp").value), tauxLineaire: num($("#fTl").value),
@@ -854,6 +887,17 @@ function openForm(c) {
   });
   const prev = () => {
     const x = read(), isP = PRIME.has(x.produit);
+    // statut de la commission calculée : à venir tant que l'échéance n'est pas passée, sinon perçue / non perçue au clic
+    const btnSt = (k, x) => {
+      const s0 = idxOf(x.date); if (s0 == null) return "";
+      const manuel = (x.reels || []).some(r => (r.type === "lineaire") === (k === "lin"));
+      if (manuel) return `<span class="small muted">suivi dans « Commissions perçues / à venir »</span>`;
+      const echu = k === "up" ? s0 <= TODAY : s0 + (x.lineaireDebut === "n2" ? 24 : x.lineaireDebut === "n1" ? 12 : 0) <= TODAY;
+      if ((k === "up" ? !up.up : !sl.lin)) return "";
+      if (!echu) return `<span><span class="st wait" style="border-style:solid">À venir</span></span>`;
+      const ok = (k === "up" ? stUp : stLin) !== "a_percevoir";
+      return `<span><button type="button" class="st ${ok ? "ok" : "wait"}" data-stk="${k}" aria-pressed="${ok}">${ok ? "✓ Perçue" : "Non perçue"}</button></span>`;
+    };
     $("#fMontantHint").textContent = isP ? "Pour l'emprunteur et la prévoyance, indique la prime annuelle : elle sert d'assiette et n'entre pas dans la collecte." : x.produit === "Girardin" ? "Le Girardin compte dans la collecte mais ne crée pas d'encours." : "";
     $("#fsVers").hidden = $("#fsSup").hidden = $("#fsVal").hidden = $("#fsEnv").hidden = isP;
     $("#fTl").disabled = envOn(x);
@@ -867,7 +911,12 @@ function openForm(c) {
     const s0 = idxOf(x.date);
     for (const [m, v] of sim) { if (m < s0 + 12) { addTo(up, split(x, v.up, 0, m, v.upN)); m12 += v.vers; } if (m >= s0 + 12 && m < s0 + 24) { linY += v.lin + v.fr; linYN += v.linN || 0; } if (m === s0 + 11) encN = v.enc; }
     const sl = split(x, 0, linY, s0 + 12, 0, linYN);
-    $("#fPrev").innerHTML = `<div><span class="small muted">Versé la 1re année</span><b>${eur(m12)}</b></div><div><span class="small muted">Upfront 1re année brut → net</span><b>${eur(up.up)} → ${eur(up.nUp)}</b></div><div><span class="small muted">Linéaire sur 12 mois (an 2) brut → net</span><b>${eur(sl.lin)} → ${eur(sl.nLin)}</b></div><div><span class="small muted">Encours après 12 mois</span><b>${isP ? "—" : eur(encN)}</b></div>`;
+    const html = `<div><span class="small muted">Versé la 1re année</span><b>${eur(m12)}</b></div><div><span class="small muted">Upfront 1re année brut → net</span><b>${eur(up.up)} → ${eur(up.nUp)}</b>${btnSt("up", x)}</div><div><span class="small muted">Linéaire sur 12 mois (an 2) brut → net</span><b>${eur(sl.lin)} → ${eur(sl.nLin)}</b>${btnSt("lin", x)}</div><div><span class="small muted">Encours après 12 mois</span><b>${isP ? "—" : eur(encN)}</b></div>`;
+    $("#fPrev").innerHTML = html;
+    document.querySelectorAll("[data-stk]").forEach(b => b.onclick = () => {
+      if (b.dataset.stk === "up") stUp = stUp === "a_percevoir" ? "" : "a_percevoir"; else stLin = stLin === "a_percevoir" ? "" : "a_percevoir";
+      prev();
+    });
   };
   drawLib(); drawSup(); drawVal(); drawReel(); prev();
   $("#addReel").onclick = () => { reels.push({ date: new Date().toISOString().slice(0, 10), type: "upfront", montant: "", base: "net", note: "" }); drawReel(); };
