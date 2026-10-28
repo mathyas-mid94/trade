@@ -3,6 +3,7 @@
 Ton : Mathyas, posé et sûr de lui, chaleureux. VOUVOIEMENT (vidéo envoyée à des prospects et mise en vitrine sur midelton-capital.fr).
 Durée visée : environ 2 min 15. Rythme rapide sur les objectifs (un plan par objectif), plus posé sur la philosophie.
 Personnage : MASCULIN partout.
+Visuel « finance de marché » (accroche [5]-[6] et parcours) : écrans de cotation, bougies, bandeau de cours qui défile, courbes — sobre et maîtrisé, jamais « casino ».
 Source : présentation « MIC » (12 slides) + consignes orales du 28/10.
 Précisions de rigueur :
 - diplôme : Mathyas dit « master en finance de marché et trading » ; la slide 2 dit « MBA Trading & Finance de marchés » → à trancher (le texte dit « master », comme demandé) ;
