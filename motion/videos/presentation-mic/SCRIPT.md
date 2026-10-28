@@ -25,11 +25,10 @@ Conseiller en gestion de patrimoine, [3] et conseiller en investissement financi
 Mon parcours : un master en finance de marché et en trading. [5]
 Je viens d'un métier où l'on n'a pas le droit à l'erreur. [6]
 J'ai gardé l'âme d'un trader : [7] la rigueur, [8] la lecture des marchés, [9] et le sang-froid. [10]
-Je ne suis pas un commercial. [11] Je suis un stratège. [12]
+Je suis un stratège. [11] Un professionnel des marchés financiers. [12]
 
 ## 02 · Ma philosophie
-Pour moi, le bon conseil, c'est celui qui n'a rien à cacher. [1]
-Ce n'est pas celui qui vous fait dire « oui ». [2] C'est celui qui vous fait dire : « je comprends ». [3]
+Ma philosophie : [1] le bon conseil, ce n'est pas celui qui vous fait dire « oui ». [2] C'est celui qui vous fait dire : « je comprends ». [3]
 Indépendant de tout réseau bancaire, [4] transparent sur chaque frais, [5] et pédagogue, toujours : [6] je vous explique, [7] et c'est vous qui décidez. [8]
 
 ## 03 · Vos objectifs
