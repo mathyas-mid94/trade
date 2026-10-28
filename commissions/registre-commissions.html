@@ -290,7 +290,7 @@ function renderBord(R) {
         ${wfRow("", "Upfront", "Linéaire", "head")}
         ${wfRow("Commission brute", eur(cu.up), eur(cu.lin))}
         ${wfRow(`− Réseau (${esc(S.nomReseau)})`, eur(-cu.rUp), eur(-cu.rLin), "minus")}
-        ${wfRow("− Apporteurs", eur(-cu.aUp), eur(-cu.aLin), "minus")}
+        ${wfRow("− Apporteurs et cabinets", eur(-cu.aUp), eur(-cu.aLin), "minus")}
         ${wfRow("= Commission nette", eur(cu.nUp), eur(cu.nLin))}
         ${wfRow(`− URSSAF (${pct(S.urssaf)})`, eur(-cu.uUp), eur(-cu.uLin), "minus")}
         ${wfRow("= Net-net dans ta poche", eur(cu.nnUp), eur(cu.nnLin), "total")}
@@ -302,7 +302,7 @@ function renderBord(R) {
         ${wfRow("", "Par an", "Par trimestre", "head")}
         ${wfRow("Linéaire brut", eur(re.lin), eur(re.lin / 4))}
         ${wfRow(`− Réseau (${esc(S.nomReseau)})`, eur(-re.rLin), eur(-re.rLin / 4), "minus")}
-        ${wfRow("− Apporteurs", eur(-re.aLin), eur(-re.aLin / 4), "minus")}
+        ${wfRow("− Apporteurs et cabinets", eur(-re.aLin), eur(-re.aLin / 4), "minus")}
         ${wfRow("= Net", eur(re.nLin), eur(re.nLin / 4))}
         ${wfRow("− URSSAF", eur(-re.uLin), eur(-re.uLin / 4), "minus")}
         ${wfRow("= Net-net récurrent", eur(re.nnLin), eur(re.nnLin / 4), "total")}
@@ -390,7 +390,8 @@ function rowC(p) {
   if (c.statut === "prevu") tags.push(`<span class="pill off">à venir</span>`);
   if (c.statut === "resilie") tags.push(`<span class="pill off">résilié</span>`);
   if (c.aVerifier) tags.push(`<span class="pill warn" title="${esc(c.aVerifier)}">à vérifier</span>`);
-  if (c.apporteurNom || num(c.tauxApporteur)) tags.push(`<span class="pill">apporteur ${pct(num(c.tauxApporteur))}</span>`);
+  if (c.tauxReseau !== "" && c.tauxReseau != null && num(c.tauxReseau) === 0) tags.push(`<span class="pill off">sans ${esc(S.nomReseau)}</span>`);
+  if (c.apporteurNom || num(c.tauxApporteur)) tags.push(`<span class="pill">${esc(c.apporteurNom || "partage")} ${pct(num(c.tauxApporteur))}</span>`);
   const taux = [num(c.tauxUpfront) ? `<span class="pill up">${pct(num(c.tauxUpfront))} UF</span>` : "", num(c.tauxLineaire) ? `<span class="pill">${pct(num(c.tauxLineaire))}/an</span>` : "", num(c.partFrais) ? `<span class="pill">${pct(num(c.partFrais))} frais</span>` : ""].join(" ");
   const vp = num(c.vpMontant) ? `${eur(num(c.vpMontant))}/${({ 1: "mois", 3: "trim.", 6: "sem.", 12: "an" })[num(c.vpFrequence) || 1]}` : "—";
   return `<tr class="click" data-id="${esc(c.id)}"><td><b>${esc(c.client)}</b><div class="small muted">${esc(c.partenaire || "")}</div></td>
@@ -420,7 +421,7 @@ function renderPrev(R) {
         ${line("Upfront brut", y => y.up)}
         ${line("Linéaire brut", y => y.lin)}
         ${line(`− Réseau (${esc(S.nomReseau)})`, y => -(y.rUp + y.rLin))}
-        ${line("− Apporteurs", y => -(y.aUp + y.aLin))}
+        ${line("− Apporteurs et cabinets", y => -(y.aUp + y.aLin))}
         ${line("<b>Commission nette</b>", y => y.nUp + y.nLin)}
         ${line("− URSSAF", y => -(y.uUp + y.uLin))}
         ${line("<b>Net-net</b>", y => y.nnUp + y.nnLin)}
@@ -450,7 +451,7 @@ function renderReglages() {
       <label class="f" for="sUrs">Cotisations URSSAF (%)<input id="sUrs" inputmode="decimal" value="${S.urssaf}"></label>
       <label class="f" for="sHor">Horizon du prévisionnel (ans)<input id="sHor" inputmode="numeric" value="${S.horizon}"></label>
       <label class="f" for="sRdt">Rendement annuel par défaut de l'encours (%)<input id="sRdt" inputmode="decimal" value="${S.rendement}"></label>
-      <label class="f" for="sBase">L'apporteur est payé sur<select id="sBase"><option value="apres" ${S.baseApporteur === "apres" ? "selected" : ""}>la commission après réseau</option><option value="brut" ${S.baseApporteur === "brut" ? "selected" : ""}>la commission brute</option></select></label>
+      <label class="f" for="sBase">Apporteurs et cabinets sont payés sur<select id="sBase"><option value="apres" ${S.baseApporteur === "apres" ? "selected" : ""}>la commission après réseau (s'il y en a un)</option><option value="brut" ${S.baseApporteur === "brut" ? "selected" : ""}>la commission brute</option></select></label>
     </div>
     <div class="hint">Micro-entreprise BNC : vérifie ton taux réel sur autoentrepreneur.urssaf.fr (il a augmenté chaque année depuis 2024). Ajoute 2,2 % si tu as opté pour le versement libératoire de l'impôt.</div>
     <div><button class="primary" id="sSave">Enregistrer les hypothèses</button></div>
@@ -530,13 +531,13 @@ function openForm(c) {
     ${field("fRdt", "Rendement annuel de l'encours (%)", c.rendement, `inputmode="decimal" placeholder="${S.rendement} (par défaut)"`)}
   </div><div class="hint">Formule du type « 0,5 % + 15 % par trimestre » : 0,5 dans Linéaire, 15 dans Part des frais, et le taux de frais de gestion du contrat à côté.</div></fieldset>
 
-  <fieldset><legend>Réseau et apporteur</legend><div class="fgrid">
+  <fieldset><legend>Réseau et partage</legend><div class="fgrid">
     ${field("fRes", `Prélèvement ${esc(S.nomReseau)} (%)`, c.tauxReseau, `inputmode="decimal" placeholder="${S.tauxReseau} (par défaut)"`)}
     ${sel("fResL", "Le réseau prélève aussi le linéaire", c.reseauSurLineaire === false ? "non" : "oui", [["oui", "Oui"], ["non", "Non"]])}
-    ${field("fApN", "Apporteur", c.apporteurNom)}
-    ${field("fApT", "Rétrocession apporteur (%)", c.tauxApporteur, 'inputmode="decimal"')}
-    ${sel("fApS", "L'apporteur touche", c.apporteurSur || "upfront", [["upfront", "L'upfront seulement"], ["tout", "Upfront et linéaire"]])}
-  </div></fieldset>
+    ${field("fApN", "Apporteur ou cabinet partenaire", c.apporteurNom)}
+    ${field("fApT", "Part rétrocédée (%)", c.tauxApporteur, 'inputmode="decimal"')}
+    ${sel("fApS", "Le partage porte sur", c.apporteurSur || "upfront", [["upfront", "L'upfront seulement"], ["tout", "Upfront et linéaire"]])}
+  </div><div class="hint">Opération sans ${esc(S.nomReseau)} : mets 0 dans « Prélèvement ». Commission partagée avec un autre cabinet : renseigne-le comme apporteur avec sa part.</div></fieldset>
   <label class="f" for="fNotes">Notes<textarea id="fNotes" rows="2">${esc(c.notes || "")}</textarea></label>
   <div class="preview" id="fPrev"></div>
   <div class="row" style="justify-content:space-between">
