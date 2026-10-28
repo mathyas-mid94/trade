@@ -36,3 +36,7 @@ videos/obligations/*.mp4
 videos/obligations/.mots_nettoyes.json
 videos/obligations/.frames/
 videos/obligations/.*.mp4
+videos/presentation-mic/*.mp4
+videos/presentation-mic/.mots_nettoyes.json
+videos/presentation-mic/.frames/
+videos/presentation-mic/.*.mp4
