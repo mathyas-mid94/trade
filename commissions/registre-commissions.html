@@ -115,6 +115,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
 .sl input[type="range"] { flex: 1; accent-color: var(--accent); padding: 0; background: none; border: 0 }
 .sl input[type="text"] { width: 92px; flex: none; text-align: right; font-family: var(--mono) }
 #reels select { min-width: 130px }
+#reels input[type="text"], #reels input:not([type]) { min-width: 90px }
 #reels input[type="date"] { min-width: 140px }
 .libre-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px }
 @media (prefers-reduced-motion: no-preference) { tr.click td { transition: background .12s } }
@@ -204,14 +205,19 @@ function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = fal
 // Commissions réellement perçues : elles remplacent le calcul (tout l'upfront, et le linéaire jusqu'au dernier versement saisi)
 function simulate(c, endIdx) {
   const out = simulateCalc(c, endIdx);
-  const R = (c.reels || []).filter(r => r.date && num(r.montant));
+  // une ligne répétée (chaque mois, trimestre, année) devient une occurrence par échéance
+  const R = (c.reels || []).filter(r => r.date && num(r.montant)).flatMap(r => {
+    const d = idxOf(r.date), f = num(r.repet), fin = r.jusquau ? idxOf(r.jusquau) : endIdx;
+    if (!f) return [{ ...r, m: d }];
+    const o = []; for (let m = d; m <= Math.min(fin, endIdx); m += f) o.push({ ...r, m }); return o;
+  });
   if (!R.length) return out;
   const vide = () => ({ vers: 0, prime: 0, up: 0, lin: 0, fr: 0, acc: 0, enc: 0 });
   const hasUp = R.some(r => r.type !== "lineaire");
-  const lastLin = Math.max(-Infinity, ...R.filter(r => r.type === "lineaire").map(r => idxOf(r.date)));
+  const lastLin = Math.max(-Infinity, ...R.filter(r => r.type === "lineaire").map(r => r.m));
   for (const [m, x] of out) { if (hasUp) x.up = 0; if (m <= lastLin) x.lin = x.fr = 0; }
   for (const r of R) {
-    const m = idxOf(r.date); if (!out.has(m)) out.set(m, vide());
+    const m = r.m; if (!out.has(m)) out.set(m, vide());
     const x = out.get(m), net = r.base === "net", lin = r.type === "lineaire";
     if (lin) { if (net) x.linN = (x.linN || 0) + num(r.montant); else x.lin += num(r.montant); }
     else if (net) x.upN = (x.upN || 0) + num(r.montant); else x.up += num(r.montant);
@@ -475,7 +481,7 @@ function rowC(p) {
   if (c.statut === "resilie") tags.push(`<span class="pill off">résilié</span>`);
   const lv = (c.valos || []).filter(v => v.date).sort((a, b) => a.date.localeCompare(b.date)).pop();
   if (lv) tags.push(`<span class="pill" title="Dernière valorisation : ${eur(num(lv.valeur))}">valorisé ${new Date(lv.date).toLocaleDateString("fr-FR")}</span>`);
-  if ((c.reels || []).length) tags.push(`<span class="pill up" title="${esc(c.reels.map(r => r.date + " : " + eur(num(r.montant)) + (r.note ? " (" + r.note + ")" : "")).join(" · "))}">perçu réel</span>`);
+  if ((c.reels || []).length) tags.push(`<span class="pill up" title="${esc(c.reels.map(r => r.date + " · " + (r.type === "lineaire" ? "linéaire" : "upfront") + " " + eur(num(r.montant)) + (num(r.repet) ? " répété" : "") + (r.note ? " (" + r.note + ")" : "")).join(" · "))}">perçu / à venir</span>`);
   if (perteEnv(c)) tags.push(`<span class="pill warn">remise ${pct(num(c.fraisEnvStandard))} → ${pct(num(c.fraisEnveloppe))}</span>`);
   if ((c.supports || []).length) tags.push(`<span class="pill">${c.supports.length} support${c.supports.length > 1 ? "s" : ""}</span>`);
   if (c.aVerifier) tags.push(`<span class="pill warn" title="${esc(c.aVerifier)}">à vérifier</span>`);
@@ -674,6 +680,12 @@ function render() {
 function field(id, label, val, attrs = "") { return `<label class="f" for="${id}">${label}<input id="${id}" value="${esc(val ?? "")}" ${attrs}></label>`; }
 function sel(id, label, val, opts) { return `<label class="f" for="${id}">${label}<select id="${id}">${opts.map(o => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}" ${String(v) === String(val ?? "") ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select></label>`; }
 
+function statutReel(l) {
+  const d = idxOf(l.date); if (d == null) return "";
+  if (d > TODAY) return `<span class="pill">à venir</span>`;
+  return num(l.repet) && (!l.jusquau || idxOf(l.jusquau) > TODAY) ? `<span class="pill up">perçue, puis à venir</span>` : `<span class="pill up">perçue</span>`;
+}
+
 function openForm(c) {
   c = c || { produit: "SCPI", date: new Date().toISOString().slice(0, 10), statut: "actif", vpFrequence: 1, lineaireDebut: "immediat", apporteurSur: "upfront", reseauSurLineaire: true, libres: [] };
   const isNew = !c.id;
@@ -681,7 +693,7 @@ function openForm(c) {
   f.innerHTML = `
   <div class="row" style="justify-content:space-between"><h2>${isNew ? "Nouveau contrat" : esc(c.client) + " · " + esc(c.produit)}</h2><button type="button" id="fClose" aria-label="Fermer">✕</button></div>
   ${c.aVerifier ? `<div class="pill warn" style="white-space:normal">À vérifier : ${esc(c.aVerifier)}</div>` : ""}
-  <div><button type="button" id="goReel">✎ Saisir ce que j'ai vraiment touché</button></div>
+  <div><button type="button" id="goReel">✎ Commissions perçues / à venir</button></div>
   <fieldset><legend>Contrat</legend><div class="fgrid">
     ${field("fClient", "Client", c.client, 'required list="clientsList"')}
     ${sel("fProduit", "Produit", c.produit, PRODUITS)}
@@ -740,9 +752,9 @@ function openForm(c) {
     ${field("fApT", "Part rétrocédée (%)", c.tauxApporteur, 'inputmode="decimal"')}
     ${sel("fApS", "Le partage porte sur", c.apporteurSur || "upfront", [["upfront", "L'upfront seulement"], ["tout", "Upfront et linéaire"]])}
   </div><div class="hint">Opération sans ${esc(S.nomReseau)} : mets 0 dans « Prélèvement ». Si ${esc(S.nomReseau)} commence à prélever plus tard (transfert de codes), mets son taux et la date de début : les commissions d'avant restent sans prélèvement. Commission partagée avec un autre cabinet : renseigne-le comme apporteur avec sa part.</div></fieldset>
-  <fieldset><legend>Commissions réellement perçues</legend>
-    <div class="hint">Pour corriger le calcul avec ce que tu as vraiment touché. Un upfront saisi ici remplace tout l'upfront calculé. Un linéaire saisi remplace le calcul jusqu'à sa date, puis le calcul reprend. « Net reçu » = ce qui est arrivé sur ton compte, réseau et partage déjà retirés : seule l'URSSAF est déduite.</div>
-    <div id="reels" class="scroll"></div><div><button type="button" id="addReel">+ Commission perçue</button></div>
+  <fieldset><legend>Commissions perçues / à venir</legend>
+    <div class="hint">Ce que tu as touché, ou ce que tu sais que tu vas toucher (ex. emprunteur : 93 € de linéaire chaque année à partir de N+1). Le statut se met tout seul selon la date. Un upfront saisi ici remplace tout l'upfront calculé ; un linéaire saisi remplace le calcul jusqu'à sa dernière échéance, puis le calcul reprend. « Net reçu » = ce qui est arrivé sur ton compte, réseau et partage déjà retirés : seule l'URSSAF est déduite.</div>
+    <div id="reels" class="scroll"></div><div><button type="button" id="addReel">+ Commission perçue ou à venir</button></div>
   </fieldset>
   <label class="f" for="fNotes">Notes<textarea id="fNotes" rows="2">${esc(c.notes || "")}</textarea></label>
   <div class="preview" id="fPrev"></div>
@@ -755,14 +767,17 @@ function openForm(c) {
   let valos = (c.valos || []).map(l => ({ ...l }));
   let reels = (c.reels || []).map(l => ({ ...l }));
   const drawReel = () => {
-    $("#reels").innerHTML = reels.length ? `<table><thead><tr><th>Date</th><th>Type</th><th class="n">Montant €</th><th>Montant saisi</th><th>Note</th><th></th></tr></thead><tbody>${reels.map((l, i) => `<tr>
+    $("#reels").innerHTML = reels.length ? `<table><thead><tr><th>Statut</th><th>Date</th><th>Type</th><th class="n">Montant €</th><th>Montant saisi</th><th>Répéter</th><th>Jusqu'au</th><th>Note</th><th></th></tr></thead><tbody>${reels.map((l, i) => `<tr>
+      <td id="rS${i}">${statutReel(l)}</td>
       <td><input type="date" id="rD${i}" aria-label="Date" value="${esc(l.date)}"></td>
       <td><select id="rT${i}" aria-label="Type"><option value="upfront" ${l.type !== "lineaire" ? "selected" : ""}>Upfront</option><option value="lineaire" ${l.type === "lineaire" ? "selected" : ""}>Linéaire</option></select></td>
       <td><input id="rM${i}" inputmode="decimal" aria-label="Montant" value="${esc(l.montant ?? "")}"></td>
       <td><select id="rB${i}" aria-label="Base"><option value="net" ${l.base !== "brut" ? "selected" : ""}>Net reçu</option><option value="brut" ${l.base === "brut" ? "selected" : ""}>Brut (avant réseau)</option></select></td>
+ <td><select id="rR${i}" aria-label="Répéter"><option value="0" ${!num(l.repet) ? "selected" : ""}>Une fois</option><option value="1" ${num(l.repet) === 1 ? "selected" : ""}>Chaque mois</option><option value="3" ${num(l.repet) === 3 ? "selected" : ""}>Chaque trimestre</option><option value="12" ${num(l.repet) === 12 ? "selected" : ""}>Chaque année</option></select></td>
+      <td><input type="date" id="rJ${i}" aria-label="Jusqu'au" value="${esc(l.jusquau || "")}" ${num(l.repet) ? "" : "disabled"}></td>
       <td><input id="rN${i}" aria-label="Note" value="${esc(l.note || "")}" placeholder="ex. via le cabinet de…"></td>
       <td><button type="button" data-rmr="${i}" aria-label="Retirer">✕</button></td></tr>`).join("")}</tbody></table>` : "";
-    reels.forEach((l, i) => [["rD", "date"], ["rT", "type"], ["rM", "montant"], ["rB", "base"], ["rN", "note"]].forEach(([k, f]) => { $("#" + k + i).oninput = $("#" + k + i).onchange = e => { l[f] = e.target.value; prev(); }; }));
+    reels.forEach((l, i) => [["rD", "date"], ["rT", "type"], ["rM", "montant"], ["rB", "base"], ["rR", "repet"], ["rJ", "jusquau"], ["rN", "note"]].forEach(([k, f]) => { $("#" + k + i).oninput = $("#" + k + i).onchange = e => { l[f] = e.target.value; $("#rS" + i).innerHTML = statutReel(l); $("#rJ" + i).disabled = !num(l.repet); prev(); }; }));
     document.querySelectorAll("[data-rmr]").forEach(b => b.onclick = () => { reels.splice(+b.dataset.rmr, 1); drawReel(); prev(); });
   };
   const drawSup = () => {
@@ -800,7 +815,7 @@ function openForm(c) {
     supports: supports.filter(l => l.nom || num(l.montant)).map(l => ({ nom: (l.nom || "").trim(), montant: num(l.montant), fraisFonds: num(l.fraisFonds), retro: num(l.retro), unite: l.unite === "frais" ? "frais" : "encours" })),
     valos: valos.filter(l => l.date && l.valeur !== "" && l.valeur != null).map(l => ({ date: l.date, valeur: num(l.valeur) })),
     paiementLin: num($("#fPay").value) || 3,
-    reels: reels.filter(l => l.date && num(l.montant)).map(l => ({ date: l.date, type: l.type === "lineaire" ? "lineaire" : "upfront", montant: num(l.montant), base: l.base === "brut" ? "brut" : "net", note: (l.note || "").trim() })),
+    reels: reels.filter(l => l.date && num(l.montant)).map(l => ({ date: l.date, type: l.type === "lineaire" ? "lineaire" : "upfront", montant: num(l.montant), base: l.base === "brut" ? "brut" : "net", repet: num(l.repet), jusquau: num(l.repet) ? l.jusquau || "" : "", note: (l.note || "").trim() })),
     fraisEnvStandard: $("#fEs").value === "" ? "" : num($("#fEs").value), fraisEnveloppe: $("#fEf").value === "" ? "" : num($("#fEf").value), coutAssureur: $("#fEc").value === "" ? "" : num($("#fEc").value),
     tauxUpfront: num($("#fTu").value), tauxUpfrontVP: $("#fTuVp").value === "" ? "" : num($("#fTuVp").value), tauxLineaire: num($("#fTl").value),
     lineaireDebut: $("#fLd").value, dureeLineaire: $("#fLdur").value === "" ? "" : num($("#fLdur").value),
