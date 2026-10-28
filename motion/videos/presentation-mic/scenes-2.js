@@ -24,16 +24,23 @@ SC("03", "VOS OBJECTIFS", (g, A) => {
   const sab = el("g", { transform: "translate(560 640) scale(1.6)" }, V[3]); D.icons.sablier(sab);
   const bR = el("rect", { ...D.line, fill: C.accent, x: 1060, width: 260, rx: 10 }, V[3]), cR = big(V[3], 1190, 0, "", 72), lR = txt(V[3], 1190, 960, "par mois, par exemple", 26, { weight: 600, fill: C.inkSoft });
   el("path", { ...D.line, "stroke-width": 4, d: "M980 900 L1400 900" }, V[3]);
-  // 5. revenus passifs : sur le transat, les loyers tombent
-  const tr = transat(V[4]), lazy = D.guy(V[4], { vest: C.accent }), pluie = Array.from({ length: 6 }, () => coin(V[4], 26)), seau = el("path", { ...D.line, fill: C.face, d: "M-60 -60 L60 -60 L48 40 L-48 40 Z" }, V[4]);
+  // 5. revenus passifs : trois sources (loyers, coupons, dividendes) qui alimentent le compte, jour et nuit
+  const SRC = [["house", "LOYERS"], ["obligation", "COUPONS"], ["bourse", "DIVIDENDES"]].map(([k, l], j) => { const b = el("g", {}, V[4]);
+    el("circle", { ...D.line, fill: C.face, r: 62 }, b); D.icons[k](el("g", { transform: "scale(0.62)" }, b)); txt(b, 0, 96, l, 20, { weight: 800, ls: 3 }); return b; });
+  const flux5 = SRC.map(() => Array.from({ length: 3 }, () => coin(V[4], 18)));
+  const cpt = card(V[4], 420, 230, { fill: C.ink }); txt(cpt, 0, -60, "VOTRE COMPTE", 24, { weight: 800, ls: 5, fill: C.accentSoft }); const cpv = big(cpt, 0, 40, "", 72, C.paper);
+  const astre = el("circle", { ...D.line, fill: C.accent, r: 34 }, V[4]), calme = marcheur(V[4], { vest: C.accent }, 0.6);
   // 6. impact : panneau solaire + arbre + rendement
   const sol = solaire(V[5], 1.6), arb = arbre(V[5], 0.9), rd = pl(V[5], 960, 960, "DU SENS… SANS FORCÉMENT RENONCER AU RENDEMENT", { bg: C.accentSoft, size: 20 });
   // 7. société : l'empire qui s'empile
   const emp = empire(V[6]), boss = marcheur(V[6], { vest: C.accent }, 0.6);
   // 8. transmettre : du père au fils
   const pere = marcheur(V[7], { vest: C.accent }, 0.8), fils = marcheur(V[7], { vest: C.inkSoft }, 0.48), don = cadeau(V[7]), arb2 = arbre(V[7], 0.6);
-  // 9. reprendre en main : le gribouillis qui se démêle
-  const perdu = marcheur(V[8], { vest: C.accent }, 0.75), dm = demele(V[8]);
+  // 9. reprendre en main : deux feuilles volantes et un point d'interrogation au-dessus du personnage
+  const perdu = marcheur(V[8], { vest: C.accent }, 0.8);
+  const feuille = () => { const f = el("g", {}, V[8]); el("rect", { ...D.line, fill: C.face, x: -60, y: -80, width: 120, height: 160, rx: 6 }, f);
+    [-44, -18, 8, 34].forEach(y => el("path", { ...D.line, "stroke-width": 3, stroke: C.inkSoft, d: `M-40 ${y} L40 ${y}` }, f)); return f; };
+  const F9 = [feuille(), feuille()], q9 = big(V[8], 0, 0, "?", 140, C.accent);
   return t => {
     show(head, fade(t, m(1) - 0.5) * out(t, m(2) - 0.4));
     const cur = W.findIndex((w, i) => t < (W[i][1] < 99 ? m(W[i][1]) - 0.35 : 1e9));
@@ -56,9 +63,12 @@ SC("03", "VOS OBJECTIFS", (g, A) => {
     bR.setAttribute("y", 900 - h4); bR.setAttribute("height", h4); cR.setAttribute("y", 900 - h4 - 30); cR.textContent = euros(v4);
     sab.setAttribute("transform", `translate(640 620) scale(1.6) rotate(${180 * ease(prog(t, m(10), m(10) + 1))})`);
     // 5
-    tr.setAttribute("transform", "translate(820 900)"); lazy.pose(150, 160).place(860, 820, 0.6, false, -62);
-    pluie.forEach((c, j) => { const u = ((t * 0.8) + j / 6) % 1; place(c, 1300 + 40 * Math.sin(j * 2), lerp(380, 860, u), fade(t, m(13) - 0.4) * (u < 0.95 ? 1 : 0)); });
-    seau.setAttribute("transform", "translate(1300 880)");
+    SRC.forEach((b, j) => place(b, 520, 440 + j * 190, pop(t, m(12) - 0.3 + j * 0.15)));
+    flux5.forEach((F, j) => F.forEach((c, q) => { const u = ((t * 0.55) + q / 3 + j * 0.21) % 1; place(c, lerp(600, 1120, u), lerp(440 + j * 190, 620, u) - 40 * Math.sin(Math.PI * u), fade(t, m(12)) * (u > 0.05 && u < 0.93 ? 1 : 0)); }));
+    place(cpt, 1330, 620, pop(t, m(12) - 0.1)); cpv.textContent = "+ " + euros(Math.max(0, t - m(12)) * 420);
+    const ang = Math.PI * (1 - ((t - m(12)) * 0.35 % 1)); astre.setAttribute("cx", 1330 + 260 * Math.cos(ang)); astre.setAttribute("cy", 420 - 90 * Math.sin(ang));
+    astre.setAttribute("fill", Math.sin(ang * 2 + 1) > 0 ? C.accent : C.paperDeep); astre.style.opacity = fade(t, m(13) - 0.4);
+    calme.at(t, [[m(12), 1640, 900]], { armL: 120, armR: 60, flip: true });
     // 6
     sol.setAttribute && sol.setAttribute("transform", `translate(640 820) scale(${1.6 * pop(t, m(14) - 0.3)})`);
     arb.g.setAttribute("transform", "translate(1240 900) scale(0.9)"); arb.set(prog(t, m(15) - 0.4, m(15) + 1.2));
@@ -71,9 +81,10 @@ SC("03", "VOS OBJECTIFS", (g, A) => {
     const k8 = ease(prog(t, m(19) + 0.3, m(20))); place(don, lerp(720, 1080, k8), 760 - 140 * Math.sin(Math.PI * k8), 0.55);
     arb2.g.setAttribute("transform", "translate(1500 960) scale(0.6)"); arb2.set(prog(t, m(20) - 0.2, m(20) + 1.0));
     // 9
-    const k9 = prog(t, m(21) + 0.6, m(21) + 2.2);
-    perdu.at(t, [[m(21) - 0.3, 700, 960]], { armL: k9 < 0.5 ? 230 : undefined, armR: k9 < 0.5 ? -50 : -30 });
-    dm.g.setAttribute("transform", "translate(1180 560) scale(1.6)"); dm.set(k9);
+    perdu.at(t, [[m(21) - 0.3, 960, 980]], { armL: 205 + 10 * Math.sin(t * 2.5), armR: -25 - 10 * Math.sin(t * 2.5) });
+    F9.forEach((f, j) => { const s9 = j ? 1 : -1, ph = t * 1.3 + j * 2.1;
+      place(f, 960 + s9 * (260 + 30 * Math.sin(ph)), 520 + 40 * Math.sin(ph * 1.4), pop(t, m(21) - 0.2 + j * 0.15) * 0.9, s9 * (14 + 10 * Math.sin(ph * 1.1))); });
+    place(q9, 960, 470 + 10 * Math.sin(t * 3), pop(t, m(21)), 6 * Math.sin(t * 2));
   };
 });
 
