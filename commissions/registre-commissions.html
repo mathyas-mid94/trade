@@ -30,6 +30,7 @@ h2 { font-family: var(--display); font-size: 17px; font-weight: 600; margin: 0; 
 h3 { font-size: 12px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted) }
 .num, td.n, th.n { font-family: var(--mono); font-variant-numeric: tabular-nums }
 td.n, th.n { text-align: right; white-space: nowrap }
+td.n .small { white-space: normal; min-width: 150px }
 .muted { color: var(--muted) }
 .small { font-size: 12px }
 
@@ -142,6 +143,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
     <button role="tab" data-tab="bord" aria-selected="true">Tableau de bord</button>
     <button role="tab" data-tab="contrats" aria-selected="false">Contrats</button>
     <button role="tab" data-tab="prev" aria-selected="false">Prévisionnel</button>
+    <button role="tab" data-tab="obj" aria-selected="false">Objectifs</button>
     <button role="tab" data-tab="sim" aria-selected="false">Simulateur</button>
     <button role="tab" data-tab="part" aria-selected="false">Partenaires</button>
     <button role="tab" data-tab="reglages" aria-selected="false">Réglages &amp; sauvegarde</button>
@@ -150,6 +152,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
   <section id="view-bord" data-view></section>
   <section id="view-contrats" data-view hidden></section>
   <section id="view-prev" data-view hidden></section>
+  <section id="view-obj" data-view hidden></section>
   <section id="view-sim" data-view hidden></section>
   <section id="view-part" data-view hidden></section>
   <section id="view-reglages" data-view hidden></section>
@@ -189,6 +192,7 @@ function tauxSupports(c) {
 }
 
 let db = null, S = { ...DEFAULTS }, contrats = [], partenaires = [], loaded = false;
+let OBJ = { lignes: [1, 2, 3, 4, 5].map(h => ({ h, encRem: "", linNN: "", upNN: "" })), ticketLin: "", ticketUp: "" };
 let chartMode = "net", tab = "bord", filtre = "", cumul = false;
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -428,10 +432,23 @@ function renderBord(R) {
     <div class="chart" id="chart1">${chart(R.years)}</div>
     <div class="legend"><span><span class="sw" style="background:var(--upfront)"></span>Upfront</span><span><span class="sw" style="background:var(--accent)"></span>Linéaire</span><span class="muted">${nC} contrats pris en compte</span></div>
   </div>
+  ${objPanel(R)}
   ${remisesPanel(R)}
   <div class="grid2">${repartition(R, "produit", "Par produit")}${repartition(R, "partenaire", "Par partenaire")}</div>`;
   bindSeg();
   document.querySelectorAll("#view-bord tr[data-id]").forEach(tr => tr.onclick = () => openForm(contrats.find(c => c.id === tr.dataset.id)));
+}
+
+function objPanel(R) {
+  const l = OBJ.lignes.find(l => num(l.encRem) || num(l.linNN) || num(l.upNN));
+  if (!l) return "";
+  const M = moyennes(R), b = besoins(R, M, l); if (!b) return "";
+  const barre = (v, c) => `<div style="height:8px;border-radius:4px;background:var(--line);overflow:hidden"><div style="height:100%;width:${Math.min(100, c ? v / c * 100 : 0).toFixed(1)}%;background:var(--accent)"></div></div>`;
+  const items = [];
+  if (b.encVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Encours rémunéré aujourd'hui</span><b class="num">${eur(R.T.encRem)} / ${eur(b.encVise)}</b></div>${barre(R.T.encRem, b.encVise)}</div>`);
+  if (b.linVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Linéaire net-net projeté ${b.Y}</span><b class="num">${eur(b.P.nnLin)} / ${eur(b.linVise)}</b></div>${barre(b.P.nnLin, b.linVise)}</div>`);
+  if (b.upVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Upfront net-net projeté ${b.Y}</span><b class="num">${eur(b.P.nnUp)} / ${eur(b.upVise)}</b></div>${barre(b.P.nnUp, b.upVise)}</div>`);
+  return `<div class="panel"><div class="row" style="justify-content:space-between"><h2>Objectif à ${l.h} an${l.h > 1 ? "s" : ""} (fin ${b.Y})</h2><span class="hint">${b.nLin ? `<b>${b.nLin}</b> contrats linéaires à signer` : ""}${b.nLin && b.nUp ? " · " : ""}${b.nUp ? `<b>${b.nUp}</b> contrats upfront en ${b.Y}` : ""}</span></div>${items.join("")}</div>`;
 }
 
 function remisesPanel(R) {
@@ -584,6 +601,87 @@ function croissance(R, ys) {
   return `<div class="hint" style="font-size:13px;color:var(--ink)">Ton linéaire ${chartMode === "brut" ? "brut" : chartMode === "net" ? "net" : "net-net"} passe de <b>${eur(a[k])}</b> en ${ys[1]} à <b>${eur(z[k])}</b> en ${ys[ys.length - 1]} (${g >= 0 ? "+" : ""}${Math.round(g)} %). L'encours rémunéré passe de ${eur(a.encRem)} à ${eur(z.encRem)}, porté par ${eur(vp)} de versements programmés par an${S.revalo ? " et la revalorisation" : ""}. Cumulé sur la période : <b>${eur(ys.slice(1).reduce((t, y) => t + R.years[y][k], 0))}</b> de linéaire.</div>`;
 }
 
+/* ---------- Objectifs : combien de contrats signer ---------- */
+// moyennes tirées des contrats déjà saisis (surchargeables à la main)
+function moyennes(R) {
+  const remun = c => tauxLin(c) > 0 || num(c.partFrais) > 0 || tauxSupports(c) > 0;
+  const L = R.perC.filter(p => !PRIME.has(p.c.produit) && remun(p.c) && p.vers > 0);
+  const U = R.perC.filter(p => p.cumul.up > 0);
+  const encL = L.reduce((t, p) => t + p.enc, 0);
+  return {
+    nLin: L.length, nUp: U.length,
+    ticketLin: num(OBJ.ticketLin) || (L.length ? L.reduce((t, p) => t + p.vers, 0) / L.length : 0),
+    tauxNN: encL ? L.reduce((t, p) => t + p.recur.nnLin, 0) / encL : 0,
+    tauxBrut: encL ? L.reduce((t, p) => t + p.recur.lin, 0) / encL : 0,
+    upNN: num(OBJ.ticketUp) || (U.length ? U.reduce((t, p) => t + p.cumul.nnUp, 0) / U.length : 0),
+  };
+}
+function besoins(R, M, l) {
+  const Y = now.getFullYear() + l.h, P = R.years[Y];
+  if (!P) return null;
+  const encVise = num(l.encRem), linVise = num(l.linNN), upVise = num(l.upNN);
+  const manqueEnc = Math.max(0, encVise - P.encRem);
+  const manqueRev = M.tauxNN ? Math.max(0, linVise - P.nnLin) / M.tauxNN : 0;   // encours à ajouter pour le revenu visé
+  const encAjout = Math.max(manqueEnc, manqueRev);
+  const nLin = M.ticketLin ? Math.ceil(encAjout / M.ticketLin) : null;
+  const manqueUp = Math.max(0, upVise - P.nnUp);
+  const nUp = M.upNN ? Math.ceil(manqueUp / M.upNN) : null;
+  return { Y, P, encVise, linVise, upVise, encAjout, manqueEnc, manqueRev, nLin, nUp, manqueUp, total: linVise + upVise, totalProj: P.nnLin + P.nnUp };
+}
+function renderObj(R) {
+  if (!contrats.length) { $("#view-obj").innerHTML = emptyState(); return; }
+  const M = moyennes(R), Y0 = now.getFullYear();
+  const cell = (i, k, v) => `<td><input id="o_${k}_${i}" inputmode="decimal" aria-label="${k}" value="${esc(v)}" placeholder="—" style="text-align:right"></td>`;
+  const rows = OBJ.lignes.map((l, i) => {
+    const b = (num(l.encRem) || num(l.linNN) || num(l.upNN)) ? besoins(R, M, l) : null;
+    return { l, i, b };
+  });
+  const tag = (ok, txt) => `<span class="pill ${ok ? "" : "warn"}">${txt}</span>`;
+  $("#view-obj").innerHTML = `<div class="panel">
+    <div><h2>Objectifs</h2><div class="hint">Fixe ce que tu vises à chaque horizon. L'outil compare avec ce que ton portefeuille actuel produira de lui-même (prévisionnel, versements programmés compris), puis traduit l'écart en contrats à signer d'après tes moyennes réelles.</div></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Horizon</th><th class="n">Encours rémunéré visé</th><th class="n">Linéaire net-net visé /an</th><th class="n">Upfront net-net visé /an</th><th class="n">Rémunération totale visée /an</th></tr></thead>
+      <tbody>${rows.map(({ l, i }) => `<tr><td><b>${l.h} an${l.h > 1 ? "s" : ""}</b> <span class="muted small">fin ${Y0 + l.h}</span></td>${cell(i, "encRem", l.encRem)}${cell(i, "linNN", l.linNN)}${cell(i, "upNN", l.upNN)}<td class="n" id="o_tot_${i}">${num(l.linNN) + num(l.upNN) ? eur(num(l.linNN) + num(l.upNN)) : "—"}</td></tr>`).join("")}</tbody>
+    </table></div>
+    <div class="row"><button class="primary" id="oSave">Enregistrer les objectifs</button><span class="hint">Laisse vide ce que tu ne vises pas.</span></div>
+  </div>
+
+  <div class="panel">
+    <div><h2>Ce qu'il te faut signer</h2><div class="hint">Linéaire : l'encours se cumule, les contrats signés d'ici là comptent tous. Upfront : il repart de zéro chaque année, c'est un rythme à tenir dans l'année visée. Hypothèse : les nouveaux contrats sont signés avant l'année visée et ressemblent à tes contrats actuels.</div></div>
+    ${rows.some(r => r.b) ? `<div class="scroll"><table>
+      <thead><tr><th>Horizon</th><th class="n">Encours rémunéré projeté → visé</th><th class="n">Linéaire net-net projeté → visé</th><th class="n">Contrats linéaires à signer</th><th class="n">Upfront net-net projeté → visé</th><th class="n">Contrats upfront dans l'année</th><th class="n">Total net-net projeté → visé</th></tr></thead>
+      <tbody>${rows.filter(r => r.b || num(r.l.encRem) || num(r.l.linNN) || num(r.l.upNN)).map(({ l, b }) => !b ? `<tr><td>${l.h} ans</td><td colspan="6" class="muted">Au-delà de l'horizon du prévisionnel (${S.horizon} ans) : augmente-le dans Réglages.</td></tr>` : `<tr>
+        <td><b>${l.h} an${l.h > 1 ? "s" : ""}</b><div class="small muted">${b.Y}</div></td>
+        <td class="n">${eur(b.P.encRem)} → ${b.encVise ? eur(b.encVise) : "—"}${b.encVise ? `<div>${tag(b.P.encRem >= b.encVise, b.P.encRem >= b.encVise ? "atteint" : "manque " + eur(b.manqueEnc))}</div>` : ""}</td>
+        <td class="n">${eur(b.P.nnLin)} → ${b.linVise ? eur(b.linVise) : "—"}${b.linVise ? `<div>${tag(b.P.nnLin >= b.linVise, b.P.nnLin >= b.linVise ? "atteint" : "manque " + eur(b.linVise - b.P.nnLin))}</div>` : ""}</td>
+        <td class="n">${b.encVise || b.linVise ? (b.nLin == null ? "—" : `<b style="font-size:16px">${b.nLin}</b><div class="small muted">${eur(b.encAjout)} d'encours à apporter${b.nLin ? ` · ${(b.nLin / l.h).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} par an · ${(b.nLin / l.h / 12).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} par mois` : ""}</div>`) : "—"}</td>
+        <td class="n">${eur(b.P.nnUp)} → ${b.upVise ? eur(b.upVise) : "—"}${b.upVise ? `<div>${tag(b.P.nnUp >= b.upVise, b.P.nnUp >= b.upVise ? "atteint" : "manque " + eur(b.manqueUp))}</div>` : ""}</td>
+        <td class="n">${b.upVise ? (b.nUp == null ? "—" : `<b style="font-size:16px">${b.nUp}</b><div class="small muted">en ${b.Y} · ${(b.nUp / 12).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} par mois</div>`) : "—"}</td>
+        <td class="n">${eur(b.totalProj)} → ${b.total ? eur(b.total) : "—"}${b.total ? `<div class="small muted">${eur(b.total / 12)}/mois visé</div>` : ""}</td></tr>`).join("")}</tbody></table></div>`
+      : `<div class="empty">Remplis au moins un objectif ci-dessus pour voir combien de contrats signer.</div>`}
+  </div>
+
+  <div class="panel">
+    <div><h2>Tes moyennes, base du calcul</h2><div class="hint">Calculées sur tes contrats enregistrés. Tu peux les remplacer si tu vises un autre type de client (ticket plus gros, autre produit).</div></div>
+    <div class="kpis">
+      ${kpi("lin", "Ticket moyen linéaire", eur(M.ticketLin), `versé par contrat · ${M.nLin} contrats linéaires${num(OBJ.ticketLin) ? " · valeur saisie" : ""}`)}
+      ${kpi("lin", "Rendement net-net du linéaire", pct(M.tauxNN * 100) + "/an", `brut ${pct(M.tauxBrut * 100)} · soit ${eur(M.ticketLin * M.tauxNN)}/an par contrat moyen`)}
+      ${kpi("up", "Upfront net-net moyen", eur(M.upNN), `par contrat · ${M.nUp} contrats upfront${num(OBJ.ticketUp) ? " · valeur saisie" : ""}`)}
+    </div>
+    <div class="fgrid">
+      <label class="f" for="oTL">Remplacer le ticket moyen linéaire (€)<input id="oTL" inputmode="decimal" value="${esc(OBJ.ticketLin)}" placeholder="${Math.round(M.ticketLin)}"></label>
+      <label class="f" for="oTU">Remplacer l'upfront net-net moyen (€)<input id="oTU" inputmode="decimal" value="${esc(OBJ.ticketUp)}" placeholder="${Math.round(M.upNN)}"></label>
+    </div>
+  </div>`;
+  OBJ.lignes.forEach((l, i) => ["encRem", "linNN", "upNN"].forEach(k => { $(`#o_${k}_${i}`).oninput = e => { l[k] = e.target.value; $("#o_tot_" + i).textContent = num(l.linNN) + num(l.upNN) ? eur(num(l.linNN) + num(l.upNN)) : "—"; }; }));
+  $("#oSave").onclick = async () => {
+    OBJ.ticketLin = $("#oTL").value; OBJ.ticketUp = $("#oTU").value;
+    const d = { lignes: OBJ.lignes.map(l => ({ h: l.h, encRem: l.encRem === "" ? "" : num(l.encRem), linNN: l.linNN === "" ? "" : num(l.linNN), upNN: l.upNN === "" ? "" : num(l.upNN) })), ticketLin: OBJ.ticketLin === "" ? "" : num(OBJ.ticketLin), ticketUp: OBJ.ticketUp === "" ? "" : num(OBJ.ticketUp) };
+    OBJ = { ...OBJ, ...d }; render();
+    try { await db.doc("config/objectifs").set(d); toast("Objectifs enregistrés"); } catch (e) { toast("Échec de l'enregistrement : " + (e.message || e.code)); }
+  };
+}
+
 /* ---------- Simulateur : marge enveloppe + rétro fonds ---------- */
 const SIM_P = [
   ["initial", "Versement initial", 0, 1000000, 5000, "€"], ["mensuel", "Versement mensuel", 0, 10000, 50, "€"],
@@ -728,6 +826,7 @@ function render() {
   if (tab === "bord") renderBord(R);
   if (tab === "contrats") renderContrats(R);
   if (tab === "prev") renderPrev(R);
+  if (tab === "obj") renderObj(R);
   if (tab === "sim") renderSim();
   if (tab === "part") renderPart();
   if (tab === "reglages") renderReglages();
@@ -1014,6 +1113,7 @@ render();
   db = window.claude?.use ? await claude.use("db") : null;
   if (!db) { db = null; setSync("off", "Rien n'est enregistré ici : ouvre le registre depuis son lien claude.ai"); render(); return; }
   let got = 0; const ready = () => { if (++got >= 2) { loaded = true; render(); } };
+  db.doc("config/objectifs").onSnapshot(s => { if (s.exists) { const d = s.data(); OBJ = { ...OBJ, ...d, lignes: [1, 2, 3, 4, 5].map(h => ({ h, encRem: "", linNN: "", upNN: "", ...((d.lignes || []).find(l => l.h === h) || {}) })) }; } if (loaded && tab !== "obj") render(); }, () => {});
   db.doc("config/reglages").onSnapshot(s => { S = { ...DEFAULTS, ...(s.exists ? s.data() : {}) }; if (loaded) render(); }, () => {});
   db.collection("contrats").onSnapshot(s => { setSync(s.metadata?.hasPendingWrites ? "pending" : "ok", s.metadata?.hasPendingWrites ? "Enregistrement en cours…" : "Enregistré en ligne · " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })); contrats = s.docs.map(d => ({ ...d.data(), id: d.id })); loaded ? render() : ready(); }, e => toast("Lecture des contrats impossible : " + e.code));
   db.collection("partenaires").onSnapshot(s => { partenaires = s.docs.map(d => ({ ...d.data(), id: d.id })); loaded ? render() : ready(); }, () => ready());
