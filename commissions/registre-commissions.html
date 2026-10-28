@@ -95,6 +95,11 @@ dialog form { display: grid; gap: 14px; padding: 18px }
 .preview b { font-family: var(--mono); font-weight: 500 }
 
 .empty { padding: 28px; text-align: center; color: var(--muted); display: grid; gap: 10px; justify-items: center }
+.sync { font-size: 12px; font-weight: 600; margin-top: 6px; display: inline-flex; gap: 6px; align-items: center }
+.sync::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted) }
+.sync[data-s="ok"] { color: var(--good) } .sync[data-s="ok"]::before { background: var(--good) }
+.sync[data-s="pending"] { color: var(--warn) } .sync[data-s="pending"]::before { background: var(--warn) }
+.sync[data-s="off"] { color: var(--bad) } .sync[data-s="off"]::before { background: var(--bad) }
 .toast { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 14px; border-radius: 8px; font-size: 13px }
 .chart svg { width: 100%; height: auto; display: block }
 .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted) }
@@ -111,6 +116,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
     <div>
       <h1>Registre des commissions</h1>
       <div class="sub" id="subline">Chargement des contrats…</div>
+      <div class="sync" id="sync" data-s="wait">Connexion au stockage…</div>
     </div>
     <div class="row">
       <label class="row small muted" for="incPipe"><input type="checkbox" id="incPipe" checked> Inclure les contrats à venir</label>
@@ -158,6 +164,7 @@ const TODAY = now.getFullYear() * 12 + now.getMonth();
 const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 const lblIdx = i => MOIS[i % 12] + " " + Math.floor(i / 12);
 
+function setSync(st, txt) { const e = $("#sync"); e.dataset.s = st; e.textContent = txt; }
 function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
 
 /* ---------- Moteur de calcul : simulation mois par mois ---------- */
@@ -203,9 +210,10 @@ function simulate(c, endIdx) {
   return out;
 }
 
-function rates(c) {
+function rates(c, m) {
+  const avant = c.reseauDepuis && m != null && m < idxOf(c.reseauDepuis);
   return {
-    r: (c.tauxReseau === "" || c.tauxReseau == null ? S.tauxReseau : num(c.tauxReseau)) / 100,
+    r: avant ? 0 : (c.tauxReseau === "" || c.tauxReseau == null ? S.tauxReseau : num(c.tauxReseau)) / 100,
     rLin: c.reseauSurLineaire === false ? 0 : 1,
     a: num(c.tauxApporteur) / 100,
     aLin: c.apporteurSur === "tout",
@@ -213,8 +221,8 @@ function rates(c) {
   };
 }
 // Découpe une commission brute en réseau / apporteur / net / URSSAF / net-net
-function split(c, up, lin) {
-  const k = rates(c);
+function split(c, up, lin, m) {
+  const k = rates(c, m);
   const rUp = up * k.r, rLin = lin * k.r * k.rLin;
   const baseUp = S.baseApporteur === "brut" ? up : up - rUp;
   const baseLin = S.baseApporteur === "brut" ? lin : lin - rLin;
@@ -239,7 +247,7 @@ function compute() {
     const remun = num(c.tauxLineaire) > 0 || num(c.partFrais) > 0;
     const pc = { c, cumul: ZERO(), vers: 0, enc: 0, recur: ZERO(), up: 0 };
     for (const [m, x] of sim) {
-      const s = split(c, x.up, x.lin + x.fr);
+      const s = split(c, x.up, x.lin + x.fr, m);
       const y = Math.floor(m / 12);
       if (y < minYear) minYear = y;
       if (!years[y]) years[y] = { ...ZERO(), vers: 0, prime: 0, encFin: 0, encRem: 0, vp: 0 };
@@ -254,7 +262,7 @@ function compute() {
       if (m > TODAY && m <= TODAY + 12) { addTo(T.next12, s); T.vp12 += x.vp || 0; }
       if (m === TODAY) {
         pc.enc = x.enc; T.enc += x.enc; if (remun) T.encRem += x.enc;
-        const r = split(c, 0, (x.lin + x.fr) * 12); addTo(T.recur, r); addTo(pc.recur, r);
+        const r = split(c, 0, (x.lin + x.fr) * 12, m); addTo(T.recur, r); addTo(pc.recur, r);
       }
     }
     // contrat souscrit dans le futur : encours = 0 aujourd'hui, mais garder une trace
@@ -390,7 +398,8 @@ function rowC(p) {
   if (c.statut === "prevu") tags.push(`<span class="pill off">à venir</span>`);
   if (c.statut === "resilie") tags.push(`<span class="pill off">résilié</span>`);
   if (c.aVerifier) tags.push(`<span class="pill warn" title="${esc(c.aVerifier)}">à vérifier</span>`);
-  if (c.tauxReseau !== "" && c.tauxReseau != null && num(c.tauxReseau) === 0) tags.push(`<span class="pill off">sans ${esc(S.nomReseau)}</span>`);
+  if (c.reseauDepuis) tags.push(`<span class="pill off">${esc(S.nomReseau)} dès ${new Date(c.reseauDepuis).toLocaleDateString("fr-FR")}</span>`);
+  else if (c.tauxReseau !== "" && c.tauxReseau != null && num(c.tauxReseau) === 0) tags.push(`<span class="pill off">sans ${esc(S.nomReseau)}</span>`);
   if (c.apporteurNom || num(c.tauxApporteur)) tags.push(`<span class="pill">${esc(c.apporteurNom || "partage")} ${pct(num(c.tauxApporteur))}</span>`);
   const taux = [num(c.tauxUpfront) ? `<span class="pill up">${pct(num(c.tauxUpfront))} UF</span>` : "", num(c.tauxLineaire) ? `<span class="pill">${pct(num(c.tauxLineaire))}/an</span>` : "", num(c.partFrais) ? `<span class="pill">${pct(num(c.partFrais))} frais</span>` : ""].join(" ");
   const vp = num(c.vpMontant) ? `${eur(num(c.vpMontant))}/${({ 1: "mois", 3: "trim.", 6: "sem.", 12: "an" })[num(c.vpFrequence) || 1]}` : "—";
@@ -533,11 +542,12 @@ function openForm(c) {
 
   <fieldset><legend>Réseau et partage</legend><div class="fgrid">
     ${field("fRes", `Prélèvement ${esc(S.nomReseau)} (%)`, c.tauxReseau, `inputmode="decimal" placeholder="${S.tauxReseau} (par défaut)"`)}
+    ${field("fResD", "Prélèvement à partir du (vide = depuis le début)", c.reseauDepuis, 'type="date"')}
     ${sel("fResL", "Le réseau prélève aussi le linéaire", c.reseauSurLineaire === false ? "non" : "oui", [["oui", "Oui"], ["non", "Non"]])}
     ${field("fApN", "Apporteur ou cabinet partenaire", c.apporteurNom)}
     ${field("fApT", "Part rétrocédée (%)", c.tauxApporteur, 'inputmode="decimal"')}
     ${sel("fApS", "Le partage porte sur", c.apporteurSur || "upfront", [["upfront", "L'upfront seulement"], ["tout", "Upfront et linéaire"]])}
-  </div><div class="hint">Opération sans ${esc(S.nomReseau)} : mets 0 dans « Prélèvement ». Commission partagée avec un autre cabinet : renseigne-le comme apporteur avec sa part.</div></fieldset>
+  </div><div class="hint">Opération sans ${esc(S.nomReseau)} : mets 0 dans « Prélèvement ». Si ${esc(S.nomReseau)} commence à prélever plus tard (transfert de codes), mets son taux et la date de début : les commissions d'avant restent sans prélèvement. Commission partagée avec un autre cabinet : renseigne-le comme apporteur avec sa part.</div></fieldset>
   <label class="f" for="fNotes">Notes<textarea id="fNotes" rows="2">${esc(c.notes || "")}</textarea></label>
   <div class="preview" id="fPrev"></div>
   <div class="row" style="justify-content:space-between">
@@ -558,7 +568,7 @@ function openForm(c) {
     tauxUpfront: num($("#fTu").value), tauxUpfrontVP: $("#fTuVp").value === "" ? "" : num($("#fTuVp").value), tauxLineaire: num($("#fTl").value),
     lineaireDebut: $("#fLd").value, dureeLineaire: $("#fLdur").value === "" ? "" : num($("#fLdur").value),
     partFrais: num($("#fPf").value), fraisGestion: num($("#fFg").value), rendement: $("#fRdt").value === "" ? null : num($("#fRdt").value),
-    tauxReseau: $("#fRes").value === "" ? "" : num($("#fRes").value), reseauSurLineaire: $("#fResL").value === "oui",
+    tauxReseau: $("#fRes").value === "" ? "" : num($("#fRes").value), reseauDepuis: $("#fResD").value || "", reseauSurLineaire: $("#fResL").value === "oui",
     apporteurNom: $("#fApN").value.trim(), tauxApporteur: num($("#fApT").value), apporteurSur: $("#fApS").value, notes: $("#fNotes").value,
   });
   const prev = () => {
@@ -568,8 +578,8 @@ function openForm(c) {
     const sim = simulate(x, endIdx());
     let up = ZERO(), m12 = 0, encN = 0, linY = 0;
     const s0 = idxOf(x.date);
-    for (const [m, v] of sim) { if (m < s0 + 12) { addTo(up, split(x, v.up, 0)); m12 += v.vers; } if (m >= s0 + 12 && m < s0 + 24) linY += v.lin + v.fr; if (m === s0 + 11) encN = v.enc; }
-    const sl = split(x, 0, linY);
+    for (const [m, v] of sim) { if (m < s0 + 12) { addTo(up, split(x, v.up, 0, m)); m12 += v.vers; } if (m >= s0 + 12 && m < s0 + 24) linY += v.lin + v.fr; if (m === s0 + 11) encN = v.enc; }
+    const sl = split(x, 0, linY, s0 + 12);
     $("#fPrev").innerHTML = `<div><span class="small muted">Versé la 1re année</span><b>${eur(m12)}</b></div><div><span class="small muted">Upfront 1re année brut → net</span><b>${eur(up.up)} → ${eur(up.nUp)}</b></div><div><span class="small muted">Linéaire 2e année brut → net</span><b>${eur(sl.lin)} → ${eur(sl.nLin)}</b></div><div><span class="small muted">Encours après 12 mois</span><b>${isP ? "—" : eur(encN)}</b></div>`;
   };
   drawLib(); prev();
@@ -661,10 +671,10 @@ render();
 
 (async () => {
   db = window.claude?.use ? await claude.use("db") : null;
-  if (!db) { db = null; render(); return; }
+  if (!db) { db = null; setSync("off", "Rien n'est enregistré ici : ouvre le registre depuis son lien claude.ai"); render(); return; }
   let got = 0; const ready = () => { if (++got >= 2) { loaded = true; render(); } };
   db.doc("config/reglages").onSnapshot(s => { S = { ...DEFAULTS, ...(s.exists ? s.data() : {}) }; if (loaded) render(); }, () => {});
-  db.collection("contrats").onSnapshot(s => { contrats = s.docs.map(d => ({ ...d.data(), id: d.id })); loaded ? render() : ready(); }, e => toast("Lecture des contrats impossible : " + e.code));
+  db.collection("contrats").onSnapshot(s => { setSync(s.metadata?.hasPendingWrites ? "pending" : "ok", s.metadata?.hasPendingWrites ? "Enregistrement en cours…" : "Enregistré en ligne · " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })); contrats = s.docs.map(d => ({ ...d.data(), id: d.id })); loaded ? render() : ready(); }, e => toast("Lecture des contrats impossible : " + e.code));
   db.collection("partenaires").onSnapshot(s => { partenaires = s.docs.map(d => ({ ...d.data(), id: d.id })); loaded ? render() : ready(); }, () => ready());
 })();
 })();
