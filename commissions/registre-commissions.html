@@ -22,6 +22,7 @@
   --good: #6ccf94; --warn: #e3a64e; --bad: #ec7f7f; color-scheme: dark }
 
 * { box-sizing: border-box }
+[hidden] { display: none !important }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.45 }
 .wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; display: grid; gap: 20px }
 h1 { font-family: var(--display); font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.01em; text-wrap: balance }
@@ -107,6 +108,12 @@ dialog form { display: grid; gap: 14px; padding: 18px }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
 .seg button { border: 0; border-radius: 0; padding: 5px 10px; font-size: 12px }
 .seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface) }
+.sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 24px }
+.sl { display: grid; gap: 4px; min-width: 0 }
+.sl label { font-size: 12px; color: var(--muted) }
+.sl .ctl { display: flex; gap: 10px; align-items: center }
+.sl input[type="range"] { flex: 1; accent-color: var(--accent); padding: 0; background: none; border: 0 }
+.sl input[type="text"] { width: 92px; flex: none; text-align: right; font-family: var(--mono) }
 .libre-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px }
 @media (prefers-reduced-motion: no-preference) { tr.click td { transition: background .12s } }
 </style>
@@ -128,6 +135,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
     <button role="tab" data-tab="bord" aria-selected="true">Tableau de bord</button>
     <button role="tab" data-tab="contrats" aria-selected="false">Contrats</button>
     <button role="tab" data-tab="prev" aria-selected="false">Prévisionnel</button>
+    <button role="tab" data-tab="sim" aria-selected="false">Simulateur</button>
     <button role="tab" data-tab="part" aria-selected="false">Partenaires</button>
     <button role="tab" data-tab="reglages" aria-selected="false">Réglages &amp; sauvegarde</button>
   </nav>
@@ -135,6 +143,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
   <section id="view-bord" data-view></section>
   <section id="view-contrats" data-view hidden></section>
   <section id="view-prev" data-view hidden></section>
+  <section id="view-sim" data-view hidden></section>
   <section id="view-part" data-view hidden></section>
   <section id="view-reglages" data-view hidden></section>
 </div>
@@ -151,6 +160,13 @@ const SANS_ENCOURS = new Set(["Girardin"]);            // collecte one-shot, pas
 const DEFAULTS = { tauxReseau: 36, nomReseau: "Fyneo", urssaf: 26.1, horizon: 5, baseApporteur: "apres", revalo: false,
   rdtProduit: { "SCPI": 0, "Assurance-vie": 3, "PER": 4, "Private Equity": 5, "Autre": 0 } };
 const REVALO_PRODUITS = ["SCPI", "Assurance-vie", "PER", "Private Equity", "Autre"];
+// frais d'enveloppe : ta marge = frais facturés au client − part gardée par l'assureur
+const envOn = c => c.fraisEnveloppe !== "" && c.fraisEnveloppe != null && c.coutAssureur !== "" && c.coutAssureur != null;
+const margeEnv = (frais, cout) => Math.max(0, num(frais) - num(cout));
+// taux linéaire retenu (en %) : marge d'enveloppe si renseignée, sinon taux saisi
+const tauxLin = c => envOn(c) ? margeEnv(c.fraisEnveloppe, c.coutAssureur) : num(c.tauxLineaire);
+// ce que la remise te coûte, en % de l'encours par an
+const perteEnv = c => envOn(c) && c.fraisEnvStandard !== "" && c.fraisEnvStandard != null ? Math.max(0, margeEnv(c.fraisEnvStandard, c.coutAssureur) - margeEnv(c.fraisEnveloppe, c.coutAssureur)) : 0;
 // rétro annuelle d'un support, en fraction de l'encours de la ligne
 const tauxSupport = l => (l.unite === "frais" ? num(l.fraisFonds) * num(l.retro) / 100 : num(l.retro)) / 100;
 // rendement retenu pour un contrat : réglage du contrat, sinon revalorisation par produit si activée
@@ -189,7 +205,7 @@ function simulate(c, endIdx) {
   const fin = c.dateFin ? idxOf(c.dateFin) : null;
   const tu = num(c.tauxUpfront) / 100;
   const tuVP = c.tauxUpfrontVP === "" || c.tauxUpfrontVP == null ? tu : num(c.tauxUpfrontVP) / 100;
-  const tl = num(c.tauxLineaire) / 100;
+  const tl = tauxLin(c) / 100;
   const tf = num(c.partFrais) / 100 * num(c.fraisGestion) / 100;
   const decal = c.lineaireDebut === "n2" ? 24 : c.lineaireDebut === "n1" ? 12 : 0;
   const linStart = sub + decal, dureeLin = num(c.dureeLineaire) * 12;
@@ -262,13 +278,13 @@ function endIdx() { return (now.getFullYear() + S.horizon) * 12 + 11; }
 function compute() {
   const E = endIdx(), Y0 = now.getFullYear();
   const years = {}; for (let y = Y0; y <= Y0 + S.horizon; y++) years[y] = { ...ZERO(), vers: 0, prime: 0, encFin: 0, encRem: 0, vp: 0 };
-  const T = { cumul: ZERO(), vers: 0, versUp: 0, versLin: 0, primes: 0, enc: 0, encRem: 0, recur: ZERO(), next12: ZERO(), vp12: 0 };
+  const T = { cumul: ZERO(), vers: 0, versUp: 0, versLin: 0, primes: 0, enc: 0, encRem: 0, recur: ZERO(), next12: ZERO(), vp12: 0, perte: ZERO() };
   const perC = [];
   let minYear = Y0;
   for (const c of actifs()) {
     const sim = simulate(c, E);
-    const remun = num(c.tauxLineaire) > 0 || num(c.partFrais) > 0 || tauxSupports(c) > 0;
-    const pc = { c, cumul: ZERO(), vers: 0, enc: 0, recur: ZERO(), up: 0 };
+    const remun = tauxLin(c) > 0 || num(c.partFrais) > 0 || tauxSupports(c) > 0;
+    const pc = { c, cumul: ZERO(), vers: 0, enc: 0, recur: ZERO(), up: 0, perte: ZERO() };
     for (const [m, x] of sim) {
       const s = split(c, x.up, x.lin + x.fr, m);
       const y = Math.floor(m / 12);
@@ -285,6 +301,7 @@ function compute() {
       if (m > TODAY && m <= TODAY + 12) { addTo(T.next12, s); T.vp12 += x.vp || 0; }
       if (m === TODAY) {
         pc.enc = x.enc; T.enc += x.enc; if (remun) T.encRem += x.enc;
+        if (perteEnv(c)) { const pe = split(c, 0, x.enc * perteEnv(c) / 100, m); addTo(pc.perte, pe); addTo(T.perte, pe); }
         const r = split(c, 0, x.acc * 12, m); addTo(T.recur, r); addTo(pc.recur, r);
       }
     }
@@ -345,8 +362,22 @@ function renderBord(R) {
     <div class="chart" id="chart1">${chart(R.years)}</div>
     <div class="legend"><span><span class="sw" style="background:var(--upfront)"></span>Upfront</span><span><span class="sw" style="background:var(--accent)"></span>Linéaire</span><span class="muted">${nC} contrats pris en compte</span></div>
   </div>
+  ${remisesPanel(R)}
   <div class="grid2">${repartition(R, "produit", "Par produit")}${repartition(R, "partenaire", "Par partenaire")}</div>`;
   bindSeg();
+  document.querySelectorAll("#view-bord tr[data-id]").forEach(tr => tr.onclick = () => openForm(contrats.find(c => c.id === tr.dataset.id)));
+}
+
+function remisesPanel(R) {
+  const L = R.perC.filter(p => perteEnv(p.c) > 0).sort((a, b) => b.perte.lin - a.perte.lin);
+  const nEnv = R.perC.filter(p => envOn(p.c)).length;
+  if (!L.length) return `<div class="panel"><div><h2>Remises sur frais d'enveloppe</h2><div class="hint">${nEnv ? "Aucune remise sur les contrats renseignés : tu factures le tarif standard partout." : "Renseigne dans un contrat les frais d'enveloppe standard, ceux facturés au client et la part de l'assureur : tu verras ici ce que chaque remise te coûte chaque année."}</div></div></div>`;
+  return `<div class="panel">
+    <div><h2>Ce que tes remises te coûtent</h2><div class="hint">Linéaire perdu chaque année parce que le client paie moins que le tarif standard, sur l'encours d'aujourd'hui.</div></div>
+    <div class="kpis">${kpi("up", "Perte brute par an", eur(R.T.perte.lin), `${L.length} contrat${L.length > 1 ? "s" : ""} remisé${L.length > 1 ? "s" : ""}`)}${kpi("up", "Perte net-net par an", eur(R.T.perte.nnLin), `soit ${eur(R.T.perte.nnLin * S.horizon)} sur ${S.horizon} ans à encours constant`)}</div>
+    <div class="scroll"><table><thead><tr><th>Client</th><th class="n">Encours</th><th class="n">Standard</th><th class="n">Facturé</th><th class="n">Part assureur</th><th class="n">Ta marge</th><th class="n">Perte /an brut</th><th class="n">Net-net</th></tr></thead><tbody>
+    ${L.map(p => `<tr class="click" data-id="${esc(p.c.id)}"><td><b>${esc(p.c.client)}</b><div class="small muted">${esc(p.c.produit)} ${esc(p.c.partenaire || "")}</div></td><td class="n">${eur(p.enc)}</td><td class="n">${pct(num(p.c.fraisEnvStandard))}</td><td class="n">${pct(num(p.c.fraisEnveloppe))}</td><td class="n">${pct(num(p.c.coutAssureur))}</td><td class="n">${pct(margeEnv(p.c.fraisEnveloppe, p.c.coutAssureur))} <span class="muted small">au lieu de ${pct(margeEnv(p.c.fraisEnvStandard, p.c.coutAssureur))}</span></td><td class="n" style="color:var(--bad)">${eur(-p.perte.lin)}</td><td class="n" style="color:var(--bad)">${eur(-p.perte.nnLin)}</td></tr>`).join("")}
+    </tbody></table></div></div>`;
 }
 
 function repartition(R, key, title) {
@@ -422,12 +453,13 @@ function rowC(p) {
   if (c.statut === "resilie") tags.push(`<span class="pill off">résilié</span>`);
   const lv = (c.valos || []).filter(v => v.date).sort((a, b) => a.date.localeCompare(b.date)).pop();
   if (lv) tags.push(`<span class="pill" title="Dernière valorisation : ${eur(num(lv.valeur))}">valorisé ${new Date(lv.date).toLocaleDateString("fr-FR")}</span>`);
+  if (perteEnv(c)) tags.push(`<span class="pill warn">remise ${pct(num(c.fraisEnvStandard))} → ${pct(num(c.fraisEnveloppe))}</span>`);
   if ((c.supports || []).length) tags.push(`<span class="pill">${c.supports.length} support${c.supports.length > 1 ? "s" : ""}</span>`);
   if (c.aVerifier) tags.push(`<span class="pill warn" title="${esc(c.aVerifier)}">à vérifier</span>`);
   if (c.reseauDepuis) tags.push(`<span class="pill off">${esc(S.nomReseau)} dès ${new Date(c.reseauDepuis).toLocaleDateString("fr-FR")}</span>`);
   else if (c.tauxReseau !== "" && c.tauxReseau != null && num(c.tauxReseau) === 0) tags.push(`<span class="pill off">sans ${esc(S.nomReseau)}</span>`);
   if (c.apporteurNom || num(c.tauxApporteur)) tags.push(`<span class="pill">${esc(c.apporteurNom || "partage")} ${pct(num(c.tauxApporteur))}</span>`);
-  const taux = [num(c.tauxUpfront) ? `<span class="pill up">${pct(num(c.tauxUpfront))} UF</span>` : "", num(c.tauxLineaire) ? `<span class="pill">${pct(num(c.tauxLineaire))}/an</span>` : "", num(c.partFrais) ? `<span class="pill">${pct(num(c.partFrais))} frais</span>` : ""].join(" ");
+  const taux = [num(c.tauxUpfront) ? `<span class="pill up">${pct(num(c.tauxUpfront))} UF</span>` : "", tauxLin(c) ? `<span class="pill">${pct(tauxLin(c))}/an</span>` : "", num(c.partFrais) ? `<span class="pill">${pct(num(c.partFrais))} frais</span>` : ""].join(" ");
   const vp = num(c.vpMontant) ? `${eur(num(c.vpMontant))}/${({ 1: "mois", 3: "trim.", 6: "sem.", 12: "an" })[num(c.vpFrequence) || 1]}` : "—";
   return `<tr class="click" data-id="${esc(c.id)}"><td><b>${esc(c.client)}</b><div class="small muted">${esc(c.partenaire || "")}</div></td>
     <td>${esc(c.produit)}${isP ? `<div class="small muted">prime annuelle</div>` : ""}</td>
@@ -466,11 +498,98 @@ function renderPrev(R) {
   bindSeg();
 }
 
+/* ---------- Simulateur : marge enveloppe + rétro fonds ---------- */
+const SIM_P = [
+  ["initial", "Versement initial", 0, 1000000, 5000, "€"], ["mensuel", "Versement mensuel", 0, 10000, 50, "€"],
+  ["rdt", "Rendement annuel du contrat", 0, 10, 0.5, "%"], ["std", "Frais d'enveloppe standard", 0, 2.5, 0.05, "%"],
+  ["fe", "Frais facturés au client", 0, 2.5, 0.05, "%"], ["ca", "Part gardée par l'assureur", 0, 2, 0.05, "%"],
+  ["uc", "Part investie en fonds rétrocédants", 0, 100, 5, "%"], ["ff", "Frais internes des fonds", 0, 4, 0.1, "%"],
+  ["rf", "Ta rétro sur les frais des fonds", 0, 100, 5, "% des frais"], ["ans", "Horizon", 1, 30, 1, "ans"],
+];
+let SIM = { initial: 100000, mensuel: 500, rdt: 0, std: 1, fe: 1, ca: 0.5, uc: 100, ff: 1.8, rf: 50, ans: 10, net: false };
+let simFrom = "";
+function simCalc(p) {
+  const g = Math.pow(1 + p.rdt / 100, 1 / 12), k = p.net ? (1 - S.tauxReseau / 100) * (1 - S.urssaf / 100) : 1;
+  let enc = p.initial; const pts = [{ an: 0, env: 0, fonds: 0, std: 0, enc }];
+  let env = 0, fonds = 0, std = 0;
+  for (let m = 1; m <= p.ans * 12; m++) {
+    enc = enc * g + p.mensuel;
+    env += enc * margeEnv(p.fe, p.ca) / 1200 * k;
+    std += enc * margeEnv(p.std, p.ca) / 1200 * k;
+    fonds += enc * p.uc / 100 * p.ff / 100 * p.rf / 100 / 12 * k;
+    if (m % 12 === 0) pts.push({ an: m / 12, env, fonds, std, enc });
+  }
+  return pts;
+}
+function lineChart(pts, lines) {
+  const W = 760, H = 300, L = 64, B = 30, Tp = 16, R = 12;
+  const max = Math.max(1, ...pts.flatMap(p => lines.map(l => l.v(p))));
+  const step = niceStep(max / 4), top = Math.ceil(max / step) * step;
+  const x = i => L + i / Math.max(1, pts.length - 1) * (W - L - R), y = v => H - B - v / top * (H - B - Tp);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Commissions cumulées">`;
+  for (let t = 0; t <= top + 1e-6; t += step) s += `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L - 8}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${kfmt(t)}</text>`;
+  const every = Math.ceil(pts.length / 10);
+  pts.forEach((p, i) => { if (i % every === 0 || i === pts.length - 1) s += `<text x="${x(i)}" y="${H - 10}" text-anchor="middle" font-size="11" fill="var(--muted)">${p.an}</text>`; });
+  lines.forEach(l => {
+    const d = pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(l.v(p)).toFixed(1)}`).join(" ");
+    if (l.fill) s += `<path d="${d} L${x(pts.length - 1)},${y(0)} L${x(0)},${y(0)} Z" fill="${l.color}" opacity="0.12"/>`;
+    s += `<path d="${d}" fill="none" stroke="${l.color}" stroke-width="2.5" ${l.dash ? 'stroke-dasharray="6 5"' : ""} stroke-linejoin="round"/>`;
+    const lp = pts[pts.length - 1]; s += `<circle cx="${x(pts.length - 1)}" cy="${y(l.v(lp))}" r="4" fill="${l.color}"/>`;
+  });
+  return s + `</svg>`;
+}
+function renderSim() {
+  const opts = contrats.filter(c => !PRIME.has(c.produit) && !SANS_ENCOURS.has(c.produit)).sort((a, b) => (a.client || "").localeCompare(b.client || "", "fr"));
+  $("#view-sim").innerHTML = `<div class="panel">
+    <div class="row" style="justify-content:space-between"><div><h2>Simulateur de rémunération</h2><div class="hint">Marge sur l'enveloppe et rétro sur les fonds, cumulées année après année. Pars d'un contrat existant ou joue avec les curseurs.</div></div>
+      <div class="row"><label class="f" for="simC" style="min-width:220px">Partir d'un contrat<select id="simC"><option value="">— Saisie libre —</option>${opts.map(c => `<option value="${esc(c.id)}" ${simFrom === c.id ? "selected" : ""}>${esc(c.client)} · ${esc(c.produit)} ${esc(c.partenaire || "")}</option>`).join("")}</select></label>
+      <div class="seg" role="group" aria-label="Niveau"><button type="button" data-sn="0" aria-pressed="${!SIM.net}">Brut</button><button type="button" data-sn="1" aria-pressed="${SIM.net}">Net-net</button></div></div></div>
+    <div class="kpis" id="simK"></div>
+    <div class="chart" id="simChart"></div>
+    <div class="legend"><span><span class="sw" style="background:var(--accent)"></span>Marge enveloppe</span><span><span class="sw" style="background:var(--upfront)"></span>Rétro sur fonds</span><span><span class="sw" style="background:var(--muted)"></span>Enveloppe au tarif standard (pointillés)</span></div>
+    <div class="sliders">${SIM_P.map(([k, l, mn, mx, st, u]) => `<div class="sl"><label for="sr_${k}">${l} (${u})</label><div class="ctl"><input type="range" id="sr_${k}" min="${mn}" max="${mx}" step="${st}" value="${SIM[k]}"><input type="text" id="st_${k}" inputmode="decimal" aria-label="${l}" value="${String(SIM[k]).replace(".", ",")}"></div></div>`).join("")}</div>
+    <div class="hint">${SIM.net ? `Net-net = après ${esc(S.nomReseau)} (${pct(S.tauxReseau)}) et URSSAF (${pct(S.urssaf)}).` : "Montants bruts, avant réseau et URSSAF."} La marge d'enveloppe ne descend jamais sous zéro : facturer moins que la part de l'assureur ne te coûte rien de plus, tu ne touches juste plus rien.</div>
+  </div>`;
+  const draw = () => {
+    const pts = simCalc(SIM), z = pts[pts.length - 1], an1 = pts[1] || z;
+    const perte = z.std - z.env;
+    $("#simK").innerHTML = kpi("lin", "Marge enveloppe cumulée", eur(z.env), `${pct(margeEnv(SIM.fe, SIM.ca))}/an · ${eur(an1.env)} la 1re année`)
+      + kpi("up", "Rétro fonds cumulée", eur(z.fonds), `${pct(SIM.uc / 100 * SIM.ff * SIM.rf / 100)}/an de l'encours`)
+      + kpi("", "Total sur " + SIM.ans + " ans", eur(z.env + z.fonds), `encours final ${eur(z.enc)}`)
+      + kpi(perte > 0.5 ? "up" : "", "Coût de la remise", perte > 0.5 ? eur(-perte) : "Aucune", perte > 0.5 ? `vs frais standard ${pct(SIM.std)} · ${Math.round(perte / Math.max(1, z.std) * 100)} % de ta marge enveloppe` : "le client paie le tarif standard");
+    $("#simChart").innerHTML = lineChart(pts, [
+      { v: p => p.env, color: "var(--accent)", fill: true }, { v: p => p.fonds, color: "var(--upfront)", fill: true }, { v: p => p.std, color: "var(--muted)", dash: true },
+    ]);
+  };
+  SIM_P.forEach(([k]) => {
+    const r = $("#sr_" + k), t = $("#st_" + k);
+    r.oninput = () => { SIM[k] = num(r.value); t.value = r.value.replace(".", ","); draw(); };
+    t.oninput = () => { SIM[k] = num(t.value); r.value = SIM[k]; draw(); };
+  });
+  document.querySelectorAll("[data-sn]").forEach(b => b.onclick = () => { SIM.net = b.dataset.sn === "1"; renderSim(); });
+  $("#simC").onchange = () => {
+    simFrom = $("#simC").value; const c = contrats.find(x => x.id === simFrom);
+    if (c) {
+      const pc = compute().perC.find(p => p.c.id === c.id);
+      const L = (c.supports || []).filter(l => num(l.montant) > 0), sl = L.reduce((t, l) => t + num(l.montant), 0);
+      const ff = sl ? L.reduce((t, l) => t + num(l.montant) * num(l.fraisFonds), 0) / sl : SIM.ff;
+      const tuc = tauxSupports(c) * 100, base = Math.max(1, pc?.enc || num(c.montant));
+      Object.assign(SIM, {
+        initial: Math.round(pc?.enc || num(c.montant)), mensuel: Math.round(num(c.vpMontant) / (num(c.vpFrequence) || 1)), rdt: rdtContrat(c),
+        std: envOn(c) && c.fraisEnvStandard !== "" ? num(c.fraisEnvStandard) : envOn(c) ? num(c.fraisEnveloppe) : tauxLin(c), fe: envOn(c) ? num(c.fraisEnveloppe) : tauxLin(c), ca: envOn(c) ? num(c.coutAssureur) : 0,
+        uc: sl ? Math.min(100, Math.round(sl / base * 100)) : 0, ff, rf: ff && sl ? Math.min(100, Math.round(tuc / (ff * Math.min(1, sl / base)) * 100)) : 0,
+      });
+    }
+    renderSim();
+  };
+  draw();
+}
+
 function renderPart() {
   $("#view-part").innerHTML = `<div class="panel">
     <div class="row" style="justify-content:space-between"><div><h2>Grille partenaires</h2><div class="hint">Les taux d'un partenaire pré-remplissent un nouveau contrat. Tu peux toujours les modifier contrat par contrat.</div></div><button id="addP">+ Partenaire</button></div>
-    ${partenaires.length ? `<div class="scroll"><table><thead><tr><th>Partenaire</th><th>Produit</th><th class="n">Upfront</th><th class="n">Linéaire /an</th><th class="n">Part des frais</th><th>Notes</th></tr></thead><tbody>
-    ${partenaires.slice().sort((a, b) => a.nom.localeCompare(b.nom, "fr")).map(p => `<tr class="click" data-pid="${esc(p.id)}"><td><b>${esc(p.nom)}</b></td><td>${esc(p.produit || "")}</td><td class="n">${num(p.tauxUpfront) ? pct(num(p.tauxUpfront)) : "—"}</td><td class="n">${num(p.tauxLineaire) ? pct(num(p.tauxLineaire)) : "—"}</td><td class="n">${num(p.partFrais) ? pct(num(p.partFrais)) + " de " + pct(num(p.fraisGestion)) : "—"}</td><td class="small muted">${esc(p.notes || "")}</td></tr>`).join("")}
+    ${partenaires.length ? `<div class="scroll"><table><thead><tr><th>Partenaire</th><th>Produit</th><th class="n">Upfront</th><th class="n">Linéaire /an</th><th class="n">Part des frais</th><th class="n">Enveloppe</th><th>Notes</th></tr></thead><tbody>
+    ${partenaires.slice().sort((a, b) => a.nom.localeCompare(b.nom, "fr")).map(p => `<tr class="click" data-pid="${esc(p.id)}"><td><b>${esc(p.nom)}</b></td><td>${esc(p.produit || "")}</td><td class="n">${num(p.tauxUpfront) ? pct(num(p.tauxUpfront)) : "—"}</td><td class="n">${num(p.tauxLineaire) ? pct(num(p.tauxLineaire)) : "—"}</td><td class="n">${num(p.partFrais) ? pct(num(p.partFrais)) + " de " + pct(num(p.fraisGestion)) : "—"}</td><td class="n">${num(p.fraisEnvStandard) ? pct(num(p.fraisEnvStandard)) + " − " + pct(num(p.coutAssureur)) + " = " + pct(margeEnv(p.fraisEnvStandard, p.coutAssureur)) : "—"}</td><td class="small muted">${esc(p.notes || "")}</td></tr>`).join("")}
     </tbody></table></div>` : `<div class="empty">Aucun partenaire pour l'instant.</div>`}
   </div>`;
   $("#addP").onclick = () => openPart({});
@@ -523,6 +642,7 @@ function render() {
   if (tab === "bord") renderBord(R);
   if (tab === "contrats") renderContrats(R);
   if (tab === "prev") renderPrev(R);
+  if (tab === "sim") renderSim();
   if (tab === "part") renderPart();
   if (tab === "reglages") renderReglages();
 }
@@ -569,6 +689,12 @@ function openForm(c) {
     ${field("fFg", "Frais de gestion du contrat (% par an)", c.fraisGestion, 'inputmode="decimal" placeholder="ex. 1"')}
     ${sel("fPay", "Linéaire versé", c.paiementLin || 3, [[1, "Chaque mois"], [3, "Chaque trimestre"], [6, "Chaque semestre"], [12, "Chaque année"]])}
   </div><div class="hint">Formule du type « 0,5 % + 15 % par trimestre » : 0,5 dans Linéaire, 15 dans Part des frais, et le taux de frais de gestion du contrat à côté.</div></fieldset>
+
+  <fieldset id="fsEnv"><legend>Frais d'enveloppe (conditions accordées au client)</legend><div class="fgrid">
+    ${field("fEs", "Frais standard de l'assureur (% par an)", c.fraisEnvStandard, 'inputmode="decimal" placeholder="ex. 1"')}
+    ${field("fEf", "Frais facturés à ce client (% par an)", c.fraisEnveloppe, 'inputmode="decimal" placeholder="ex. 0,5"')}
+    ${field("fEc", "Part gardée par l'assureur (%)", c.coutAssureur, 'inputmode="decimal" placeholder="ex. 0,5"')}
+  </div><div class="hint" id="fEnvMsg">Ta marge = frais facturés − part de l'assureur. Une fois ces champs remplis, elle remplace le taux « Linéaire ».</div></fieldset>
 
   <fieldset id="fsSup"><legend>Supports et rétrocession sur frais des fonds</legend>
     <div class="hint">Une ligne par support (fonds, UC, ETF…). Ex. : PE 1 000 €, frais du fonds 1,5 %, tu touches 0,9 % → 9 €/an. Un ETF à 0 de rétro ne rapporte rien. Les montants sont rapportés à la dernière valorisation : la part non listée (fonds euros…) ne rapporte pas de rétro de fonds.</div>
@@ -634,6 +760,7 @@ function openForm(c) {
     supports: supports.filter(l => l.nom || num(l.montant)).map(l => ({ nom: (l.nom || "").trim(), montant: num(l.montant), fraisFonds: num(l.fraisFonds), retro: num(l.retro), unite: l.unite === "frais" ? "frais" : "encours" })),
     valos: valos.filter(l => l.date && l.valeur !== "" && l.valeur != null).map(l => ({ date: l.date, valeur: num(l.valeur) })),
     paiementLin: num($("#fPay").value) || 3,
+    fraisEnvStandard: $("#fEs").value === "" ? "" : num($("#fEs").value), fraisEnveloppe: $("#fEf").value === "" ? "" : num($("#fEf").value), coutAssureur: $("#fEc").value === "" ? "" : num($("#fEc").value),
     tauxUpfront: num($("#fTu").value), tauxUpfrontVP: $("#fTuVp").value === "" ? "" : num($("#fTuVp").value), tauxLineaire: num($("#fTl").value),
     lineaireDebut: $("#fLd").value, dureeLineaire: $("#fLdur").value === "" ? "" : num($("#fLdur").value),
     partFrais: num($("#fPf").value), fraisGestion: num($("#fFg").value), rendement: $("#fRdt").value === "" ? null : num($("#fRdt").value),
@@ -643,7 +770,13 @@ function openForm(c) {
   const prev = () => {
     const x = read(), isP = PRIME.has(x.produit);
     $("#fMontantHint").textContent = isP ? "Pour l'emprunteur et la prévoyance, indique la prime annuelle : elle sert d'assiette et n'entre pas dans la collecte." : x.produit === "Girardin" ? "Le Girardin compte dans la collecte mais ne crée pas d'encours." : "";
-    $("#fsVers").hidden = $("#fsSup").hidden = $("#fsVal").hidden = isP;
+    $("#fsVers").hidden = $("#fsSup").hidden = $("#fsVal").hidden = $("#fsEnv").hidden = isP;
+    $("#fTl").disabled = envOn(x);
+    if (envOn(x)) {
+      const mg = margeEnv(x.fraisEnveloppe, x.coutAssureur), st = x.fraisEnvStandard === "" ? null : margeEnv(x.fraisEnvStandard, x.coutAssureur);
+      const enc = [...simulate(x, TODAY)].filter(([m]) => m <= TODAY).pop()?.[1]?.enc || num(x.montant);
+      $("#fEnvMsg").innerHTML = `Ta marge sur l'enveloppe : <b>${pct(mg)}</b> par an, soit ${eur(enc * mg / 100)}/an sur ${eur(enc)}.` + (st != null && st > mg ? ` Au tarif standard tu toucherais ${pct(st)} : <b style="color:var(--bad)">${eur(enc * (st - mg) / 100)}/an de moins</b> à cause de la remise.` : "") + ` Le champ « Linéaire » est remplacé par cette marge.`;
+    } else $("#fEnvMsg").textContent = "Ta marge = frais facturés − part de l'assureur. Une fois ces champs remplis, elle remplace le taux « Linéaire ».";
     const sim = simulate(x, endIdx());
     let up = ZERO(), m12 = 0, encN = 0, linY = 0;
     const s0 = idxOf(x.date);
@@ -655,7 +788,7 @@ function openForm(c) {
   $("#addSup").onclick = () => { supports.push({ nom: "", montant: "", fraisFonds: "", retro: "", unite: "encours" }); drawSup(); };
   $("#addVal").onclick = () => { valos.push({ date: new Date().toISOString().slice(0, 10), valeur: "" }); drawVal(); };
   f.oninput = prev;
-  $("#fPart").onchange = () => { const p = partenaires.find(p => p.nom === $("#fPart").value); if (!p) return; if (p.produit) $("#fProduit").value = p.produit; $("#fTu").value = p.tauxUpfront || ""; $("#fTl").value = p.tauxLineaire || ""; $("#fPf").value = p.partFrais || ""; $("#fFg").value = p.fraisGestion || ""; if (p.lineaireDebut) $("#fLd").value = p.lineaireDebut; prev(); };
+  $("#fPart").onchange = () => { const p = partenaires.find(p => p.nom === $("#fPart").value); if (!p) return; if (p.produit) $("#fProduit").value = p.produit; $("#fTu").value = p.tauxUpfront || ""; $("#fTl").value = p.tauxLineaire || ""; $("#fPf").value = p.partFrais || ""; $("#fFg").value = p.fraisGestion || ""; if (p.lineaireDebut) $("#fLd").value = p.lineaireDebut; if (num(p.fraisEnvStandard)) { $("#fEs").value = p.fraisEnvStandard; if ($("#fEf").value === "") $("#fEf").value = p.fraisEnvStandard; } if (p.coutAssureur !== "" && p.coutAssureur != null && num(p.fraisEnvStandard)) $("#fEc").value = p.coutAssureur; prev(); };
   $("#addLib").onclick = () => { libres.push({ date: new Date().toISOString().slice(0, 10), montant: "" }); drawLib(); };
   $("#fClose").onclick = $("#fCancel").onclick = () => $("#dlg").close();
   if (!isNew) {
@@ -680,14 +813,15 @@ function openPart(p) {
   <div class="fgrid">${field("pNom", "Nom", p.nom, "required")}${sel("pProd", "Produit", p.produit || "", [["", "—"], ...PRODUITS])}
   ${field("pTu", "Upfront (%)", p.tauxUpfront, 'inputmode="decimal"')}${field("pTl", "Linéaire (% par an)", p.tauxLineaire, 'inputmode="decimal"')}
   ${sel("pLd", "Le linéaire démarre", p.lineaireDebut || "immediat", [["immediat", "Dès la souscription"], ["n1", "À N+1"], ["n2", "À N+2"]])}
-  ${field("pPf", "Part des frais de gestion (%)", p.partFrais, 'inputmode="decimal"')}${field("pFg", "Frais de gestion (% par an)", p.fraisGestion, 'inputmode="decimal"')}</div>
+  ${field("pPf", "Part des frais de gestion (%)", p.partFrais, 'inputmode="decimal"')}${field("pFg", "Frais de gestion (% par an)", p.fraisGestion, 'inputmode="decimal"')}
+  ${field("pEs", "Frais d'enveloppe standard (%)", p.fraisEnvStandard, 'inputmode="decimal"')}${field("pEc", "Part gardée par l'assureur (%)", p.coutAssureur, 'inputmode="decimal"')}</div>
   <label class="f" for="pNotes">Notes<textarea id="pNotes" rows="2">${esc(p.notes || "")}</textarea></label>
   <div class="row" style="justify-content:space-between"><div>${isNew ? "" : `<button type="button" class="danger" id="pDel">Supprimer</button>`}</div><div class="row"><button type="button" id="pCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></div>`;
   $("#pClose").onclick = $("#pCancel").onclick = () => $("#dlgP").close();
   if (!isNew) $("#pDel").onclick = async () => { await db.doc("partenaires/" + p.id).delete(); $("#dlgP").close(); toast("Partenaire supprimé"); };
   f.onsubmit = async ev => {
     ev.preventDefault();
-    const x = { ...p, nom: $("#pNom").value.trim(), produit: $("#pProd").value, tauxUpfront: num($("#pTu").value), tauxLineaire: num($("#pTl").value), lineaireDebut: $("#pLd").value, partFrais: num($("#pPf").value), fraisGestion: num($("#pFg").value), notes: $("#pNotes").value };
+    const x = { ...p, nom: $("#pNom").value.trim(), produit: $("#pProd").value, tauxUpfront: num($("#pTu").value), tauxLineaire: num($("#pTl").value), lineaireDebut: $("#pLd").value, partFrais: num($("#pPf").value), fraisGestion: num($("#pFg").value), fraisEnvStandard: $("#pEs").value === "" ? "" : num($("#pEs").value), coutAssureur: $("#pEc").value === "" ? "" : num($("#pEc").value), notes: $("#pNotes").value };
     if (!x.nom) return;
     x.id = x.id || db.collection("partenaires").doc().id;
     try { await db.doc("partenaires/" + x.id).set(x); $("#dlgP").close(); toast("Partenaire enregistré"); } catch (e) { toast("Enregistrement impossible : " + (e.message || e.code)); }
