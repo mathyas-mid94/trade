@@ -18,7 +18,7 @@ Pour ElevenLabs : coller le fichier `elevenlabs/texte_a_coller_1.txt`.
 ## 00 · Accroche
 Vous travaillez dur pour votre argent. [1] Mais lui, est-ce qu'il travaille pour vous ? [2]
 Votre banquier gère vos comptes. [3] Mais qui pense votre stratégie ? [4]
-Dans le trading, une erreur peut coûter très cher. [5] J'ai appris à ne pas en faire. [6]
+En finance de marché, une erreur peut coûter très cher. [5] J'ai appris à ne pas en faire. [6]
 
 ## 01 · Qui je suis
 Je m'appelle Mathyas Midelton, [1] fondateur de Midelton Investment Capital. [2]
