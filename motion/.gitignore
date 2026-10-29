@@ -41,3 +41,4 @@ videos/presentation-mic/.mots_nettoyes.json
 videos/presentation-mic/.frames/
 videos/presentation-mic/.*.mp4
 videos/*/*_x125.mp4
+videos/*/.acc_*/
