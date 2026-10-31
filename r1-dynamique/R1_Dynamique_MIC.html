@@ -4,27 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bilan patrimonial — Midelton Investment Capital</title>
+<!-- Fichier généré depuis src/deck.src.html par build.py — modifier la source, pas ce fichier. -->
 <style>
 :root{
-  --green:#234d47;      /* fond des slides sombres */
-  --green2:#2a5952;     /* pilule sombre */
-  --green3:#426f69;     /* pilule claire */
-  --cream:#faf6ec;      /* fond des slides claires */
-  --beige:#ece1c7;      /* pilule beige */
-  --beige2:#f1e8d4;
-  --gold:#c9a97b;
-  --goldDeep:#a8874f;
-  --ivory:#f3ead6;
-  --neg:#b14a3b;
+  --green:#234d47; --green2:#2a5952; --green3:#426f69;
+  --cream:#faf6ec; --beige:#ece1c7; --beige2:#f1e8d4; --sand:#efe6d2;
+  --gold:#c9a97b; --goldDeep:#a8874f; --ivory:#f3ead6; --neg:#b14a3b; --pos:#2f7d4f;
   --font:Calibri,Carlito,"Segoe UI",Arial,sans-serif;
   --serif:"Cormorant Garamond",Garamond,"Times New Roman",Georgia,serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#13302c;font-family:var(--font);color:var(--green);-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums tabular-nums}
 button{font-family:inherit;cursor:pointer}
-input,textarea,select{font-family:inherit}
+input,textarea{font-family:inherit}
 
-/* ---------- scène 16:9 mise à l'échelle ---------- */
+/* ---------- scène 16:9 ---------- */
 #viewport{position:fixed;inset:0 0 58px 0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 #stage{width:1600px;height:900px;position:relative;transform-origin:center center;flex:0 0 auto}
 .slide{position:absolute;inset:0;width:1600px;height:900px;overflow:hidden;opacity:0;pointer-events:none;
@@ -34,8 +28,17 @@ input,textarea,select{font-family:inherit}
 .dark{background:var(--green);color:#fff}
 .light{background:var(--cream);color:var(--green)}
 
+/* entrées animées */
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.slide.on .anim>*{animation:up .6s cubic-bezier(.2,.7,.2,1) both}
+.anim>*:nth-child(2){animation-delay:.07s!important}.anim>*:nth-child(3){animation-delay:.14s!important}
+.anim>*:nth-child(4){animation-delay:.21s!important}.anim>*:nth-child(5){animation-delay:.28s!important}
+.anim>*:nth-child(6){animation-delay:.35s!important}.anim>*:nth-child(7){animation-delay:.42s!important}
+.anim>*:nth-child(8){animation-delay:.49s!important}.anim>*:nth-child(9){animation-delay:.56s!important}
+.anim>*:nth-child(n+10){animation-delay:.6s!important}
+
 /* éléments récurrents */
-.logo{position:absolute;top:22px;right:26px;width:104px;height:104px}
+.logo{position:absolute;top:22px;right:26px;width:104px;height:104px;z-index:2}
 .logo.l{left:22px;right:auto}
 .title{font-size:54px;font-weight:700;margin:0;line-height:1.08;letter-spacing:-.3px}
 .bar{width:240px;height:6px;border-radius:3px;background:var(--gold);margin:22px 0 0}
@@ -46,6 +49,8 @@ input,textarea,select{font-family:inherit}
 .split{display:grid;height:100%}
 .split>.l{background:var(--green);color:#fff;position:relative;padding:70px 48px}
 .split>.r{position:relative;padding:70px 64px 40px 60px}
+.ico{display:inline-flex}
+.ico svg{width:100%;height:100%}
 
 /* pilules */
 .pill{display:flex;align-items:center;gap:18px;border-radius:999px;padding:0 36px;min-height:76px;font-size:26px;position:relative;transition:background .2s, transform .2s}
@@ -60,7 +65,7 @@ input,textarea,select{font-family:inherit}
 .pill.flash .val{animation:flash .6s ease}
 @keyframes flash{0%{transform:scale(1)}40%{transform:scale(1.07)}100%{transform:scale(1)}}
 
-/* champs de saisie intégrés */
+/* champs intégrés */
 input.v{border:0;background:transparent;color:inherit;font:inherit;font-weight:700;text-align:right;width:190px;padding:4px 2px;outline:none;
   border-bottom:2px dashed rgba(201,169,123,.55);transition:border-color .2s}
 input.v:focus{border-bottom-color:var(--gold)}
@@ -72,15 +77,13 @@ textarea.note{width:100%;border:0;border-radius:44px;background:var(--beige);col
 textarea.note::placeholder{color:var(--green);opacity:.75}
 textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 
-/* chips de choix */
+/* chips */
 .chips{display:flex;gap:16px}
 .chip{flex:1;border:0;border-radius:999px;background:var(--beige);color:var(--green);font-size:24px;min-height:84px;transition:all .25s;padding:0 10px}
 .chip:hover{background:#e3d4b2}
 .chip.on{background:var(--green);color:#fff;font-weight:700;transform:scale(1.04);box-shadow:0 14px 30px -14px rgba(35,77,71,.7)}
-.dark .chip{background:var(--green3);color:#fff}
-.dark .chip.on{background:var(--gold);color:var(--green)}
 
-/* panneau de saisie fiscalité */
+/* formulaire fiscalité */
 .form{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:36px;padding:30px 32px}
 .frow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:22px}
 .frow:last-child{border-bottom:0}
@@ -99,7 +102,7 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 .big{font-size:190px;font-weight:700;color:var(--gold);line-height:1;text-align:center;letter-spacing:-4px}
 .bigsub{font-size:34px;font-weight:700;text-align:center;line-height:1.55;margin-top:30px}
 
-/* docs */
+/* conformité */
 .doc{display:flex;align-items:center;gap:26px;border-radius:999px;padding:0 36px 0 20px;height:74px;font-size:26px;cursor:pointer;user-select:none;transition:background .2s}
 .doc:nth-child(odd){background:var(--green3)} .doc:nth-child(even){background:var(--green2)}
 .doc:hover{filter:brightness(1.08)}
@@ -111,7 +114,7 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 .doc .st{font-style:italic;color:var(--gold);font-size:24px}
 .doc.s2 .st{font-style:normal;font-weight:700}
 
-/* timeline agenda */
+/* agenda */
 .tl{position:relative;display:flex;justify-content:space-between;margin:0 60px}
 .tl::before{content:"";position:absolute;left:40px;right:40px;top:96px;height:6px;background:var(--green3);border-radius:3px}
 .tl .st{position:relative;width:240px;text-align:center}
@@ -129,13 +132,15 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 .btn{border:0;border-radius:999px;background:var(--gold);color:var(--green);font-weight:700;font-size:22px;padding:14px 30px;transition:.2s;display:inline-flex;align-items:center;gap:10px}
 .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
 .btn.ghost{background:transparent;color:var(--gold);border:2px solid var(--gold)}
+.btn.dk{background:var(--green);color:#fff}
+.btn.lk{background:transparent;color:var(--green3);padding:14px 4px;font-weight:400}
 #calFrame{position:absolute;inset:40px 60px 40px 60px;background:#fff;border-radius:30px;overflow:hidden;z-index:5;box-shadow:0 30px 80px rgba(0,0,0,.5)}
 #calFrame iframe{width:100%;height:100%;border:0}
 #calFrame .x{position:absolute;top:14px;right:14px;z-index:2}
 
 /* synthèse */
 .band{display:flex;align-items:center;gap:26px;background:var(--beige);border-radius:110px;padding:22px 34px 26px 30px;margin-bottom:26px}
-.band .ico{width:96px;flex:0 0 96px;display:flex;justify-content:center}
+.band .bico{width:96px;height:84px;flex:0 0 96px;display:flex;justify-content:center;color:var(--green)}
 .band h3{font-size:30px;margin:0 0 14px}
 .band .cells{display:grid;grid-template-columns:repeat(3,1fr);gap:34px}
 .cell{background:var(--green);color:#fff;border-radius:999px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:22px}
@@ -143,14 +148,139 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 .cell b i{font-style:normal;font-weight:400;font-size:20px;opacity:.85}
 .cell input.v{width:120px;text-align:right;color:var(--gold)}
 
-/* barre de navigation (écran uniquement) */
+/* ---------- présentation (slides 1 à 8) ---------- */
+.card4{display:flex;gap:30px;background:var(--green3);border-radius:70px;padding:44px 44px 40px 40px;min-height:240px}
+.card4 .ico{width:76px;height:76px;color:var(--gold);flex:0 0 76px}
+.card4 h3{color:var(--gold);font-size:28px;margin:6px 0 16px}
+.card4 p{margin:0;font-size:22px;line-height:1.55;color:#f1f4f3}
+.svc{border:1.5px solid #dcc69f;border-radius:30px;padding:30px 30px 26px;background:#f1ebde;transition:transform .25s, box-shadow .25s, background .25s;position:relative}
+.svc:nth-child(even){background:#efe3c9}
+.svc:hover{transform:translateY(-4px);box-shadow:0 24px 40px -26px rgba(35,77,71,.55);background:#fff8ea}
+.svc .hd{display:flex;align-items:center;gap:20px}
+.svc .ico{width:58px;height:58px;color:var(--green);flex:0 0 58px}
+.svc h3{font-size:27px;margin:0;line-height:1.15}
+.svc p{margin:16px 0 0;font-size:19.5px;line-height:1.5;color:var(--green3)}
+.appr{display:grid;grid-template-columns:repeat(3,1fr);gap:60px;padding:0 60px}
+.appr .col{text-align:center;position:relative}
+.appr .num{position:absolute;left:0;top:70px;font-size:76px;font-weight:700;color:#eadfc6}
+.appr .circ{width:190px;height:190px;border-radius:50%;background:var(--green);margin:0 auto;display:flex;align-items:center;justify-content:center;color:#fff}
+.appr .circ .ico{width:96px;height:96px}
+.appr .link{position:absolute;top:92px;left:335px;width:130px;height:6px;border-radius:3px;background:var(--gold)}
+.appr h3{font-size:30px;margin:30px 0 22px}
+.appr .box{background:var(--beige);border-radius:60px;padding:46px 34px;font-size:22px;line-height:1.6;min-height:250px;display:flex;align-items:center;justify-content:center}
+.badge{width:230px;height:230px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fdfbf5;position:relative}
+.rv{background:#fff;border-radius:18px;padding:14px 18px 12px;margin:0 0 14px;box-shadow:0 10px 26px -18px rgba(35,77,71,.5);font-size:13.6px;line-height:1.42;color:#2b2b2b}
+.rv .who{display:flex;align-items:center;gap:10px}
+.rv .av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#4b3a1a;flex:0 0 36px}
+.rv .nm{font-weight:700;font-size:15px;color:#191919}
+.rv .dt{margin-left:auto;font-size:12.5px;color:#777}
+.rv .stars{display:flex;gap:3px;margin:10px 0 8px}
+.rv .stars i{width:20px;height:20px;background:#00b67a;display:flex;align-items:center;justify-content:center}
+.rv h4{margin:0 0 6px;font-size:15.5px;color:#191919}
+.rv p{margin:0}
+.rv mark{background:#fff3a0;padding:0 2px}
+
+/* priorités (slide 11) */
+.prow{display:flex;align-items:center;gap:28px;padding:16px 0;border-bottom:1.5px solid #d9c29a}
+.prow .sq{width:78px;height:78px;border-radius:18px;background:var(--beige);display:flex;align-items:center;justify-content:center;flex:0 0 78px}
+.prow .sq .ico{width:40px;height:40px}
+.prow h3{margin:0;font-size:32px}
+.prow p{margin:4px 0 0;font-size:19px;color:var(--green3)}
+.rate{display:flex;gap:22px;margin-left:auto}
+.rate button{width:50px;height:50px;border-radius:50%;border:2px solid var(--gold);background:transparent;transition:.2s}
+.rate button:hover{background:rgba(201,169,123,.25)}
+.rate button.on{background:var(--gold);transform:scale(1.1);box-shadow:0 8px 18px -8px rgba(168,135,79,.8)}
+.lg{display:flex;align-items:center;gap:12px;font-size:23px;margin:14px 0}
+.lg i{width:20px;height:20px;border-radius:50%;border:1.5px solid #8fb0aa;display:inline-block}
+.lg i.f{background:var(--gold);border-color:var(--gold)}
+
+/* besoins & priorités (slide 17) */
+.btab{display:flex;flex-direction:column;gap:12px}
+.brow{display:grid;grid-template-columns:500px 240px 300px 1fr;gap:12px}
+.brow>div{border-radius:999px;min-height:96px;display:flex;align-items:center;justify-content:center;font-size:24px;text-align:center;padding:0 22px}
+.brow.h>div{background:var(--gold);color:var(--green);font-weight:700;min-height:76px}
+.brow:nth-child(odd):not(.h)>div{background:var(--green3)}
+.brow:nth-child(even)>div{background:var(--green2)}
+.brow input{width:100%;text-align:center;font-size:23px;font-weight:400;border-bottom-color:rgba(201,169,123,.35)}
+.brow .dots{display:flex;gap:6px;margin-right:14px}
+.brow .dots i{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--gold)}
+.brow .dots i.f{background:var(--gold)}
+
+/* bilan en chiffres (slide 12) */
+.kpi4{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.kpi{background:#fff;border-radius:28px;padding:22px 28px;box-shadow:0 18px 34px -26px rgba(35,77,71,.6)}
+.kpi small{display:block;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--green3);font-weight:700}
+.kpi b{display:block;font-size:42px;margin-top:6px}
+.kpi em{font-size:17px;color:var(--green3);font-style:normal}
+.alerts{background:#fff;border-radius:28px;padding:22px 30px;margin-top:20px;box-shadow:0 18px 34px -26px rgba(35,77,71,.6)}
+.alerts li{font-size:21px;margin:8px 0;line-height:1.35}
+.alerts li::marker{color:var(--gold)}
+.jump{display:flex;align-items:center;gap:26px;padding:18px 6px;border-top:1.5px solid rgba(255,255,255,.12);font-size:27px;cursor:pointer;transition:.2s}
+.jump:hover{padding-left:16px;color:var(--gold)}
+.jump .ico{width:36px;height:36px;color:var(--gold)}
+.jump i{font-family:var(--serif);color:var(--gold);font-size:28px}
+
+/* questionnaire */
+.qdots{display:flex;gap:10px;margin:12px 0 26px}
+.qdots button{width:22px;height:22px;border-radius:50%;border:2px solid #8fb0aa;background:transparent;padding:0;transition:.2s}
+.qdots button.f{background:var(--gold);border-color:var(--gold)}
+.qdots button.cur{box-shadow:0 0 0 5px rgba(201,169,123,.3);border-color:var(--gold)}
+.qsec{font-size:21px;color:#d8e4e1}
+.qsec.on{color:var(--gold);font-weight:700}
+.qmeta{display:flex;justify-content:space-between;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:var(--green3);font-weight:700}
+.qmeta .s{color:var(--goldDeep)}
+.qbar{height:8px;border-radius:4px;background:var(--beige);margin:14px 0 30px;overflow:hidden}
+.qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--green3),var(--green));border-radius:4px;transition:width .45s}
+.qhead{display:flex;gap:26px;align-items:flex-start}
+.qnum{font-family:var(--serif);font-size:96px;line-height:.8;color:var(--gold);font-weight:600}
+.qtitle{font-size:38px;margin:0;line-height:1.15}
+.qhelp{font-size:21px;color:var(--green3);margin:10px 0 0}
+.opts{display:grid;gap:18px;margin-top:34px}
+.opt{display:flex;align-items:center;gap:20px;text-align:left;border:0;border-radius:32px;background:var(--beige);color:var(--green);padding:22px 28px;transition:.2s;min-height:110px}
+.opt:hover{background:#e3d4b2;transform:translateY(-2px)}
+.opt .k{width:46px;height:46px;border-radius:50%;background:var(--cream);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:24px;font-weight:700;flex:0 0 46px}
+.opt b{display:block;font-size:25px}
+.opt small{display:block;font-size:18px;color:var(--green3);margin-top:4px}
+.opt.sel{background:var(--green);color:#fff;box-shadow:0 18px 34px -20px rgba(35,77,71,.8)}
+.opt.sel small{color:#cfe0dc}.opt.sel .k{background:var(--gold);color:var(--green)}
+.scen{border:0;border-radius:36px;background:var(--beige);padding:22px 18px 18px;text-align:center;transition:.2s;color:var(--green)}
+.scen:hover{transform:translateY(-4px);background:#e3d4b2}
+.scen h4{font-size:30px;margin:0}
+.scen .pick{margin-top:8px;border-radius:999px;background:var(--green);color:#fff;font-weight:700;font-size:20px;padding:12px}
+.scen.sel{background:var(--green);color:#fff}
+.scen.sel .pick{background:var(--gold);color:var(--green)}
+.recapq{display:grid;grid-template-columns:1fr 1fr;gap:4px 34px;margin-top:20px}
+.recapq div{display:flex;justify-content:space-between;gap:16px;border-bottom:1.5px dashed #d9c29a;padding:9px 2px;font-size:19px}
+.recapq span{color:var(--green3)}
+.recapq b{text-align:right}
+.meter{margin:18px 0}
+.meter .t{display:flex;justify-content:space-between;font-size:22px;margin-bottom:8px}
+.meter .tr{height:12px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden}
+.meter .tr i{display:block;height:100%;background:linear-gradient(90deg,#7fa9a1,var(--gold));border-radius:6px;transition:width .8s cubic-bezier(.2,.7,.2,1)}
+.ppills{display:flex;gap:12px;margin:26px 0 8px}
+.ppills span{flex:1;text-align:center;border-radius:999px;padding:13px 6px;font-size:20px;background:var(--green3);color:#d8e4e1}
+.ppills span.on{background:var(--gold);color:var(--green);font-weight:700}
+.simbox{border-radius:40px;padding:26px 20px;text-align:center}
+.simbox small{display:block;font-size:17px;letter-spacing:2px;text-transform:uppercase;font-weight:700;opacity:.8}
+.simbox b{display:block;font-size:50px;margin-top:8px}
+.simbox em{display:block;font-style:normal;font-size:22px;font-weight:700;margin-top:4px}
+input[type=range].rg{-webkit-appearance:none;appearance:none;width:100%;height:10px;border-radius:5px;background:var(--beige);outline:none}
+input[type=range].rg::-webkit-slider-thumb{-webkit-appearance:none;width:36px;height:36px;border-radius:50%;background:var(--green);border:5px solid var(--gold);cursor:pointer}
+input[type=range].rg::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--green);border:5px solid var(--gold);cursor:pointer}
+
+/* barre de navigation (écran) */
 #chrome{position:fixed;left:0;right:0;bottom:0;height:58px;background:#0f2723;display:flex;align-items:center;gap:10px;padding:0 16px;color:#cfe0dc;z-index:10}
-#chrome .nb{background:transparent;border:1px solid rgba(201,169,123,.4);color:var(--gold);border-radius:999px;height:38px;padding:0 14px;font-size:15px;display:inline-flex;align-items:center;gap:8px}
+#chrome .nb{background:transparent;border:1px solid rgba(201,169,123,.4);color:var(--gold);border-radius:999px;height:38px;padding:0 14px;font-size:15px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
 #chrome .nb:hover{background:rgba(201,169,123,.12)}
 #chrome .nb.main{background:var(--gold);color:var(--green);font-weight:700;border-color:var(--gold)}
-#dots{flex:1;display:flex;gap:6px;justify-content:center;overflow-x:auto;scrollbar-width:none}
-#dots button{border:0;background:transparent;color:#87a39d;font-size:13.5px;padding:7px 11px;border-radius:999px;white-space:nowrap}
+#dots{flex:1;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+#dots button{border:0;background:transparent;color:#87a39d;font-size:13px;padding:7px 9px;border-radius:999px;white-space:nowrap}
 #dots button.on{background:var(--gold);color:var(--green);font-weight:700}
+#dots .sep{width:1px;background:rgba(201,169,123,.3);margin:6px 6px;flex:0 0 1px}
+#pdfMenu{position:fixed;right:16px;bottom:66px;background:#0f2723;border:1px solid rgba(201,169,123,.4);border-radius:18px;padding:8px;z-index:11;display:flex;flex-direction:column;gap:4px}
+#pdfMenu button{background:transparent;border:0;color:#e5ecea;text-align:left;font-size:15px;padding:10px 14px;border-radius:12px}
+#pdfMenu button:hover{background:rgba(201,169,123,.15);color:var(--gold)}
+#pdfMenu small{display:block;color:#87a39d;font-size:12.5px}
 #toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--green);font-weight:700;padding:12px 22px;border-radius:999px;opacity:0;transition:.3s;z-index:20;pointer-events:none}
 #toast.show{opacity:1;transform:translateX(-50%)}
 
@@ -159,13 +289,15 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 @media print{
   html,body{background:none;height:auto}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #chrome,#toast,.noprint,#calFrame{display:none!important}
+  #chrome,#toast,#pdfMenu,.noprint,#calFrame{display:none!important}
   #viewport{position:static;display:block}
   #stage{transform:none!important;height:auto}
   .slide{position:relative;opacity:1;transform:none;box-shadow:none;page-break-after:always;break-after:page;transition:none}
   .slide.skipprint{display:none}
+  .anim>*{animation:none!important}
   input.v{border-bottom:0!important}
   input.v::placeholder,textarea.note::placeholder{color:transparent!important}
+  input.keepph::placeholder{color:inherit!important;opacity:.7}
   .pill.flash .val{animation:none}
 }
 </style>
@@ -180,71 +312,156 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
   <button class="nb" id="bReset" title="Effacer toutes les saisies">Nouveau client</button>
   <button class="nb main" id="bPdf">⤓ PDF</button>
 </nav>
+<div id="pdfMenu" class="hidden">
+  <button data-pdf="bilan">Bilan client<small>de « Votre Bilan Patrimonial » à la fin</small></button>
+  <button data-pdf="all">Présentation complète<small>toutes les slides</small></button>
+</div>
 <div id="toast"></div>
 
 <script>
 /* ============================================================
-   MIDELTON INVESTMENT CAPITAL — R1 dynamique (bilan patrimonial)
-   Remplace les slides 13 à 22 du rendez-vous de découverte.
+   MIDELTON INVESTMENT CAPITAL — Rendez-vous de découverte
+   MODE 'full' : présentation complète (slides 1 à 22)
+   MODE 'r1'   : R1 dynamique seul (remplace les slides 13 à 22)
    Tout est calculé dans le navigateur. Les saisies restent dans
    l'onglet (sessionStorage) et disparaissent à sa fermeture.
    ============================================================ */
+const MODE = 'r1';
 
 const CONFIG = {
   advisor:'Mathyas Midelton', phone:'07 71 01 82 99', email:'mathyas@midelton-capital.fr',
   firm:'Midelton Investment Capital',
   calUrl:'https://cal.com/mathyas-midelton', calLabel:'cal.com/mathyas-midelton',
 
-  /* ---- Impôt sur le revenu — ⚠ à vérifier chaque année (loi de finances) ----
-     Barème appliqué aux revenus 2025 (indexation +0,9 %). */
+  /* ---- Impôt sur le revenu — ⚠ à vérifier chaque année (loi de finances) ---- */
   irLabel:'Barème IR 2026 (revenus 2025)',
   bareme:[[11600,0],[29579,.11],[84577,.30],[181917,.41],[Infinity,.45]],
-  qfCap:1807,            // plafond de l'avantage par demi-part
-  qfCapIsole:4262,       // plafond de la demi-part « parent isolé » (case T)
+  qfCap:1807, qfCapIsole:4262,
   decote:{seul:897, couple:1483, taux:.4525},
-  abat:{taux:.10, min:509, max:14298},   // frais professionnels forfaitaires
+  abat:{taux:.10, min:509, max:14298},
   irMinRecouvrement:61,
 
-  /* ---- Net → coût employeur (salarié du privé). Point 36 000 € calé URSSAF,
-     les autres sont des estimations à affiner sur mon-entreprise.urssaf.fr ---- */
+  /* ---- Net → coût employeur (salarié du privé). Seul le point 36 000 € est calé URSSAF ---- */
   urssaf:[[17300,23400],[22000,33000],[28000,46000],[36000,63598],[45000,82500],[60000,112000],[80000,150000],[120000,223000]],
 
-  retirementAge:64,
-  replaceRates:[.25,.50], // taux de remplacement proposés (25 % = hypothèse INSEE 2050)
-  withdrawRate:.04,       // règle des 4 % pour le capital à constituer
-  reserveMonths:3,        // réserve de précaution = 3 mois de revenus nets du foyer
-  debtCap:.35,            // seuil d'endettement HCSF
-  loan:{rate:3.5, years:20},
+  retirementAge:64, replaceRates:[.25,.50], withdrawRate:.04,
+  reserveMonths:3, debtCap:.35, loan:{rate:3.5, years:20},
   livretRate:1.7, inflation:3.0, targetRate:5.0,
 };
+
+/* ------------------------------------------------------------ OBJECTIFS (slides 11 et 17) */
+const OBJ = [
+  ['impots',  'Réduire mes impôts',           'PER, défiscalisation, optimisation fiscale globale',          'percent','Permanent'],
+  ['epargne', 'Fructifier mon épargne',       'Faire travailler l\'argent qui dort, sans perdre le sommeil',  'trend',  'Permanent'],
+  ['immo',    'Investir dans l\'immobilier',  'SCPI, LMNP, effet de levier du crédit',                        'home',   '8 – 10 ans'],
+  ['revenus', 'Générer des revenus passifs',  'Loyers, dividendes, coupons : un complément régulier',         'euro',   'Permanent'],
+  ['retraite','Sécuriser ma retraite',        'Anticiper le niveau de vie, pas seulement l\'âge de départ',   'sunrise','Long terme'],
+];
+
+/* ------------------------------------------------------------ PROFIL INVESTISSEUR MIC */
+const SECTIONS = {exp:"Expérience & connaissances", cap:"Situation & capacité", risk:"Tolérance au risque"};
+const CARDS = [
+  { id:'q1', sec:'exp', type:'single', s:'Ancienneté sur les marchés',
+    q:"Depuis combien de temps investissez-vous sur les marchés financiers ?", help:"Toute expérience compte : à titre personnel ou professionnel.",
+    opts:[{l:"Je débute",d:"Jamais ou presque",pts:{know:0}},{l:"Moins de 2 ans",d:"Premières expériences",pts:{know:3}},
+          {l:"2 à 5 ans",d:"Une bonne habitude",pts:{know:6}},{l:"Plus de 5 ans",d:"Investisseur aguerri",pts:{know:9}}]},
+  { id:'q2', sec:'exp', type:'multi', s:'Placements déjà détenus',
+    q:"Quels placements avez-vous déjà détenus ?", help:"Sélectionnez tout ce qui s'applique (sur les 12 derniers mois ou avant).",
+    opts:[{l:"Livrets & épargne",d:"Livret A, LDDS, PEL…",pts:{know:1}},{l:"Assurance-vie",d:"ou capitalisation",pts:{know:2}},
+          {l:"Comptes-titres / PEA",d:"Actions, ETF, OPC",pts:{know:3}},{l:"Épargne retraite",d:"PER, PERP, Madelin…",pts:{know:2}},
+          {l:"SCPI / immobilier",d:"Pierre-papier",pts:{know:3}},{l:"Private equity",d:"FIP, FCPI, FCPR…",pts:{know:4}}]},
+  { id:'q3', sec:'exp', type:'single', s:'Mode de gestion',
+    q:"Comment gérez-vous habituellement vos placements ?", help:"Votre mode de gestion en dit long sur votre aisance.",
+    opts:[{l:"Je ne gère pas encore",d:"Tout est à construire",pts:{know:0}},{l:"Gestion conseillée",d:"Accompagné par un conseiller",pts:{know:4}},
+          {l:"Gestion directe",d:"Je décide moi-même",pts:{know:6}},{l:"Gestion sous mandat",d:"Déléguée à un gérant",pts:{know:5}}]},
+  { id:'q4', sec:'exp', type:'multi', s:'Produits compris',
+    q:"Quels produits comprenez-vous réellement ?", help:"Cochez ceux dont le couple rendement / risque vous est familier.",
+    opts:[{l:"Fonds en euros",d:"Capital garanti",pts:{know:1}},{l:"Obligations",d:"Sensibles aux taux",pts:{know:2}},
+          {l:"Actions",d:"Long terme, volatiles",pts:{know:3}},{l:"SCPI",d:"Immobilier, peu liquide",pts:{know:2}},
+          {l:"Produits structurés",d:"Protection conditionnelle",pts:{know:4}},{l:"Capital-investissement",d:"Non coté, 6-8 ans",pts:{know:4}}]},
+  { id:'q5', sec:'exp', type:'single', s:'Forte baisse déjà vécue',
+    q:"Avez-vous déjà traversé une forte baisse sur l'un de vos placements ?", help:"Et si oui, comment l'avez-vous gérée ?",
+    opts:[{l:"Non, jamais",d:"Je n'y ai pas encore été confronté",pts:{tol:1,know:0}},{l:"Oui — j'ai tout vendu",d:"La baisse m'a fait sortir",pts:{tol:0,know:1}},
+          {l:"Oui — j'ai patienté",d:"J'ai gardé le cap",pts:{tol:5,know:3}},{l:"Oui — j'ai renforcé",d:"J'en ai profité pour investir",pts:{tol:9,know:4}}]},
+  { id:'q6', sec:'cap', type:'single', s:'Horizon de placement',
+    q:"Dans quel délai pourriez-vous avoir besoin de cette épargne ?", help:"Votre horizon de placement le plus long pour ce projet.",
+    opts:[{l:"Moins de 1 an",d:"Très court terme",pts:{cap:0}},{l:"1 à 3 ans",d:"Court terme",pts:{cap:3}},
+          {l:"3 à 5 ans",d:"Moyen terme",pts:{cap:7}},{l:"Plus de 5 ans",d:"Long terme",pts:{cap:10}}]},
+  { id:'q7', sec:'cap', type:'single', s:'Baisse supportable',
+    q:"Quelle baisse temporaire pourriez-vous supporter sereinement ?", help:"Sans que cela ne menace vos projets ni votre tranquillité.",
+    opts:[{l:"Aucune perte",d:"La sécurité d'abord",pts:{cap:0,tol:0}},{l:"Jusqu'à -10 %",d:"Des variations limitées",pts:{cap:4,tol:3}},
+          {l:"Entre -10 % et -30 %",d:"Des creux passagers",pts:{cap:8,tol:7}},{l:"Plus de -30 %",d:"Je vise le long terme",pts:{cap:11,tol:10}}]},
+  { id:'q8', sec:'cap', type:'single', s:'Part investissable',
+    q:"Quelle part de votre patrimoine est éligible à de l'investissement ?", help:"La part que vous pourriez mobiliser sans toucher à votre épargne de sécurité.",
+    opts:[{l:"Une petite part",d:"L'essentiel doit rester disponible",pts:{cap:0}},{l:"Une part modérée",d:"Une fraction confortable",pts:{cap:4}},
+          {l:"Environ la moitié",d:"Un bon équilibre",pts:{cap:7}},{l:"Une part importante",d:"J'ai d'autres réserves solides",pts:{cap:10}}]},
+  { id:'q9', sec:'risk', type:'single', s:'Rapport au risque',
+    q:"Pour vos placements, quelle phrase vous ressemble le plus ?", help:"Il n'y a pas de bonne réponse — seulement la vôtre.",
+    opts:[{l:"Ne jamais prendre de risque",d:"Tout en placements sûrs",pts:{tol:0}},{l:"Un peu de risque, prudemment",d:"Une petite part dynamique",pts:{tol:4}},
+          {l:"Du risque si le gain en vaut la peine",d:"Une part importante exposée",pts:{tol:8}},{l:"Viser la performance maximale",d:"Quitte à beaucoup fluctuer",pts:{tol:12}}]},
+  { id:'q10', sec:'risk', type:'scenario', s:'Placement choisi (8 ans)',
+    q:"Trois placements, leurs fourchettes de rendement sur 8 ans. Lequel choisissez-vous ?", help:"De l'estimation la plus pessimiste à la plus optimiste, chaque année.",
+    scen:[{name:"Sérénité",lo:-1,hi:4,pts:{tol:1}},{name:"Équilibre",lo:-7,hi:9,pts:{tol:6}},{name:"Ambition",lo:-18,hi:22,pts:{tol:12}}]},
+  { id:'q11', sec:'risk', type:'single', s:'Réflexe à −15 %',
+    q:"Votre portefeuille perd −15 % en un mois de turbulences. Votre réflexe ?", help:"Réaction à chaud face à une baisse marquée.",
+    opts:[{l:"Je vends tout",d:"Stopper l'hémorragie",pts:{tol:0}},{l:"J'allège un peu",d:"Réduire la voilure",pts:{tol:3}},
+          {l:"Je ne touche à rien",d:"Garder le cap",pts:{tol:8}},{l:"J'en profite pour renforcer",d:"Acheter à bon compte",pts:{tol:12}}]},
+  { id:'q12', sec:'risk', type:'single', s:'Pari sur 20 000 €',
+    q:"On vous propose d'échanger un revenu certain de 20 000 € contre…", help:"50 % de chances de doubler (40 000 €), 50 % de baisser d'un tiers (13 333 €).",
+    opts:[{l:"Non merci, je garde le certain",d:"La sécurité prime",pts:{tol:0}},{l:"J'hésite mais je refuse",d:"Trop d'incertitude",pts:{tol:3}},
+          {l:"Je tente, le potentiel m'attire",d:"Le gain en vaut le coup",pts:{tol:8}},{l:"Sans hésiter, je prends le pari",d:"J'aime le risque",pts:{tol:12}}]},
+  { id:'q13', sec:'risk', type:'single', s:'Objectif prioritaire',
+    q:"Enfin, quel est votre objectif prioritaire ?", help:"Ce qui compte le plus pour vous, aujourd'hui.",
+    opts:[{l:"Préserver mon capital",d:"Éviter les pertes avant tout",pts:{tol:0,cap:2}},{l:"Générer des revenus",d:"Dividendes, coupons, loyers",pts:{tol:4}},
+          {l:"Faire croître mon capital",d:"Accepter du risque pour grandir",pts:{tol:8}},{l:"Maximiser la performance",d:"Viser haut sur le long terme",pts:{tol:12}}]},
+];
+const PROFILES = [
+  { key:'Prudent',   color:'#7fa9a1', eq:.15, exp:2.0, vol:3,
+    tag:"Vous privilégiez la sécurité. Votre capital est protégé en priorité, avec une exposition mesurée pour ne pas subir l'inflation.",
+    alloc:[["Fonds euros & monétaire",60],["Obligations",25],["Actions & diversifié",15]]},
+  { key:'Équilibré', color:'#b8c79a', eq:.40, exp:4.0, vol:8,
+    tag:"Vous recherchez un équilibre entre sécurité et performance. Des fluctuations modérées sont acceptées au service d'un rendement régulier.",
+    alloc:[["Fonds euros & obligations",55],["Actions",35],["Immobilier & diversifié",10]]},
+  { key:'Dynamique', color:'#c9a97b', eq:.70, exp:6.0, vol:14,
+    tag:"Vous visez la croissance du capital sur le long terme et acceptez des baisses temporaires marquées en contrepartie d'un potentiel élevé.",
+    alloc:[["Actions",65],["Obligations & diversifié",25],["Non coté & thématiques",10]]},
+  { key:'Offensif',  color:'#c8735c', eq:.92, exp:7.5, vol:20,
+    tag:"Vous recherchez la performance maximale sur un horizon long. Une forte volatilité fait partie du jeu et ne vous détourne pas de votre cap.",
+    alloc:[["Actions",80],["Non coté & private equity",12],["Diversifié & opportuniste",8]]},
+];
+const MAXP = (()=>{ const m={tol:0,cap:0,know:0};
+  CARDS.forEach(c=>{
+    if(c.type==='multi'){ c.opts.forEach(o=>{for(const k in o.pts) m[k]+=o.pts[k];}); return; }
+    const best={}; (c.opts||c.scen).forEach(o=>{for(const k in o.pts) best[k]=Math.max(best[k]||0,o.pts[k]);});
+    for(const k in best) m[k]+=best[k];
+  }); return m; })();
 
 /* ------------------------------------------------------------ ÉTAT */
 const DEFAULT = () => ({
   client:'', date:new Date().toISOString().slice(0,10),
+  lifeGoals:'', prio:Object.fromEntries(OBJ.map(o=>[o[0],0])), prioWords:'',
+  bes:Object.fromEntries(OBJ.map(o=>[o[0],{h:o[4],c:'',r:''}])),
   sit:'seul', enfants:0, isole:false,
   age:null, rev1:null, rev2:null, irAvis:null, retAge:CONFIG.retirementAge,
   patFin:null, patImmo:null,
   livrets:null, livretRate:CONFIG.livretRate, targetRate:CONFIG.targetRate, inflation:CONFIG.inflation, epNote:'',
   mensualites:null, immoNote:'',
   retWanted:null, retRate:CONFIG.replaceRates[0], retNote:'',
+  answers:{}, qIdx:0, simAmt:50000, simShock:10, simProfile:null,
   know:null, risk:null, loss:null, esg:null,
-  capMens:null,
-  docs:[0,0,0,0,0,0,0,0],
-  rdvDate:'', rdvTime:'',
+  capMens:null, docs:[0,0,0,0,0,0,0,0], rdvDate:'', rdvTime:'',
 });
+const SKEY='mic-'+MODE;
 let S;
-try{ S = Object.assign(DEFAULT(), JSON.parse(sessionStorage.getItem('mic-r1')||'{}')); }catch(e){ S = DEFAULT(); }
-const save = () => { try{ sessionStorage.setItem('mic-r1', JSON.stringify(S)); }catch(e){} };
+try{ S = Object.assign(DEFAULT(), JSON.parse(sessionStorage.getItem(SKEY)||'{}')); }catch(e){ S = DEFAULT(); }
+const save = () => { try{ sessionStorage.setItem(SKEY, JSON.stringify(S)); }catch(e){} };
+const getK = p => p.split('.').reduce((o,k)=>o==null?o:o[k], S);
+const setK = (p,v) => { const ks=p.split('.'), last=ks.pop(); ks.reduce((o,k)=>o[k],S)[last]=v; };
 
 /* ------------------------------------------------------------ CALCULS */
 const n = v => (v==null || isNaN(v)) ? 0 : +v;
-
-function bareme(q){ // impôt pour une part de quotient q
-  let t=0, prev=0;
-  for(const [lim,rate] of CONFIG.bareme){ if(q>prev) t += (Math.min(q,lim)-prev)*rate; prev=lim; }
-  return t;
-}
-function tmi(q){ let prev=0; for(const [lim,rate] of CONFIG.bareme){ if(q<=lim) return rate; prev=lim; } return .45; }
+function bareme(q){ let t=0, prev=0; for(const [lim,rate] of CONFIG.bareme){ if(q>prev) t+=(Math.min(q,lim)-prev)*rate; prev=lim; } return t; }
+function tmi(q){ for(const [lim,rate] of CONFIG.bareme){ if(q<=lim) return rate; } return .45; }
 function abattement(sal){ if(sal<=0) return 0; const {taux,min,max}=CONFIG.abat; return Math.min(sal, Math.max(min, Math.min(max, sal*taux))); }
 function nbParts(){
   const base = S.sit==='couple' ? 2 : 1, k = n(S.enfants);
@@ -263,99 +480,357 @@ function pmt2capital(m, ratePct, years){ const r=ratePct/100/12, N=years*12; ret
 function calc(){
   const couple = S.sit==='couple';
   const r1=n(S.rev1), r2=couple?n(S.rev2):0, revFoyer=r1+r2, netM=revFoyer/12;
-  // --- IR ---
   const rni = Math.max(0, r1-abattement(r1) + r2-abattement(r2));
   const {base, parts} = nbParts();
-  const brutParts = bareme(rni/parts)*parts;
-  const brutBase  = bareme(rni/base)*base;
-  const halfs = (parts-base)*2;
-  let capAvantage = halfs*CONFIG.qfCap;
+  const brutParts = bareme(rni/parts)*parts, brutBase = bareme(rni/base)*base;
+  let capAvantage = (parts-base)*2*CONFIG.qfCap;
   if(!couple && S.isole && n(S.enfants)>0) capAvantage += CONFIG.qfCapIsole - CONFIG.qfCap;
   let ir = Math.max(brutParts, brutBase - capAvantage);
   const d = couple ? CONFIG.decote.couple : CONFIG.decote.seul;
-  const decote = Math.max(0, Math.min(ir, d - CONFIG.decote.taux*ir));
-  ir = Math.max(0, ir-decote);
+  ir = Math.max(0, ir - Math.max(0, Math.min(ir, d - CONFIG.decote.taux*ir)));
   if(ir < CONFIG.irMinRecouvrement) ir = 0;
   ir = Math.round(ir);
   const irUsed = S.irAvis!=null ? n(S.irAvis) : ir;
   const qfUsed = brutParts >= brutBase - capAvantage ? rni/parts : rni/base;
-  // --- cotisations sociales (coût employeur − net) ---
   const ps = (r1?coutEmployeur(r1)-r1:0) + (r2?coutEmployeur(r2)-r2:0);
   const totalTax = irUsed + ps;
   const years = Math.max(0, n(S.retAge)-n(S.age));
   const patTotal = n(S.patFin)+n(S.patImmo);
-  // --- épargne ---
   const L=n(S.livrets), r=n(S.livretRate)/100, rt=n(S.targetRate)/100, inf=n(S.inflation)/100;
   const L10=L*Math.pow(1+r,10), I10=L*Math.pow(1+inf,10), T10=L*Math.pow(1+rt,10);
-  // --- immobilier ---
   const partImmo = patTotal? n(S.patImmo)/patTotal : 0;
   const debtRate = netM? n(S.mensualites)/netM : 0;
-  // --- retraite (revenu du déclarant 1) ---
   const est = r1/12*S.retRate, w=n(S.retWanted), toCreate=Math.max(0,w-est);
   const capital = toCreate*12/CONFIG.withdrawRate;
-  // --- synthèse ---
   const reserve = CONFIG.reserveMonths*netM;
   const investable = Math.max(0, n(S.patFin)-reserve);
   const shortfall = Math.max(0, reserve - n(S.patFin));
   const cap = n(S.capMens);
-  const precaution = Math.min(cap, shortfall/12);
-  const dispo = Math.max(0, cap-precaution);
+  const precaution = Math.min(cap, shortfall/12), dispo = Math.max(0, cap-precaution);
   const debtMargin = Math.max(0, CONFIG.debtCap*netM - n(S.mensualites));
   const borrow = pmt2capital(debtMargin, CONFIG.loan.rate, CONFIG.loan.years);
   return {couple, r1, r2, revFoyer, netM, rni, parts, ir, irUsed, tmi:tmi(qfUsed), tauxMoyen: revFoyer? irUsed/revFoyer:0,
-    ps, totalTax, years, proj: totalTax*years, patTotal,
-    L, r, rt, inf, L10, I10, T10, gapPts:(rt-r)*100,
-    partImmo, debtRate, est, w, toCreate, capital,
-    reserve, investable, shortfall, cap, precaution, dispo, debtMargin, borrow};
+    ps, totalTax, years, proj: totalTax*years, patTotal, L, r, rt, inf, L10, I10, T10, gapPts:(rt-r)*100,
+    partImmo, debtRate, est, w, toCreate, capital, reserve, investable, shortfall, cap, precaution, dispo, debtMargin, borrow};
+}
+
+/* profil : scores, bande, correspondance avec la slide à pilules */
+function qDone(){ return CARDS.every(c=>{const a=S.answers[c.id]; return c.type==='multi' ? Array.isArray(a)&&a.length>0 : a!=null;}); }
+function pScores(){
+  const s={tol:0,cap:0,know:0};
+  CARDS.forEach(c=>{ const a=S.answers[c.id]; if(a==null) return;
+    const add=p=>{for(const k in p) s[k]+=p[k]||0;};
+    if(c.type==='multi') a.forEach(i=>add(c.opts[i].pts)); else add((c.opts||c.scen)[a].pts); });
+  const pct=k=>MAXP[k]?Math.round(100*s[k]/MAXP[k]):0;
+  return {tol:pct('tol'),cap:pct('cap'),know:pct('know')};
+}
+function pResult(){
+  if(!qDone()) return null;
+  const sc=pScores(), A=S.answers;
+  const comp=.50*sc.tol+.32*sc.cap+.18*sc.know;
+  let band = comp<28?0 : comp<52?1 : comp<74?2 : 3;
+  if(A.q7===0) band=Math.min(band,0); else if(A.q7===1) band=Math.min(band,1);
+  if(A.q6!=null && A.q6<=1) band=Math.min(band,1);
+  if(sc.know<25) band=Math.min(band,2);
+  if(A.q9===0) band=Math.min(band,0);
+  return {band, comp, sc, p:PROFILES[band]};
+}
+function applyProfileToPills(){
+  const res=pResult(); if(!res) return;
+  S.know = res.sc.know<34?0 : res.sc.know<67?1 : 2;
+  S.risk = res.band===0 ? (res.comp<16?0:1) : res.band+1;
+  S.loss = S.answers.q7===0 ? 0 : Math.min(4, Math.floor(res.sc.cap/20.01));
+}
+function answerLabel(c){
+  const a=S.answers[c.id]; if(a==null || (Array.isArray(a)&&!a.length)) return '—';
+  if(c.type==='multi') return a.map(i=>c.opts[i].l).join(', ');
+  if(c.type==='scenario') return `${c.scen[a].name} (${c.scen[a].lo} % à +${c.scen[a].hi} %)`;
+  return c.opts[a].l;
 }
 
 /* ------------------------------------------------------------ FORMATS */
 const fmt = (v,d=0) => (+v).toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const eur = v => fmt(Math.round(n(v)))+' €';
+const eurK = v => v>=1e6 ? fmt(v/1e6,2)+' M€' : fmt(Math.round(v/100)/10,1).replace(/,0$/,'')+' k€';
 const pct = (f,d=1) => fmt(100*n(f),d).replace(/,0$/,'')+' %';
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const parseNum = v => { const t=String(v).replace(/[\s  €%]/g,'').replace(',','.'); if(t==='') return null; const x=parseFloat(t); return isNaN(x)?null:x; };
 const fmtIn = v => v==null ? '' : (Number.isInteger(v) ? v.toLocaleString('fr-FR') : String(v).replace('.',','));
 
-/* ------------------------------------------------------------ GABARITS */
+/* ------------------------------------------------------------ ICÔNES & GABARITS */
+const P = {
+  piggy:'<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/>',
+  coins:'<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/>',
+  house:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  umbrella:'<path d="M22 12a10 10 0 0 0-20 0Z"/><path d="M12 12v8a2 2 0 0 0 4 0"/><path d="M12 2v1"/>',
+  chart:'<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>',
+  heart:'<path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 15 6 6"/><path d="M19.5 8.5c.7-.7 1.5-1.6 1.5-2.7A2.73 2.73 0 0 0 16 4a2.78 2.78 0 0 0-5 1.8c0 1.2.8 2 1.5 2.8L16 12Z"/>',
+  building:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  dollar:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M13.2 8.6c-.4-.7-1.2-1.1-2.2-1.1-1.2 0-2.2.7-2.2 1.6 0 2.2 4.4 1.2 4.4 3.5 0 .9-1 1.6-2.2 1.6-1 0-1.9-.4-2.3-1.1M11 6v1.5M11 14.5V16"/>',
+  cap:'<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/><path d="M22 10v6"/>',
+  scale:'<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.8-4.8"/>',
+  bars:'<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  dart:'<circle cx="11" cy="13" r="8"/><circle cx="11" cy="13" r="4"/><path d="m11 13 9-9"/><path d="M16 4h4v4"/>',
+  percent:'<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  trend:'<path d="M22 7 13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/>',
+  home:'<path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/>',
+  euro:'<path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/>',
+  sunrise:'<path d="M12 2v6"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="M16 18a4 4 0 0 0-8 0"/>',
+  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+};
+const ic = (k,sw=1.8) => `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${P[k]}</svg></span>`;
+const STAR = `<svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.7 7.2L12 17.6 5.7 21.4l1.7-7.2L2 9.5l7.1-.6z"/></svg>`;
 const LOGO = (light=true) => { const c = light?'#f3ead6':'#234d47';
   return `<svg viewBox="0 0 200 200" aria-label="MIC"><circle cx="100" cy="100" r="96" fill="none" stroke="${c}" stroke-width="2.4"/>
   <circle cx="100" cy="100" r="88" fill="none" stroke="${c}" stroke-width="1" opacity=".7"/>
   <text x="100" y="118" text-anchor="middle" font-family="'Times New Roman',Georgia,serif" font-size="66" fill="${c}">MIC</text>
   <line x1="58" y1="136" x2="142" y2="136" stroke="${c}" stroke-width="1.4" opacity=".8"/></svg>`; };
 const FOOT = `<div class="foot">${CONFIG.firm} · CGP Indépendant · ${CONFIG.email}</div>`;
-const inp = (k,ph='',w) => `<input class="v" data-k="${k}" inputmode="decimal" autocomplete="off" placeholder="${ph}" ${w?`style="width:${w}px"`:''}>`;
+const inp = (k,ph='',w,extra='') => `<input class="v ${extra}" data-k="${k}" inputmode="decimal" autocomplete="off" placeholder="${ph}" ${w?`style="width:${w}px"`:''}>`;
+const txt = (k,ph='',style='',extra='') => `<input class="v ${extra}" data-k="${k}" data-t="txt" autocomplete="off" placeholder="${ph}" style="${style}">`;
 const out = k => `<span data-o="${k}">—</span>`;
-const ICON = {
-  check:`<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#234d47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`,
-  chart:`<svg width="86" height="74" viewBox="0 0 24 21" fill="#234d47"><path d="M2 1h2.4v15.6H23V19H2z"/><path d="M6 13.5l4.2-4.4 3.2 3 4.4-4.9-1.9-1.6H22v5.6l-1.7-1.8-6.7 7.3-3.2-3-2.8 2.9z"/></svg>`,
-  pig:`<svg width="90" height="80" viewBox="0 0 64 56" fill="#234d47"><circle cx="34" cy="9" r="6"/><path d="M8 28c0-10 10-16 24-16 9 0 15 2 19 6l7-3-2 9c2 2 3 4 3 6h4v8h-5c-2 4-5 7-9 8v8h-8v-6H28v6h-8v-9c-5-3-8-7-9-11H5c-3 0-5-2-5-5 0-2 2-4 4-4 1 0 1 1 0 1-1 0-2 1-2 3 0 1 1 2 3 2h3z"/><circle cx="47" cy="26" r="2" fill="#ece1c7"/></svg>`,
-  house:`<svg width="90" height="82" viewBox="0 0 24 22" fill="#234d47"><path d="M12 1L0 11.5l1.6 1.8L3 12v10h7v-6h4v6h7V12l1.4 1.3 1.6-1.8L20 8V2h-3v3.4z"/></svg>`,
-};
+const CHECK = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#234d47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${P.check}</svg>`;
 
-/* ------------------------------------------------------------ SLIDES */
+/* avis clients (slide 8) — retranscrits tels quels */
+const REVIEWS = [
+  ['Vincent.B','VI','#f6dfb9','19 juin 2026','Mathyas explique de manière très…',"Mathyas explique de manière très précises les différents dispositifs possibles pour gérer son patrimoine de la meilleure des façons. Très clair, très dynamique, disponible pour toutes questions complémentaires. Les échanges sont fructueux et agréables. Je recommande pour tout type de personnes, Mathyas sera se mettre au niveau de son interlocuteur."],
+  ['Grégoire Coudrin','GC','#f6d6dc','30 nov. 2025',"Mathias l'efficace.","Mathias est un conseiller très à l'écoute, bienveillant et professionnelle. Avec une pédagogie sans pareil. Il s'adapte à notre situation à merveille. Un vrai requin quand il s'agit de démasquer des arnaques et les investissements louche. Je recommande vivement pour une épargne en croissance et un esprit serein."],
+  ['Sara mchr','S','#c9cdf3','10 juin 2026',"Un conseiller financier d'exception","Très satisfaite de mon expérience auprès de Midelton Investment Capital. J'ai bénéficié d'un accompagnement pédagogique et de qualité qui m'a permis de découvrir le monde de l'investissement et de mieux comprendre ses enjeux ainsi que les opportunités, souvent méconnues du grand public. Les conseils sont personnalisés et réellement adaptés à mes besoins. Merci encore à Mathyas pour son professionnalisme et sa disponibilité."],
+  ['Tim Boin','TB','#d9dde0','24 avr. 2026','Conseil en SCPI',"Conseil en SCPI : explications claires, répond à toutes les questions (de la plus bête à la plus précise), accompagnement dans les papiers admin. Mathyas a été (et est) parfait 👍"],
+  ['Muriel Vesiez','MV','#f6dfb9','6 nov. 2025','Accompagnement personnalisé au top dans la gestion de mon patrimoine',"Très agréablement surprise par le professionnalisme, la qualité d'écoute, la prise en compte de mes objectifs et le réajustement constant des échanges et des propositions de mon conseiller Clovis : Mathyas. Je pensais avoir affaire à une plateforme qui m'aiderait à mieux cerner mes besoins en terme de gestion du patrimoine (initialement je cherchais à réduire mes impôts, si cela était possible). Au final, je suis suivi par un conseiller qui m'a ouvert à toutes les perspectives possibles (court, moyen et long terme), qui a répondu à beaucoup de mes interrogations. Il m'a aidé à redéfinir mes objectifs en m'expliquant les avantages et inconvénients de chacune des solutions envisagées pour y parvenir. On a posé des cas concrets et tout ça, dans la bonne humeur. Que demander de plus ? Je recommande+++"],
+  ['Cécile Clemenceau','CC','#fbefb9','16 déc. 2025','Excellente expérience avec Mathyas',"Excellente expérience avec Mathyas ! Ses explications sont claires et précises, et le contenu est très bien structuré. Je recommande vivement !"],
+  ['Gauthier','GA','#f6d6dc','24 mars 2026','Super expérience avec Mathyas',"Super expérience avec Mathyas chez Clovis. En tant que conseiller en gestion de patrimoine, il est à l'écoute, pédagogue et toujours disponible pour répondre aux questions. Ses conseils sont clairs, adaptés et on se sent bien accompagné du début à la fin avec la mise en place d'un stratégie totalement sur mesure et adaptée à ma situation et à mes préférences. Une collaboration simple, amicale et agréable."],
+  ['Quentin Linarello','Q','#b9d8b0','5 déc. 2025','Merci Mathyas !',"J'avais besoin de l'accompagnement d'un CGP pour diversifier mon portefeuille, mais j'avoue que j'étais assez hésitant au départ. Mes expériences précédentes n'avaient pas été très positives : frais trop élevés, conseils standardisés… Bref, rien de très rassurant. Puis j'ai rencontré Mathyas, et tout a changé. Dès le début, il s'est montré incroyablement bienveillant, à l'écoute et d'une transparence rare. Il prend vraiment le temps d'expliquer, de rassurer, et de clarifier chaque point qui pourrait susciter une hésitation. On sent qu'il maîtrise parfaitement les produits qu'il propose — et venant d'un parcours similaire, c'est vraiment agréable de parler avec quelqu'un qui sait de quoi il parle, un vrai passionné de finance et non un simple vendeur. Le processus s'est déroulé avec une fluidité remarquable. Chaque étape était claire, documentée, et j'ai pu avancer à mon rythme, sans jamais ressentir de pression. Et que dire de sa disponibilité… Mathyas répond presque à toute heure, ce qui est à la fois surprenant et extrêmement appréciable ! En résumé : une expérience vraiment positive, humaine et professionnelle. Je recommande chaleureusement !"],
+];
+const SERVICES = [
+  ['piggy','Fructifier votre épargne','Allocation multi-enveloppes, ETF, UC, fonds sélectionnés, produits structurés'],
+  ['coins','Réduire vos impôts','PER, défiscalisation, optimisation fiscale globale'],
+  ['house','Investir dans l\'immobilier','SCPI, LMNP, effet de levier bancaire optimisé'],
+  ['umbrella','Préparer votre retraite','Projection & stratégie long terme personnalisée'],
+  ['chart','Revenus passifs','Dividendes, loyers, coupons obligataires'],
+  ['heart','Finance à impact','Investissements ESG & responsables sélectionnés'],
+  ['building','Investir avec votre société','Trésorerie excédentaire, arbitrage entreprise / patrimoine privé'],
+  ['users','Transmettre à vos enfants','Leur bâtir un capital et organiser la transmission sans surprise'],
+  ['dollar','Reprendre en main vos placements','Contrats oubliés, frais trop lourds, allocation incohérente : on fait le tri'],
+];
+
+/* ------------------------------------------------------------ SLIDES
+   part:'pres' = présentation (exclue du PDF « bilan client »)
+   modes : versions dans lesquelles la slide apparaît */
+const BOTH=['full','r1'], FULL=['full'];
 const SLIDES = [
-/* 0 — couverture */
-{short:'Bilan', cls:'dark', html:()=>`
+/* 1 — couverture */
+{id:'cover', short:'Accueil', part:'pres', modes:FULL, cls:'dark', html:()=>`
+  <div style="position:absolute;left:1040px;top:-380px;width:1000px;height:1000px;border-radius:50%;border:1.5px solid rgba(255,255,255,.22)"></div>
+  <div class="anim" style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+    <div style="width:320px;height:320px">${LOGO()}</div>
+    <div style="font-size:48px;font-weight:700;margin-top:60px;letter-spacing:.5px">MIDELTON INVESTMENT CAPITAL</div>
+    <div class="bar" style="width:480px;margin:26px auto"></div>
+    <div style="font-size:30px;font-style:italic;color:#e8dcc0">Conseil en Gestion de Patrimoine Indépendant</div>
+    <div style="font-size:24px;margin-top:36px">Rendez-vous de découverte patrimoniale</div>
+    <div style="font-size:23px;margin-top:30px;color:#9fb7b2">${CONFIG.advisor} · CIF enregistré · ${CONFIG.phone}</div>
+  </div>`},
+
+/* 2 — accès inégal */
+{id:'acces', short:'Constat', part:'pres', modes:FULL, cls:'light', html:()=>`
+  <div class="logo">${LOGO(false)}</div>
+  <div class="anim" style="position:absolute;left:46px;top:78px;width:676px;height:676px;border-radius:50%;background:var(--green);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+    <div style="font-size:150px;font-weight:700;line-height:1;margin-top:-30px">&lt; 1%</div>
+    <div style="font-size:25px;color:#e8dcc0;line-height:1.55;margin-top:70px">des Français ont accès<br>à des conseils patrimoniaux<br>de qualité</div>
+  </div>
+  <div class="anim" style="position:absolute;left:800px;right:90px;top:170px">
+    <h2 style="font-size:38px;margin:0 0 60px">Un accès inégal au conseil patrimonial</h2>
+    <p style="font-size:24px;line-height:1.6;margin:0 0 50px">Les banques privées ne s'intéressent qu'aux patrimoines les plus importants — en général au-delà de 500 000 € liquides.</p>
+    <p style="font-size:24px;line-height:1.6;margin:0">Le MIC a été créé pour combler ce vide : un conseil patrimonial indépendant, orienté performance financière, accessible à ceux qui méritent mieux que leur conseiller bancaire habituel.</p>
+    <div style="margin-top:70px;background:var(--beige);border-radius:60px;padding:26px 30px;text-align:center;font-size:23px;font-weight:700;line-height:1.5;display:flex;align-items:center;justify-content:center;gap:16px">
+      <span style="width:34px;height:34px;color:var(--goldDeep)">${ic('target',2)}</span><span>Conseil orienté performance · Allocation d'actifs · Éducation financière</span></div>
+  </div>
+  ${FOOT}`},
+
+/* 3 — mission */
+{id:'mission', short:'Mission', part:'pres', modes:FULL, cls:'light', html:()=>`
+  <div class="split" style="grid-template-columns:630px 1fr">
+    <div class="l" style="text-align:center;padding-top:170px">
+      <div class="anim">
+        <div style="font-size:31px;font-weight:700;color:#ecdfc3">Ma mission</div>
+        <div style="font-size:31px;font-weight:700;color:#ecdfc3;line-height:1.55;margin-top:10px">Conseil financier simple, impartial,<br>intelligent et sur-mesure.</div>
+        <div style="width:250px;height:250px;margin:80px auto 0">${LOGO()}</div>
+      </div>
+    </div>
+    <div class="r" style="background:var(--sand);padding:180px 50px 0 96px">
+      <div style="font-size:12px;letter-spacing:3px;color:var(--green3);font-weight:700">PHILOSOPHIE</div>
+      <div style="font-family:var(--serif);font-size:42px;line-height:1.3;margin-top:24px;max-width:720px">Le bon conseil n'est pas celui qui vous fait dire <b>oui</b>. C'est celui qui vous fait dire <i style="border-bottom:2px solid var(--gold)">« je comprends »</i>.</div>
+      <div class="anim" style="margin-top:60px;border-top:1px solid rgba(35,77,71,.12)">
+        ${[['01','Indépendance',"Aucune banque, aucun groupe, aucun quota. Mes recommandations ne servent qu'un objectif : le vôtre."],
+           ['02','Transparence',"Chaque rétrocession, chaque frais. Vous savez exactement ce que vous payez et pourquoi."],
+           ['03','Pédagogie',"Je ne décide pas à votre place. Je vous explique, vous tranchez. Toujours."]]
+          .map(([nn,t,d])=>`<div style="display:grid;grid-template-columns:360px 1fr;align-items:center;padding:32px 0;border-bottom:1px solid rgba(35,77,71,.12)">
+            <div style="font-family:var(--serif);font-size:38px"><i style="font-size:18px;color:var(--gold);margin-right:14px">${nn}</i>${t}</div>
+            <div style="font-size:18px;line-height:1.55;color:var(--green3)">${d}</div></div>`).join('')}
+      </div>
+    </div>
+  </div>`},
+
+/* 4 — expert */
+{id:'expert', short:'Expert', part:'pres', modes:FULL, cls:'dark', html:()=>`
+  <div class="logo">${LOGO()}</div>
+  <div style="padding:72px 80px 0"><h2 class="title">Votre expert patrimonial</h2><div class="bar"></div></div>
+  <div class="anim" style="display:grid;grid-template-columns:1fr 1fr;gap:34px 32px;padding:56px 64px 0">
+    ${[['cap','MBA Trading & Finance de marchés','Formation en finance quantitative et gestion de portefeuille — je parle le langage des marchés.'],
+       ['scale','CIF Indépendant','Aucun lien capitalistique avec une banque ou assureur. Mon seul intérêt : votre performance.'],
+       ['chart','Orienté performance','Allocation d\'actifs multi-enveloppes, sélection de fonds, optimisation risque/rendement.'],
+       ['users','Pédagogie & proximité','Je vous explique chaque décision. Vous comprenez où va votre argent et pourquoi.']]
+      .map(([i,t,d])=>`<div class="card4">${ic(i,1.7)}<div><h3>${t}</h3><p>${d}</p></div></div>`).join('')}
+  </div>
+  <div class="foot" style="left:0;right:0;text-align:center;font-style:normal;font-size:26px">${CONFIG.advisor} · ${CONFIG.phone} · ${CONFIG.email}</div>`},
+
+/* 5 — services (version claire : la slide 4 est déjà sombre avec des cartes vertes) */
+{id:'services', short:'Services', part:'pres', modes:FULL, cls:'light', html:()=>`
+  <div style="position:absolute;left:1270px;top:-560px;width:900px;height:900px;border-radius:50%;border:1.5px solid var(--gold)"></div>
+  <div style="text-align:center;padding-top:44px;position:relative"><h2 class="title" style="font-size:72px">Mes services</h2><div class="bar" style="width:330px;margin:26px auto 0;height:9px"></div></div>
+  <div class="anim" style="display:grid;grid-template-columns:repeat(3,1fr);gap:28px 32px;padding:44px 60px 0;position:relative">
+    ${SERVICES.map(([i,t,d])=>`<div class="svc"><div class="hd">${ic(i,1.9)}<h3>${t}</h3></div><p>${d}</p></div>`).join('')}
+  </div>
+  ${FOOT}`},
+
+/* 6 — approche */
+{id:'approche', short:'Approche', part:'pres', modes:FULL, cls:'light', html:()=>`
+  <div class="logo">${LOGO(false)}</div>
+  <div style="padding:66px 80px 0"><h2 class="title" style="font-size:46px">Notre approche : Diagnostic · Analyse · Préconisation</h2></div>
+  <div class="appr anim" style="margin-top:60px">
+    ${[['01','search','Diagnostic','Recueil complet de votre situation patrimoniale, fiscale et de vos objectifs de vie.'],
+       ['02','bars','Analyse','Étude approfondie de vos actifs, de votre fiscalité et des opportunités adaptées à votre profil.'],
+       ['03','target','Préconisation','Construction d\'une stratégie d\'allocation sur-mesure, expliquée et validée avec vous.']]
+      .map(([nn,i,t,d],k)=>`<div class="col"><div class="num">${nn}</div><div class="circ">${ic(i,2.2)}</div>${k<2?'<div class="link"></div>':''}<h3>${t}</h3><div class="box">${d}</div></div>`).join('')}
+  </div>
+  <div class="quote" style="position:absolute;left:0;right:0;bottom:70px;text-align:center;color:var(--green3);font-size:26px">"Identifier votre situation idéale, puis construire la stratégie qui vous y amène."</div>
+  ${FOOT}`},
+
+/* 7 — bonnes mains */
+{id:'confiance', short:'AMF · RGPD', part:'pres', modes:FULL, cls:'light', html:()=>`
+  <div class="logo">${LOGO(false)}</div>
+  <div style="text-align:center;padding-top:44px"><h2 class="title" style="font-size:46px">Vous êtes entre de bonnes mains</h2></div>
+  <div class="anim" style="display:flex;justify-content:center;gap:250px;margin-top:180px">
+    <div class="badge" style="border:3px solid var(--green)">
+      <div style="font-size:12px;letter-spacing:2px;color:var(--green);border-left:2px solid var(--gold);padding-left:6px;line-height:1.3;text-align:left">AUTORITÉ<br><span style="opacity:.7">DES MARCHÉS FINANCIERS</span></div>
+      <div style="font-size:64px;font-weight:700;letter-spacing:2px;margin-top:6px"><span style="color:var(--green)">AM</span><span style="color:var(--gold)">F</span></div>
+    </div>
+    <div class="badge" style="border:4px solid var(--gold)">
+      <svg viewBox="0 0 230 230" width="230" height="230" style="position:absolute;inset:0">${Array.from({length:12},(_,i)=>{const a=i/12*2*Math.PI;return `<text x="${115+82*Math.sin(a)}" y="${121-82*Math.cos(a)}" text-anchor="middle" font-size="20" fill="#c9a97b">★</text>`}).join('')}</svg>
+      <div style="font-size:50px;font-weight:700">RGPD</div>
+    </div>
+  </div>
+  <div style="position:absolute;left:104px;right:104px;bottom:76px;background:var(--beige);border-bottom:6px solid var(--green);padding:36px 80px;text-align:center;font-size:24px;line-height:1.6;color:#253a5a">
+    Vous pouvez nous faire confiance : le MIC applique et respecte les règlements nationaux et européens les plus exigeants en matière de devoir de conseil et de protection de vos données personnelles.</div>`},
+
+/* 8 — avis */
+{id:'avis', short:'Avis', part:'pres', modes:FULL, cls:'light', html:()=>`
+  <div class="logo">${LOGO(false)}</div>
+  <div style="padding:40px 60px 0;display:flex;align-items:flex-end;gap:40px">
+    <h2 class="title" style="font-size:46px">Un travail basé sur la confiance</h2>
+    <div style="display:flex;align-items:center;gap:12px;font-size:24px;font-weight:700;margin-bottom:4px">
+      <span style="display:flex;gap:3px"><i style="width:28px;height:28px;background:#00b67a;display:flex;align-items:center;justify-content:center">${STAR.replace('width="14" height="14"','width="19" height="19"')}</i></span>
+      Avis Trustpilot · <span style="color:#00b67a">5/5</span> · <span style="font-weight:400;color:var(--green3)">${REVIEWS.length} avis</span></div>
+  </div>
+  <div class="anim" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:24px 50px 0;align-items:start">
+    ${[[0,1,5],[2,3],[4,6],[7]].map(col=>`<div>${col.map(i=>{ const [nm,ini,colr,dt,t,body]=REVIEWS[i];
+      return `<div class="rv"><div class="who"><span class="av" style="background:${colr}">${ini}</span><span class="nm">${nm}</span><span class="dt">${dt}</span></div>
+      <div class="stars">${('<i>'+STAR+'</i>').repeat(5)}</div><h4>${t}</h4>
+      <p>${esc(body).replace(/Mathyas/g,'<mark>Mathyas</mark>')}</p></div>`; }).join('')}</div>`).join('')}
+  </div>
+  ${FOOT}`},
+
+/* 9 — bilan (couverture client) */
+{id:'bilan', short:'Bilan', modes:BOTH, cls:'dark', html:()=>`
   <div class="logo l">${LOGO()}</div>
   <div style="position:absolute;right:-420px;top:-330px;width:900px;height:900px;border-radius:50%;border:2px solid rgba(255,255,255,.12)"></div>
-  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+  <div class="anim" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
     <div class="kicker">Diagnostic · Rendez-vous de découverte</div>
     <h1 style="font-size:84px;color:var(--ivory);margin:24px 0 0;font-weight:700">Votre Bilan Patrimonial</h1>
     <div class="bar" style="width:520px;margin:34px auto 44px"></div>
-    <div style="font-size:30px;color:#d8e4e1;display:flex;align-items:baseline;gap:16px">Préparé pour
-      <input class="v" data-k="client" data-t="txt" placeholder="Nom du client" style="width:520px;text-align:center;color:var(--gold);font-size:40px"></div>
+    <div style="font-size:30px;color:#d8e4e1;display:flex;align-items:baseline;gap:16px;justify-content:center">Préparé pour
+      ${txt('client','Nom du client','width:520px;text-align:center;color:var(--gold);font-size:40px')}</div>
     <div style="font-size:24px;color:#9fb7b2;margin-top:26px">le <span data-o="dateTxt"></span>
       <input type="date" class="noprint" data-k="date" data-t="raw" style="margin-left:12px;background:transparent;border:1px solid rgba(201,169,123,.4);color:#d8e4e1;border-radius:999px;padding:4px 12px;color-scheme:dark;font-size:16px"></div>
   </div>
   <div class="foot" style="left:0;right:0;text-align:center;font-style:normal">${CONFIG.advisor} · CIF enregistré · ${CONFIG.phone}</div>`},
 
-/* 1 — fiscalité */
-{short:'Fiscalité', cls:'dark', html:()=>`
+/* 10 — objectifs de vie */
+{id:'vie', short:'Objectifs de vie', modes:FULL, cls:'dark', html:()=>`
+  <div class="logo l">${LOGO()}</div>
+  <div class="anim" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div style="display:flex;align-items:center;gap:30px;color:#ecdfc3">
+      <span style="width:84px;height:84px">${ic('dart',1.5)}</span>
+      <h2 style="font-size:52px;margin:0">Quels sont vos principaux objectifs de vie ?</h2>
+      <span style="width:84px;height:84px">${ic('dart',1.5)}</span>
+    </div>
+    <textarea class="note" data-k="lifeGoals" data-t="txt" rows="5" style="width:1100px;margin-top:70px;background:rgba(255,255,255,.06);border:1.5px dashed rgba(201,169,123,.45);color:#fff;border-radius:40px;text-align:center"
+      placeholder="Acheter une résidence principale, préparer les études des enfants, partir plus tôt à la retraite… avec vos mots."></textarea>
+  </div>`},
+
+/* 11 — priorités */
+{id:'prio', short:'Priorités', modes:FULL, cls:'light', html:()=>`
+  <div class="split" style="grid-template-columns:630px 1fr">
+    <div class="l" style="padding:100px 80px">
+      <div class="kicker" style="font-size:20px">Diagnostic · Étape 01</div>
+      <h2 style="font-size:66px;font-weight:400;line-height:1.2;margin:34px 0 0">Vos priorités patrimoniales</h2>
+      <div class="bar" style="width:110px"></div>
+      <p style="font-size:24px;line-height:1.5;color:#ecdfc3;margin-top:36px">Notez chaque objectif de 1 à 3. La stratégie se construit dans cet ordre, pas dans celui du catalogue.</p>
+      <div style="margin-top:56px;color:#ecdfc3">
+        <div class="lg"><i class="f"></i><i></i><i></i><span style="margin-left:20px">Secondaire</span></div>
+        <div class="lg"><i></i><i class="f"></i><i></i><span style="margin-left:20px">Important</span></div>
+        <div class="lg"><i></i><i></i><i class="f"></i><span style="margin-left:20px">Prioritaire</span></div>
+      </div>
+    </div>
+    <div class="r" style="padding:70px 64px 40px 66px">
+      <div style="display:flex;align-items:flex-end"><div style="font-style:italic;font-size:38px;color:var(--green3)">Ce qui compte pour vous</div>
+        <div style="margin-left:auto;display:flex;gap:22px;font-weight:700;color:var(--goldDeep);font-size:19px">${[1,2,3].map(v=>`<span style="width:50px;text-align:center">${v}</span>`).join('')}</div></div>
+      <div class="anim" style="margin-top:14px;border-top:1.5px solid #d9c29a">
+        ${OBJ.map(([k,t,d,i])=>`<div class="prow"><div class="sq">${ic(i,1.8)}</div><div><h3>${t}</h3><p>${d}</p></div>
+          <div class="rate" data-rate="${k}">${[1,2,3].map(v=>`<button data-v="${v}" aria-label="${v}"></button>`).join('')}</div></div>`).join('')}
+      </div>
+      <div style="display:flex;gap:40px;margin-top:22px;align-items:flex-start">
+        <div style="font-size:19px;letter-spacing:3px;font-weight:700;color:var(--goldDeep);padding-top:16px">VOS MOTS</div>
+        <textarea class="note" data-k="prioWords" data-t="txt" rows="2" style="border-radius:28px;padding:18px 26px" placeholder="« … »"></textarea>
+      </div>
+    </div>
+  </div>`},
+
+/* 12 — bilan en chiffres */
+{id:'chiffres', short:'En chiffres', modes:FULL, cls:'light', html:()=>`
+  <div class="split" style="grid-template-columns:630px 1fr">
+    <div class="l" style="padding:100px 70px">
+      <div class="kicker" style="font-size:20px">Diagnostic · Étape 02</div>
+      <h2 style="font-family:var(--serif);font-size:74px;font-weight:500;line-height:1.1;margin:30px 0 0">Votre bilan, en chiffres</h2>
+      <div class="bar" style="width:110px"></div>
+      <p style="font-size:24px;line-height:1.45;color:#ecdfc3;margin:30px 0 40px">Vos priorités sont posées. Place aux faits : on saisit ensemble votre situation pour savoir, chiffres à l'appui, où vous en êtes.</p>
+      ${[['percent','01','Votre fiscalité','fiscal'],['piggy','02','Votre épargne','epargne'],['home','03','Votre immobilier','immo'],['sunrise','04','Votre retraite','retraite'],['user','05','Votre profil investisseur','quiz']]
+        .map(([i,nn,t,go])=>`<div class="jump" data-goid="${go}">${ic(i,1.6)}<i>${nn}</i><span>${t}</span></div>`).join('')}
+    </div>
+    <div class="r" style="padding:80px 64px 40px 60px">
+      <div style="font-family:var(--serif);font-style:italic;font-size:44px;color:var(--green3);margin-bottom:28px">Votre situation, en un coup d'œil</div>
+      <div class="kpi4 anim">
+        <div class="kpi"><small>Actif net</small><b data-o="patTotal">—</b><em>financier + immobilier net</em></div>
+        <div class="kpi"><small>Capacité d'épargne</small><b data-o="capAn">—</b><em data-o="capAnSub"></em></div>
+        <div class="kpi"><small>Endettement</small><b data-o="debtRate">—</b><em>seuil ${pct(CONFIG.debtCap,0)}</em></div>
+        <div class="kpi"><small>Impôt sur le revenu</small><b data-o="irUsed">—</b><em data-o="tmiTxt"></em></div>
+      </div>
+      <div class="alerts"><div style="font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--green3);font-weight:700">Points d'attention</div>
+        <ul data-o="alerts" style="margin:8px 0 0;padding-left:24px"></ul></div>
+      <div style="font-style:italic;font-size:23px;color:var(--green3);margin-top:22px">Saisie en direct, ensemble, au fil du rendez-vous.</div>
+    </div>
+  </div>`},
+
+/* 13 — fiscalité */
+{id:'fiscal', short:'Fiscalité', modes:BOTH, cls:'dark', html:()=>`
   <div class="logo">${LOGO()}</div>
-  <div style="padding:58px 64px 0">
-    <h2 class="title">Votre situation fiscale</h2><div class="bar"></div>
-  </div>
+  <div style="padding:58px 64px 0"><h2 class="title">Votre situation fiscale</h2><div class="bar"></div></div>
   <div style="display:grid;grid-template-columns:520px 1fr;gap:40px;padding:34px 64px 0">
     <div class="form">
       <div class="frow"><label>Situation</label><div class="seg" data-seg="sit"><button data-v="seul">Célibataire</button><button data-v="couple">Marié · Pacsé</button></div></div>
@@ -366,9 +841,9 @@ const SLIDES = [
       <div class="frow" data-show="couple"><label>Salaire net conjoint</label><div class="in">${inp('rev2','0')}<span class="unit">€</span></div></div>
       <div class="frow"><label>IR selon l'avis <small style="opacity:.6">(facultatif)</small></label><div class="in">${inp('irAvis','calculé')}<span class="unit">€</span></div></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px">
+    <div class="anim" style="display:flex;flex-direction:column;gap:10px">
       <div class="pill g1" data-p="ir"><span class="lab">Impôt sur le revenu (IR)<small data-o="irSub"></small></span><span class="val">${out('irUsed')}</span></div>
-      <div class="pill g2" data-p="ps"><span class="lab">Prélèvements sociaux &amp; charges<small>cotisations : coût employeur − salaire net</small></span><span class="val">${out('ps')}</span></div>
+      <div class="pill g2"><span class="lab">Prélèvements sociaux &amp; charges<small>cotisations : coût employeur − salaire net</small></span><span class="val">${out('ps')}</span></div>
       <div class="pill gold" data-p="tot"><span class="lab">Total IR + PS</span><span class="val">${out('totalTax')}<small style="font-size:18px;font-weight:400">/ an</small></span></div>
       <div class="pill g2" data-p="proj"><span class="lab">Projection jusqu'à la retraite<small data-o="projSub"></small></span><span class="val">${out('proj')}</span></div>
       <div class="pill g1"><span class="lab">Capitalisation mobilière actuelle<small>livrets, assurance-vie, PEA, CTO, PER…</small></span><span class="val">${inp('patFin','0')}<span class="unit">€</span></span></div>
@@ -378,13 +853,10 @@ const SLIDES = [
   </div>
   <div class="quote" style="position:absolute;left:0;right:0;bottom:22px;text-align:center;color:#9fb7b2;font-size:21px">« Nous avons construit un État obèse qui dévore ses citoyens à travers des prélèvements étouffants. » — Gaspard Koenig</div>`},
 
-/* 2 — épargne */
-{short:'Épargne', cls:'light', html:()=>`
+/* 14 — épargne */
+{id:'epargne', short:'Épargne', modes:BOTH, cls:'light', html:()=>`
   <div class="logo">${LOGO(false)}</div>
-  <div style="padding:58px 80px 0">
-    <div class="kicker" style="color:var(--green3)">Diagnostic</div>
-    <h2 class="title" style="margin-top:6px">Votre épargne actuelle</h2>
-  </div>
+  <div style="padding:58px 80px 0"><div class="kicker" style="color:var(--green3)">Diagnostic</div><h2 class="title" style="margin-top:6px">Votre épargne actuelle</h2></div>
   <div style="display:grid;grid-template-columns:1fr 540px;gap:50px;padding:24px 80px 0">
     <div>
       <div style="font-size:30px;font-weight:700">Les prix montent plus vite que votre livret</div>
@@ -392,7 +864,7 @@ const SLIDES = [
         <span><i style="display:inline-block;width:34px;height:6px;border-radius:3px;background:var(--gold);vertical-align:middle;margin-right:10px"></i>Coût de la vie · inflation <b>${inp('inflation','3',54)}</b><b>%</b></span>
         <span><i style="display:inline-block;width:34px;height:6px;border-radius:3px;background:var(--green);vertical-align:middle;margin-right:10px"></i>Votre livret · <b data-o="livretRateTxt"></b></span>
       </div>
-      <div data-o="chart" data-html="1"></div>
+      <div data-o="chart"></div>
     </div>
     <div style="background:var(--green);color:#fff;border-radius:40px;padding:40px 44px;align-self:start">
       <div style="font-family:var(--serif);font-size:42px;margin-bottom:18px">Votre situation</div>
@@ -406,8 +878,8 @@ const SLIDES = [
   <div class="quote" style="position:absolute;left:80px;bottom:56px;color:var(--green3)">« L'inflation, c'est l'impôt sans la loi. » — Milton Friedman</div>
   <div style="position:absolute;left:80px;bottom:22px;font-size:16px;font-style:italic;color:var(--green3)">Livret A : taux en vigueur depuis le 01/08/2026. Inflation : hypothèse modifiable. Projection à taux constants sur 10 ans, non garantie.</div>`},
 
-/* 3 — immobilier */
-{short:'Immobilier', cls:'light', html:()=>`
+/* 15 — immobilier */
+{id:'immo', short:'Immobilier', modes:BOTH, cls:'light', html:()=>`
   <div class="split" style="grid-template-columns:640px 1fr">
     <div class="l">
       <div class="big" style="margin-top:50px">47%</div>
@@ -419,7 +891,7 @@ const SLIDES = [
     <div class="r">
       <div class="logo">${LOGO(false)}</div>
       <h2 class="title">L'investissement immobilier</h2><div class="bar" style="width:290px"></div>
-      <div style="display:flex;flex-direction:column;gap:12px;margin-top:34px">
+      <div class="anim" style="display:flex;flex-direction:column;gap:12px;margin-top:34px">
         <div class="pill b1"><span class="lab">Votre patrimoine global actuel (actif net)</span><span class="val">${out('patTotal')}</span></div>
         <div class="pill b2"><span class="lab">Votre patrimoine immobilier actuel (actif net)</span><span class="val">${inp('patImmo','0')}<span class="unit">€</span></span></div>
         <div class="pill b1"><span class="lab">% de l'immobilier / global (actif net)</span><span class="val">${out('partImmo')}</span></div>
@@ -430,8 +902,8 @@ const SLIDES = [
     </div>
   </div>`},
 
-/* 4 — retraite */
-{short:'Retraite', cls:'light', html:()=>`
+/* 16 — retraite */
+{id:'retraite', short:'Retraite', modes:BOTH, cls:'light', html:()=>`
   <div class="split" style="grid-template-columns:640px 1fr">
     <div class="l">
       <div class="big" style="margin-top:50px">67%</div>
@@ -443,7 +915,7 @@ const SLIDES = [
     <div class="r">
       <div class="logo">${LOGO(false)}</div>
       <h2 class="title">Votre retraite</h2><div class="bar"></div>
-      <div style="display:flex;flex-direction:column;gap:14px;margin-top:34px">
+      <div class="anim" style="display:flex;flex-direction:column;gap:14px;margin-top:34px">
         <div class="pill b1" style="min-height:96px"><span class="lab">Revenus souhaités<small>en euros d'aujourd'hui</small></span><span class="val">${inp('retWanted','2 500',150)}<span class="unit">€ / mois</span></span></div>
         <div class="pill b2" style="min-height:96px"><span class="lab">Revenus estimés
             <span class="seg" data-seg="retRate" style="display:inline-flex;vertical-align:middle;margin-left:10px;background:rgba(35,77,71,.1)">${CONFIG.replaceRates.map(r=>`<button data-v="${r}" style="color:var(--green)">${r*100} %</button>`).join('')}</span>
@@ -454,37 +926,93 @@ const SLIDES = [
     </div>
   </div>`},
 
-/* 5 — profil investisseur */
-{short:'Profil', cls:'light', html:()=>`
+/* 17 — besoins & priorités */
+{id:'besoins', short:'Besoins', modes:FULL, cls:'dark', html:()=>`
+  <div class="logo">${LOGO()}</div>
+  <div style="padding:66px 80px 0"><h2 class="title">Vos besoins &amp; priorités</h2></div>
+  <div class="btab anim" style="padding:40px 64px 0 64px">
+    <div class="brow h" style="order:-1"><div>Objectifs prioritaires</div><div>Horizon</div><div>Cible</div><div>Contexte &amp; remarques</div></div>
+    ${OBJ.map(([k,t])=>`<div class="brow" data-bes="${k}"><div><span class="dots" data-o="dots_${k}"></span>${t}</div>
+      <div>${txt('bes.'+k+'.h','')}</div><div><input class="v keepph" data-k="bes.${k}.c" data-t="txt" data-phk="ph_${k}" autocomplete="off"></div>
+      <div>${txt('bes.'+k+'.r','…','','keepph')}</div></div>`).join('')}
+  </div>
+  <div class="noprint" style="position:absolute;right:64px;bottom:20px;font-size:15px;color:#87a39d;font-style:italic">Ordre automatique selon les priorités notées · cibles proposées d'après le bilan, modifiables</div>`},
+
+/* 18a — questionnaire profil */
+{id:'quiz', short:'Questionnaire', modes:BOTH, cls:'light', html:()=>`
+  <div class="split" style="grid-template-columns:520px 1fr">
+    <div class="l" style="padding:80px 60px">
+      <div class="kicker">Diagnostic · Profil investisseur</div>
+      <h2 style="font-size:58px;line-height:1.1;margin:28px 0 0">Votre profil investisseur</h2>
+      <div class="bar" style="width:110px"></div>
+      <p style="font-size:22px;line-height:1.5;color:#ecdfc3;margin:30px 0 34px">13 questions, dans l'esprit de la réglementation MIF II / AMF. Il n'y a pas de bonne réponse — seulement la vôtre.</p>
+      <div id="qnav"></div>
+      <div style="position:absolute;left:60px;bottom:50px;display:flex;align-items:center;gap:20px">
+        <div style="width:90px;height:90px">${LOGO()}</div><div style="font-size:17px;color:#9fb7b2;line-height:1.4">${CONFIG.firm}<br>CGP · Conseil en Investissements Financiers</div></div>
+    </div>
+    <div class="r" style="padding:66px 70px 40px 70px"><div id="qzone"></div></div>
+  </div>`},
+
+/* 18b — résultat profil */
+{id:'resultat', short:'Votre profil', modes:BOTH, cls:'dark', html:()=>`
+  <div class="logo">${LOGO()}</div>
+  <div id="rzone" style="height:100%"></div>`},
+
+/* 18c — simulateur */
+{id:'simu', short:'Simulateur', modes:BOTH, cls:'light', html:()=>`
+  <div class="logo">${LOGO(false)}</div>
+  <div style="padding:52px 80px 0"><div class="kicker" style="color:var(--green3)">Profil investisseur</div><h2 class="title" style="margin-top:6px">Simulateur de scénarios</h2></div>
+  <div style="padding:22px 80px 0">
+    <div style="display:flex;gap:14px;align-items:center">
+      <span style="font-size:20px;color:var(--green3);margin-right:6px">Allocation testée</span>
+      <div class="chips" data-simp style="flex:1;gap:12px">${PROFILES.map((p,i)=>`<button class="chip" data-v="${i}" style="min-height:60px;font-size:21px">${p.key}<small data-o="you${i}" style="display:block;font-size:14px;font-weight:400;opacity:.8"></small></button>`).join('')}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:420px 1fr;gap:40px;align-items:center;margin-top:26px">
+      <div class="pill b1" style="font-style:normal;min-height:90px"><span class="lab">Capital investi</span><span class="val">${inp('simAmt','50 000',150)}<span class="unit">€</span></span></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:21px;margin-bottom:12px"><span>Amplitude des marchés actions</span><b data-o="shockTxt"></b></div>
+        <input type="range" class="rg" min="0" max="40" step="1" data-k="simShock" data-t="range"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px;margin-top:28px">
+      <div class="simbox" style="background:#e3efe4;color:var(--pos)"><small data-o="upLab"></small><b data-o="up"></b><em data-o="upD"></em></div>
+      <div class="simbox" style="background:var(--green);color:#fff"><small>Capital investi</small><b data-o="amt"></b><em style="opacity:.75;font-weight:400" data-o="eqTxt"></em></div>
+      <div class="simbox" style="background:#f6e3de;color:var(--neg)"><small data-o="dnLab"></small><b data-o="dn"></b><em data-o="dnD"></em></div>
+    </div>
+    <div style="font-size:15px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--green3);margin:26px 0 0">Projection statistique à 1 an <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--goldDeep)">— pointillés : capital investi</span></div>
+    <div data-o="proj1"></div>
+  </div>
+  <div style="position:absolute;left:80px;right:80px;bottom:16px;font-size:14.5px;font-style:italic;color:var(--green3)" data-o="simNote"></div>`},
+
+/* 18d — profil (pilules) */
+{id:'profil', short:'Profil', modes:BOTH, cls:'light', html:()=>`
   <div class="logo">${LOGO(false)}</div>
   <div style="padding:58px 80px 0"><h2 class="title">Votre profil investisseur</h2></div>
-  <div style="padding:6px 80px 0;display:flex;flex-direction:column">
+  <div class="anim" style="padding:6px 80px 0;display:flex;flex-direction:column">
     ${[['know','Connaissance & expérience',['Novice','Informé','Expérimenté']],
        ['risk','Profil de risque',['Sécuritaire','Défensif','Équilibré','Dynamique','Offensif']],
        ['loss','Capacité à subir des pertes',['Très faible','Faible','Moyenne','Élevée','Très élevée']],
        ['esg','Sensibilité extra-financière (ESG)',['Neutre','Modérée','Significative','Forte']]]
-      .map(([k,l,opts])=>`<div style="font-size:29px;font-weight:700;margin:30px 0 14px">${l}</div>
-        <div class="chips" data-chips="${k}">${opts.map((o,i)=>`<button class="chip" data-v="${i}">${o}</button>`).join('')}</div>`).join('')}
+      .map(([k,l,opts])=>`<div><div style="font-size:29px;font-weight:700;margin:30px 0 14px">${l}</div>
+        <div class="chips" data-chips="${k}">${opts.map((o,i)=>`<button class="chip" data-v="${i}">${o}</button>`).join('')}</div></div>`).join('')}
   </div>
-  <div style="position:absolute;left:0;right:0;bottom:62px;text-align:center;font-style:italic;font-size:23px">Le profil est établi par questionnaire de conformité — il conditionne les recommandations qui vous seront faites.</div>
+  <div style="position:absolute;left:0;right:0;bottom:62px;text-align:center;font-style:italic;font-size:23px" data-o="profilNote"></div>
   ${FOOT}`},
 
-/* 6 — synthèse */
-{short:'Synthèse', cls:'light', html:()=>`
+/* 19 — synthèse */
+{id:'synthese', short:'Synthèse', modes:BOTH, cls:'light', html:()=>`
   <div class="logo">${LOGO(false)}</div>
   <div style="padding:58px 80px 0"><h2 class="title">Synthèse de votre patrimoine</h2></div>
-  <div style="padding:40px 64px 0">
-    <div class="band"><div class="ico">${ICON.chart}</div><div style="flex:1"><h3>Patrimoine financier</h3><div class="cells">
+  <div class="anim" style="padding:40px 64px 0">
+    <div class="band"><div class="bico">${ic('chart',2)}</div><div style="flex:1"><h3>Patrimoine financier</h3><div class="cells">
       <div class="cell">Valeur totale<b>${out('patFin')}<i>${out('patFinPct')}</i></b></div>
       <div class="cell">Réserve de précaution<b>${out('reserve')}<i>${out('reservePct')}</i></b></div>
       <div class="cell">Épargne investissable<b>${out('investable')}<i>${out('investablePct')}</i></b></div>
     </div></div></div>
-    <div class="band"><div class="ico">${ICON.pig}</div><div style="flex:1"><h3>Épargne mensuelle</h3><div class="cells">
+    <div class="band"><div class="bico">${ic('piggy',2)}</div><div style="flex:1"><h3>Épargne mensuelle</h3><div class="cells">
       <div class="cell">Capacité mensuelle<b>${inp('capMens','500',110)}<span>€</span><i>${out('capPct')}</i></b></div>
       <div class="cell">Précaution<b>${out('precaution')}<i>${out('precPct')}</i></b></div>
       <div class="cell">Disponible<b>${out('dispo')}<i>${out('dispoPct')}</i></b></div>
     </div></div></div>
-    <div class="band"><div class="ico">${ICON.house}</div><div style="flex:1"><h3>Capacité d'emprunt</h3><div class="cells">
+    <div class="band"><div class="bico">${ic('house',2)}</div><div style="flex:1"><h3>Capacité d'emprunt</h3><div class="cells">
       <div class="cell">Endettement actuel<b>${out('debtRate')}</b></div>
       <div class="cell">Capacité restante<b>${out('debtMargin')}<i>${out('debtMarginPts')}</i></b></div>
       <div class="cell">Capital empruntable<b>${out('borrow')}</b></div>
@@ -493,22 +1021,22 @@ const SLIDES = [
   <div style="position:absolute;right:64px;bottom:24px;font-size:15px;font-style:italic;color:var(--green3);max-width:760px;text-align:right" data-o="synthNote"></div>
   ${FOOT}`},
 
-/* 7 — documents réglementaires */
-{short:'Conformité', cls:'dark', html:()=>`
+/* 20 — conformité */
+{id:'docs', short:'Conformité', modes:BOTH, cls:'dark', html:()=>`
   <div class="logo">${LOGO()}</div>
   <div style="padding:58px 64px 0"><h2 class="title">Conformité : protocole réglementaire</h2></div>
-  <div style="padding:40px 64px 0;display:flex;flex-direction:column;gap:10px" id="docs">
+  <div class="anim" style="padding:40px 64px 0;display:flex;flex-direction:column;gap:10px">
     ${["Document d'entrée en relation (DER)","Lettre de mission CIF","Lettre de mission IAS","Document de Connaissance Client (DCC)",
        "Recueil d'information KYC","Profil investisseur","Rapport d'adéquation","Déclaration d'adéquation"]
-      .map((d,i)=>`<div class="doc" data-doc="${i}"><span class="ck">${ICON.check}</span><span class="lab">${d}</span><span class="st"></span></div>`).join('')}
+      .map((d,i)=>`<div class="doc" data-doc="${i}"><span class="ck">${CHECK}</span><span class="lab">${d}</span><span class="st"></span></div>`).join('')}
   </div>
   <div class="noprint" style="position:absolute;right:64px;bottom:18px;font-size:15px;color:#87a39d;font-style:italic">Cliquez sur une ligne pour changer son statut</div>`},
 
-/* 8 — prochain rendez-vous */
-{short:'Agenda', cls:'dark', html:()=>`
+/* 21 — prochain rendez-vous */
+{id:'agenda', short:'Agenda', modes:BOTH, cls:'dark', html:()=>`
   <div class="logo">${LOGO()}</div>
   <div style="text-align:center;padding-top:70px"><h2 class="title">Votre prochain rendez-vous</h2><div class="bar" style="width:480px;margin:28px auto 0"></div></div>
-  <div class="tl" style="margin-top:80px">
+  <div class="tl anim" style="margin-top:80px">
     ${[['Écoute & recueil','▼ Vous êtes ici',1],['Analyse de votre situation','',0],['Préconisations sur-mesure','▼ Prochain RDV',1],['Solutions','',0],['Suivi','',0]]
       .map(([nm,mk,hot])=>`<div class="st ${hot?'hot':''}"><div class="mk">${mk}</div><div class="dot"></div><div class="nm">${nm}</div></div>`).join('')}
   </div>
@@ -522,68 +1050,252 @@ const SLIDES = [
   <div id="calFrame" class="hidden"><button class="btn x" id="closeCal">Fermer ✕</button><iframe title="Agenda" loading="lazy"></iframe></div>
   <div class="foot" style="left:0;right:0;text-align:center;font-style:normal">${CONFIG.advisor} · ${CONFIG.phone} · ${CONFIG.email}</div>`},
 
-/* 9 — clôture */
-{short:'Merci', cls:'light', html:()=>`
+/* 22 — merci */
+{id:'merci', short:'Merci', modes:BOTH, cls:'light', html:()=>`
   <div style="position:absolute;left:1130px;top:-260px;width:900px;height:900px;border-radius:50%;background:#eeede3;border:2px solid var(--green3)"></div>
-  <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+  <div class="anim" style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
     <div style="width:300px;height:300px">${LOGO(false)}</div>
     <div style="font-size:48px;font-weight:700;margin-top:36px">MIDELTON INVESTMENT CAPITAL</div>
     <div class="bar" style="width:480px;margin:26px auto"></div>
     <div style="font-size:30px;font-style:italic">Conseil en Gestion de Patrimoine Indépendant</div>
     <div style="font-size:28px;margin-top:40px">Merci <span data-o="clientTxt"></span> pour votre confiance.</div>
     <div style="font-size:22px;margin-top:30px">${CONFIG.advisor} · CIF enregistré · ${CONFIG.phone}</div>
-    <button class="btn noprint" id="pdf2" style="margin-top:34px;background:var(--green);color:#fff">⤓ Télécharger le bilan en PDF</button>
+    <div><button class="btn dk noprint" id="pdf2" style="margin-top:34px">⤓ Télécharger le bilan en PDF</button></div>
   </div>
   <div style="position:absolute;left:60px;right:60px;bottom:18px;font-size:13px;color:var(--green3);text-align:center;line-height:1.4" data-o="legal"></div>`},
-];
+].filter(s=>s.modes.includes(MODE));
 
 /* ------------------------------------------------------------ CONSTRUCTION */
 const stage = document.getElementById('stage');
-stage.innerHTML = SLIDES.map((s,i)=>`<section class="slide ${s.cls}" data-i="${i}">${s.html()}</section>`).join('');
-document.getElementById('dots').innerHTML = SLIDES.map((s,i)=>`<button data-go="${i}">${i+1}. ${s.short}</button>`).join('');
+stage.innerHTML = SLIDES.map((s,i)=>`<section class="slide ${s.cls}" data-i="${i}" data-id="${s.id}">${s.html()}</section>`).join('');
+const idx = id => SLIDES.findIndex(s=>s.id===id);
+document.getElementById('dots').innerHTML = SLIDES.map((s,i)=>
+  (i>0 && SLIDES[i-1].part==='pres' && s.part!=='pres' ? '<span class="sep"></span>' : '') +
+  `<button data-go="${i}" title="${s.short}">${i+1}. ${s.short}</button>`).join('');
 
 // champs liés à l'état (un même champ peut apparaître sur plusieurs slides)
-stage.querySelectorAll('[data-k]').forEach(el=>{
-  const k=el.dataset.k, t=el.dataset.t||'num';
-  el.value = t==='num' ? fmtIn(S[k]) : (S[k]||'');
-  el.addEventListener('input',()=>{
-    S[k] = t==='num' ? parseNum(el.value) : el.value;
-    stage.querySelectorAll(`[data-k="${k}"]`).forEach(o=>{ if(o!==el) o.value = t==='num'?fmtIn(S[k]):S[k]; });
-    refresh();
+function bindFields(root){
+  root.querySelectorAll('[data-k]').forEach(el=>{
+    const k=el.dataset.k, t=el.dataset.t||'num';
+    const show = () => { const v=getK(k); el.value = t==='num' ? fmtIn(v) : (v==null?'':v); };
+    show();
+    el.addEventListener('input',()=>{
+      setK(k, t==='num' ? parseNum(el.value) : t==='range' ? +el.value : el.value);
+      stage.querySelectorAll(`[data-k="${k}"]`).forEach(o=>{ if(o!==el){ const v=getK(k); o.value = t==='num'?fmtIn(v):(v==null?'':v); } });
+      refresh();
+    });
+    if(t==='num') el.addEventListener('blur',()=>{ el.value=fmtIn(getK(k)); });
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter' && el.tagName==='INPUT') el.blur(); });
   });
-  if(t==='num') el.addEventListener('blur',()=>{ el.value=fmtIn(S[k]); });
-  el.addEventListener('keydown',e=>{ if(e.key==='Enter' && el.tagName==='INPUT') el.blur(); });
-});
+}
+bindFields(stage);
 stage.querySelectorAll('[data-seg]').forEach(g=>{
   const k=g.dataset.seg;
-  g.querySelectorAll('button').forEach(b=>b.onclick=()=>{
-    const v=b.dataset.v; S[k] = v==='true'?true : v==='false'?false : isNaN(+v)?v:+v; refresh();
-  });
+  g.querySelectorAll('button').forEach(b=>b.onclick=()=>{ const v=b.dataset.v; S[k] = v==='true'?true : v==='false'?false : isNaN(+v)?v:+v; refresh(); });
 });
 stage.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{ S.enfants=Math.max(0,Math.min(10,n(S.enfants)+(+b.dataset.step))); refresh(); });
 stage.querySelectorAll('[data-chips]').forEach(g=>{
   const k=g.dataset.chips;
   g.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{ S[k] = S[k]===+b.dataset.v ? null : +b.dataset.v; refresh(); });
 });
+stage.querySelectorAll('[data-simp] .chip').forEach(b=>b.onclick=()=>{ S.simProfile=+b.dataset.v; refresh(); });
+stage.querySelectorAll('[data-rate]').forEach(g=>{
+  const k=g.dataset.rate;
+  g.querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.prio[k] = S.prio[k]===+b.dataset.v ? 0 : +b.dataset.v; refresh(); });
+});
+stage.querySelectorAll('[data-goid]').forEach(b=>b.onclick=()=>show(idx(b.dataset.goid)));
 const DOC_ST = ['À initier','En cours','Signé ✓'];
 stage.querySelectorAll('[data-doc]').forEach(d=>d.onclick=()=>{ const i=+d.dataset.doc; S.docs[i]=(S.docs[i]+1)%3; refresh(); });
+
+/* ------------------------------------------------------------ QUESTIONNAIRE */
+let printing=false;
+const qz = () => document.getElementById('qzone');
+function renderQNav(){
+  const box=document.getElementById('qnav'); if(!box) return;
+  const cur = S.qIdx<CARDS.length ? CARDS[S.qIdx].sec : null;
+  box.innerHTML = Object.entries(SECTIONS).map(([k,l])=>`<div class="qsec ${k===cur?'on':''}">${l}</div>
+    <div class="qdots">${CARDS.map((c,i)=>c.sec!==k?'':`<button data-q="${i}" title="Question ${i+1}" class="${answered(c)?'f':''} ${i===S.qIdx?'cur':''}"></button>`).join('')}</div>`).join('');
+  box.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{ S.qIdx=+b.dataset.q; renderQuiz(); });
+}
+const answered = c => { const a=S.answers[c.id]; return c.type==='multi' ? Array.isArray(a)&&a.length>0 : a!=null; };
+function recapHTML(){
+  return `<div class="recapq">${CARDS.map(c=>`<div><span>${String(CARDS.indexOf(c)+1).padStart(2,'0')} · ${c.s}</span><b>${esc(answerLabel(c))}</b></div>`).join('')}</div>`;
+}
+function renderQuiz(){
+  const z=qz(); if(!z) return;
+  renderQNav();
+  if(printing || S.qIdx>=CARDS.length){
+    const done=qDone(), res=pResult();
+    z.innerHTML = `<div class="anim"><div class="qmeta"><span class="s">Récapitulatif</span><span>${CARDS.filter(answered).length} / ${CARDS.length} réponses</span></div>
+      <h3 style="font-size:40px;margin:16px 0 0">${done?'Questionnaire complété ✓':'Questionnaire à compléter'}</h3>
+      ${res?`<div style="font-size:24px;color:var(--green3);margin-top:8px">Profil déterminé : <b style="color:var(--green)">${res.p.key}</b></div>`:''}
+      ${recapHTML()}
+      <div class="noprint" style="display:flex;gap:16px;margin-top:26px">
+        ${done?`<button class="btn dk" id="qSee">Découvrir le profil →</button>`:`<button class="btn dk" id="qResume">Reprendre le questionnaire</button>`}
+        <button class="btn lk" id="qRedo">Recommencer</button></div></div>`;
+    const go=z.querySelector('#qSee'); if(go) go.onclick=()=>show(idx('resultat'));
+    const rs=z.querySelector('#qResume'); if(rs) rs.onclick=()=>{ S.qIdx=Math.max(0,CARDS.findIndex(c=>!answered(c))); renderQuiz(); };
+    const rd=z.querySelector('#qRedo'); if(rd) rd.onclick=()=>{ if(confirm('Effacer les réponses au questionnaire ?')){ S.answers={}; S.qIdx=0; refresh(); renderQuiz(); } };
+    return;
+  }
+  const c=CARDS[S.qIdx], tot=CARDS.length;
+  z.innerHTML = `<div class="qmeta"><span class="s">${SECTIONS[c.sec]}</span><span>Question ${S.qIdx+1} / ${tot}</span></div>
+    <div class="qbar"><i style="width:${Math.round(100*S.qIdx/tot)}%"></i></div>
+    <div class="qhead"><div class="qnum">${String(S.qIdx+1).padStart(2,'0')}</div><div><h3 class="qtitle">${c.q}</h3><p class="qhelp">${c.help}</p></div></div>
+    <div id="opts"></div>
+    <div style="position:absolute;left:70px;right:70px;bottom:40px;display:flex;justify-content:space-between;align-items:center">
+      <button class="btn lk" id="qPrev">← ${S.qIdx===0?'Retour':'Précédente'}</button>
+      <span style="font-size:15px;color:var(--green3)">Touches 1–${(c.opts||c.scen).length} pour répondre</span>
+      ${c.type==='multi'?`<button class="btn dk" id="qNext">Continuer →</button>`:`<button class="btn lk" id="qNext">${answered(c)?'Suivante →':'Passer →'}</button>`}
+    </div>`;
+  const box=z.querySelector('#opts');
+  const next=()=>{ S.qIdx++; if(S.qIdx>=tot && qDone()) applyProfileToPills(); refresh(); renderQuiz(); };
+  if(c.type==='scenario'){
+    const lo=Math.min(...c.scen.map(s=>s.lo)), hi=Math.max(...c.scen.map(s=>s.hi));
+    box.className='opts anim'; box.style.gridTemplateColumns='repeat(3,1fr)';
+    box.innerHTML=c.scen.map((s,i)=>`<button class="scen ${S.answers[c.id]===i?'sel':''}" data-i="${i}"><h4>${s.name}</h4>${scenSVG(s.lo,s.hi,lo,hi,S.answers[c.id]===i)}<div class="pick">${S.answers[c.id]===i?'✓ Sélectionné':'Choisir'}</div></button>`).join('');
+  }else{
+    box.className='opts anim'; box.style.gridTemplateColumns = c.opts.length>4 ? 'repeat(3,1fr)' : '1fr 1fr';
+    const sel=S.answers[c.id];
+    box.innerHTML=c.opts.map((o,i)=>{ const on = c.type==='multi' ? (sel||[]).includes(i) : sel===i;
+      return `<button class="opt ${on?'sel':''}" data-i="${i}"><span class="k">${'ABCDEF'[i]}</span><span><b>${o.l}</b><small>${o.d}</small></span></button>`; }).join('');
+  }
+  box.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i;
+    if(c.type==='multi'){
+      const arr=(S.answers[c.id]||[]).slice(), k=arr.indexOf(i); k>=0?arr.splice(k,1):arr.push(i); S.answers[c.id]=arr;
+      b.classList.toggle('sel'); z.querySelector('#qNext').disabled=!arr.length; refresh(); renderQNav();
+    }else{
+      S.answers[c.id]=i;
+      box.querySelectorAll('[data-i]').forEach(x=>x.classList.toggle('sel',x===b));
+      refresh(); setTimeout(next,280);
+    }
+  });
+  const qn=z.querySelector('#qNext');
+  if(c.type==='multi') qn.disabled=!(S.answers[c.id]||[]).length;
+  qn.onclick=next;
+  z.querySelector('#qPrev').onclick=()=>{ if(S.qIdx===0) show(cur-1); else { S.qIdx--; renderQuiz(); } };
+}
+function scenSVG(lo,hi,gLo,gHi,sel){
+  const W=220,H=300,pt=44,pb=44, rg=gHi-gLo, u=H-pt-pb, y=v=>H-pb-((v-gLo)/rg)*u, y0=y(0);
+  const up = sel?'#c9a97b':'#234d47', dn = sel?'#f3ead6':'#c9a97b', tx = sel?'#fff':'#234d47';
+  return `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}">
+    <line x1="10" y1="${y0}" x2="${W-10}" y2="${y0}" stroke="${tx}" stroke-dasharray="6 6" stroke-width="1.5" opacity=".5"/>
+    <rect x="${W/2-46}" y="${y(hi)}" width="92" height="${Math.max(10,y0-y(hi)-3)}" rx="16" fill="${up}"/>
+    <rect x="${W/2-46}" y="${y0+3}" width="92" height="${Math.max(10,y(lo)-y0-3)}" rx="16" fill="${dn}"/>
+    <text x="${W/2}" y="${Math.max(32,y(hi)-12)}" text-anchor="middle" font-size="30" font-weight="bold" font-family="Calibri,Carlito,Arial" fill="${tx}">+${hi}%</text>
+    <text x="${W/2}" y="${Math.min(H-8,y(lo)+34)}" text-anchor="middle" font-size="30" font-weight="bold" font-family="Calibri,Carlito,Arial" fill="${sel?'#f6c9bd':'#b14a3b'}">${lo}%</text>
+  </svg>`;
+}
+
+/* résultat du profil */
+function renderResult(){
+  const z=document.getElementById('rzone'); if(!z) return;
+  const res=pResult();
+  if(!res){
+    z.innerHTML=`<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+      <div class="kicker">Votre profil investisseur</div><h2 class="title" style="margin-top:20px;font-size:60px">Le profil se révèle à la fin du questionnaire</h2>
+      <p style="font-size:24px;color:#d8e4e1">${CARDS.filter(answered).length} réponse(s) sur ${CARDS.length}.</p>
+      <button class="btn noprint" id="rGo" style="margin-top:20px">Aller au questionnaire →</button></div>`;
+    z.querySelector('#rGo').onclick=()=>show(idx('quiz'));
+    return;
+  }
+  const {band,sc,p}=res;
+  z.innerHTML=`<div style="display:grid;grid-template-columns:740px 1fr;gap:40px;padding:70px 80px 0;height:100%">
+    <div class="anim">
+      <div class="kicker">Votre profil investisseur</div>
+      <div style="font-family:var(--serif);font-size:128px;line-height:1;color:var(--gold);margin-top:14px;font-weight:600">${p.key}</div>
+      <p style="font-size:24px;line-height:1.5;color:#d8e4e1;margin:20px 0 0">${p.tag}</p>
+      <div class="ppills">${PROFILES.map((x,i)=>`<span class="${i===band?'on':''}">${x.key}</span>`).join('')}</div>
+      <div style="margin-top:26px">
+        ${[['Tolérance au risque',sc.tol],['Capacité de perte & horizon',sc.cap],['Connaissance & expérience',sc.know]]
+          .map(([l,v])=>`<div class="meter"><div class="t"><span>${l}</span><b style="color:var(--gold)">${v}/100</b></div><div class="tr"><i style="width:${v}%"></i></div></div>`).join('')}
+      </div>
+    </div>
+    <div class="anim" style="text-align:center">
+      ${gaugeSVG(band)}
+      <div style="background:rgba(255,255,255,.06);border-radius:40px;padding:26px 30px;margin-top:10px;display:flex;align-items:center;gap:30px;text-align:left">
+        ${donutSVG(p.alloc)}
+        <div style="flex:1"><div style="font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:10px">Allocation cible indicative</div>
+          ${p.alloc.map((a,i)=>`<div style="display:flex;align-items:center;gap:12px;font-size:21px;margin:10px 0"><i style="width:16px;height:16px;border-radius:4px;background:${DON[i]}"></i>${a[0]}<b style="margin-left:auto;color:var(--gold)">${a[1]} %</b></div>`).join('')}</div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;left:80px;right:80px;bottom:22px;font-size:15px;color:#9fb7b2;font-style:italic">Ce profil reflète les réponses du client dans l'esprit des obligations d'adéquation MIF II / AMF. Il sera formalisé par le questionnaire de conformité et ne constitue ni un conseil en investissement personnalisé ni une recommandation.</div>`;
+}
+const DON=['#f3ead6','#c9a97b','#7fa9a1'];
+function gaugeSVG(band){
+  const W=600,H=320,cx=300,cy=290,r=230,segs=PROFILES.length; let paths='';
+  for(let i=0;i<segs;i++){
+    const a0=Math.PI*(1-i/segs)-.02, a1=Math.PI*(1-(i+1)/segs)+.02;
+    const x0=cx+Math.cos(a0)*r, y0=cy-Math.sin(a0)*r, x1=cx+Math.cos(a1)*r, y1=cy-Math.sin(a1)*r;
+    paths+=`<path d="M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}" fill="none" stroke="${PROFILES[i].color}" stroke-width="${i===band?40:22}" stroke-linecap="round" opacity="${i===band?1:.4}"/>`;
+    const am=Math.PI*(1-(i+.5)/segs);
+    paths+=`<text x="${cx+Math.cos(am)*(r-64)}" y="${cy-Math.sin(am)*(r-64)+6}" text-anchor="middle" font-size="17" fill="${i===band?'#f3ead6':'#87a39d'}" font-family="Calibri,Carlito,Arial" ${i===band?'font-weight="bold"':''}>${PROFILES[i].key}</text>`;
+  }
+  const ang=Math.PI*(1-(band+.5)/segs), nx=cx+Math.cos(ang)*(r-100), ny=cy-Math.sin(ang)*(r-100);
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${paths}
+    <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#c9a97b" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="14" fill="#c9a97b"/><circle cx="${cx}" cy="${cy}" r="5" fill="#234d47"/></svg>`;
+}
+function donutSVG(alloc){
+  const S0=210,c=105,r=80,sw=36,C=2*Math.PI*r; let off=0,segs='';
+  alloc.forEach((a,i)=>{ const len=a[1]/100*C;
+    segs+=`<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${DON[i]}" stroke-width="${sw}" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 ${c} ${c})"/>`; off+=len; });
+  return `<svg width="${S0}" height="${S0}" viewBox="0 0 ${S0} ${S0}" style="flex:0 0 ${S0}px">${segs}
+    <text x="${c}" y="${c-4}" text-anchor="middle" font-size="40" font-weight="bold" fill="#f3ead6" font-family="Calibri,Carlito,Arial">${alloc[0][1]}%</text>
+    <text x="${c}" y="${c+22}" text-anchor="middle" font-size="15" fill="#9fb7b2" font-family="Calibri,Carlito,Arial">${alloc[0][0].split(' ')[0].toLowerCase()}</text></svg>`;
+}
+function proj1SVG(A,p){
+  // barres flottantes depuis le capital investi : gain vers le haut, perte vers le bas
+  const W=1440,H=250,pt=36,pb=30;
+  const e=p.exp/100, v=p.vol/100;
+  const vals=[A*(1+e-2*v),A*(1+e-v),A*(1+e),A*(1+e+v),A*(1+e+2*v)];
+  const labels=['très défavorable','défavorable','attendu','favorable','très favorable'];
+  const cols=['#b14a3b','#cf8a4f','#426f69','#4f9a6a','#2f7d4f'];
+  const up=Math.max(1,...vals.map(x=>x-A)), dn=Math.max(1,...vals.map(x=>A-x)), k=(H-pt-pb)/(up+dn);
+  const y0=pt+up*k, y=x=>y0-(x-A)*k, bw=W/5;
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Calibri,Carlito,Arial">
+    <line x1="0" x2="${W}" y1="${y0}" y2="${y0}" stroke="#c9a97b" stroke-width="2" stroke-dasharray="8 8"/>
+    ${vals.map((x,i)=>{ const bx=i*bw+bw*.3, w=bw*.4, yy=y(x), top=Math.min(yy,y0), h=Math.max(4,Math.abs(yy-y0)), d=x-A;
+      return `<rect x="${bx}" y="${top}" width="${w}" height="${h}" rx="12" fill="${cols[i]}"/>
+      <text x="${bx+w/2}" y="${d>=0?top-10:top+h+24}" text-anchor="middle" font-size="22" font-weight="bold" fill="#234d47">${eurK(x)}</text>
+      <text x="${bx+w/2}" y="${d>=0?y0+24:y0-10}" text-anchor="middle" font-size="17" fill="#426f69">${labels[i]} · ${d>=0?'+':'−'}${fmt(Math.abs(d/A*100),0)} %</text>`; }).join('')}
+  </svg>`;
+}
 
 /* ------------------------------------------------------------ RAFRAÎCHISSEMENT */
 let last = {};
 function refresh(){
-  const c = calc();
+  const c = calc(), res = pResult();
+  const simBand = S.simProfile!=null ? S.simProfile : (res ? res.band : 1);
+  const sp = PROFILES[simBand], A = n(S.simAmt), sh = n(S.simShock), mv = A*sp.eq*sh/100;
+  const alerts=[];
+  if(c.L && c.netM && c.L > 6*c.netM) alerts.push(`<b>${eur(c.L-6*c.netM)}</b> sur livrets au-delà de 6 mois de revenus : de l'épargne qui dort`);
+  else if(c.L && c.inf>c.r) alerts.push(`Livrets sous l'inflation : <b>−${eur(c.I10-c.L10)}</b> de pouvoir d'achat en 10 ans`);
+  if(c.revFoyer && c.tmi>=.30) alerts.push(`Tranche marginale à <b>${pct(c.tmi,0)}</b> : leviers fiscaux à étudier`);
+  if(c.netM && c.debtRate>CONFIG.debtCap) alerts.push(`Endettement à <b>${pct(c.debtRate)}</b>, au-dessus du seuil de ${pct(CONFIG.debtCap,0)}`);
+  else if(c.netM && c.borrow>0) alerts.push(`Capacité d'emprunt disponible : environ <b>${eur(c.borrow)}</b>`);
+  if(c.patTotal && c.partImmo>.7) alerts.push(`Patrimoine concentré sur l'immobilier : <b>${pct(c.partImmo,0)}</b>`);
+  if(c.toCreate>0 && c.r1) alerts.push(`Retraite : <b>${eur(c.toCreate)}/mois</b> de revenus à créer`);
+  if(c.shortfall>0 && c.netM) alerts.push(`Réserve de précaution incomplète : il manque <b>${eur(c.shortfall)}</b>`);
+  const has = c.revFoyer||S.irAvis!=null;
   const O = {
     dateTxt: S.date ? new Date(S.date+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '',
     clientTxt: esc(S.client||''),
     enfants: n(S.enfants),
-    irUsed: c.revFoyer||S.irAvis!=null ? eur(c.irUsed) : '— €',
+    irUsed: has ? eur(c.irUsed) : '— €',
     irSub: S.irAvis!=null ? `montant de l'avis · calcul MIC : ${eur(c.ir)}`
          : c.revFoyer ? `${fmt(c.parts,1).replace(/,0$/,'')} part${c.parts>1?'s':''} · TMI ${pct(c.tmi,0)} · taux moyen ${pct(c.tauxMoyen)}` : 'calculé automatiquement',
+    tmiTxt: c.revFoyer ? `TMI ${pct(c.tmi,0)} · ${fmt(c.parts,1).replace(/,0$/,'')} parts` : '',
     ps: c.revFoyer ? eur(c.ps) : '— €',
-    totalTax: c.revFoyer||S.irAvis!=null ? eur(c.totalTax) : '— €',
-    proj: c.years && (c.revFoyer||S.irAvis!=null) ? eur(c.proj) : '— €',
+    totalTax: has ? eur(c.totalTax) : '— €',
+    proj: c.years && has ? eur(c.proj) : '— €',
     projSub: c.years ? `sur ${c.years} ans, à revenus constants` : 'renseignez âge et départ à la retraite',
     patTotal: eur(c.patTotal),
+    capAn: S.capMens!=null ? eur(12*c.cap)+'<span style="font-size:22px"> /an</span>' : '—',
+    capAnSub: S.capMens!=null && c.netM ? `soit ${pct(c.cap/c.netM,0)} des revenus` : 'à saisir sur la synthèse',
+    alerts: alerts.length ? alerts.slice(0,5).map(a=>`<li>${a}</li>`).join('') : '<li style="color:#87a39d;font-style:italic">Ils apparaîtront au fil de la saisie.</li>',
     livretRateTxt: `Livret A ${fmt(n(S.livretRate),1)} %`,
     gapPts: (c.gapPts>=0?'+':'')+fmt(c.gapPts,1)+' %',
     chart: chart(c),
@@ -604,37 +1316,51 @@ function refresh(){
     debtMarginPts: c.netM ? `${fmt(Math.max(0,(CONFIG.debtCap-c.debtRate)*100),1)} pts` : '',
     borrow: c.netM ? eur(c.borrow) : '—',
     synthNote: `Réserve = ${CONFIG.reserveMonths} mois de revenus nets · précaution = complément de réserve lissé sur 12 mois · capital empruntable : ${fmt(CONFIG.loan.rate,1)} % sur ${CONFIG.loan.years} ans, seuil d'endettement ${pct(CONFIG.debtCap,0)}.`,
+    profilNote: res ? `Prérempli d'après le questionnaire (profil ${res.p.key}) — ajustable d'un clic. Le profil conditionne les recommandations qui vous seront faites.`
+                    : 'Le profil est établi par questionnaire de conformité — il conditionne les recommandations qui vous seront faites.',
+    shockTxt: `± ${sh} %`, amt: eur(A), eqTxt: `dont ${pct(sp.eq,0)} d'actifs dynamiques`,
+    upLab: `Si les marchés montent de +${sh} %`, up: eur(A+mv), upD: `+${eur(mv)}`,
+    dnLab: `Si les marchés baissent de −${sh} %`, dn: eur(A-mv), dnD: `−${eur(mv)}`,
+    proj1: proj1SVG(A,sp),
+    simNote: `Allocation ${sp.key.toLowerCase()} : seule la part dynamique (${pct(sp.eq,0)}) suit les marchés, le socle sécurisé reste stable. Projection à 1 an : rendement moyen attendu ≈ ${fmt(sp.exp,1)} %, volatilité ≈ ${sp.vol} % (fourchettes à 1 et 2 écarts-types). Illustrations pédagogiques, sans valeur contractuelle ni garantie de performance future.`,
     rdvTxt: S.rdvDate ? new Date(S.rdvDate+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+(S.rdvTime?' à '+S.rdvTime.replace(':','h'):'') : 'à planifier',
     legal: `Document établi sur la base des déclarations du client, à titre informatif ; il ne constitue pas un conseil en investissement personnalisé. IR : ${CONFIG.irLabel}, estimation hors revenus non salariaux, réductions et crédits d'impôt. Charges sociales : estimation coût employeur − net (salarié du privé, d'après le simulateur URSSAF). Projections à hypothèses constantes, non garanties ; tout placement à rendement supérieur au livret comporte un risque de perte en capital.`,
   };
+  PROFILES.forEach((p,i)=>O['you'+i] = res && res.band===i ? 'votre profil' : '');
+  const ph = {impots:'Autant que possible', epargne:`${fmt(n(S.targetRate),1).replace(/,0$/,'')} % / an`,
+    immo:'Rev. €/mois', revenus:'€/mois', retraite: c.toCreate>0&&c.r1 ? `${fmt(Math.round(c.toCreate))} €/mois` : '€/mois'};
+  OBJ.forEach(([k])=>{ O['dots_'+k] = [1,2,3].map(v=>`<i class="${S.prio[k]>=v?'f':''}"></i>`).join(''); O['ph_'+k]=ph[k]; });
+
   stage.querySelectorAll('[data-o]').forEach(el=>{ const k=el.dataset.o; if(k in O) el.innerHTML=O[k]; });
-  // visibilité conditionnelle
+  stage.querySelectorAll('[data-phk]').forEach(el=>{ el.placeholder = O[el.dataset.phk]||''; });
   stage.querySelectorAll('[data-show="couple"]').forEach(e=>e.classList.toggle('hidden', !c.couple));
   stage.querySelectorAll('[data-show="isoleRow"]').forEach(e=>e.classList.toggle('hidden', c.couple || !n(S.enfants)));
   stage.querySelectorAll('[data-seg]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', String(S[g.dataset.seg])===b.dataset.v)));
   stage.querySelectorAll('[data-chips]').forEach(g=>g.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on', S[g.dataset.chips]===+b.dataset.v)));
+  stage.querySelectorAll('[data-simp] .chip').forEach(b=>b.classList.toggle('on', +b.dataset.v===simBand));
+  stage.querySelectorAll('[data-rate]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', S.prio[g.dataset.rate]===+b.dataset.v)));
+  stage.querySelectorAll('[data-bes]').forEach(r=>{ const k=r.dataset.bes; r.style.order = 3-S.prio[k]; });
   stage.querySelectorAll('[data-doc]').forEach(d=>{ const s=S.docs[+d.dataset.doc]; d.className='doc s'+s; d.querySelector('.st').textContent=DOC_ST[s]; });
-  // petite animation sur les totaux qui changent
   const watch={tot:c.totalTax, cap:c.patTotal, ir:c.irUsed, proj:c.proj, ret:c.toCreate, debt:c.debtRate};
-  for(const k in watch) if(last[k]!==undefined && last[k]!==watch[k]){
+  for(const k in watch) if(last[k]!==undefined && last[k]!==watch[k])
     stage.querySelectorAll(`[data-p="${k}"]`).forEach(p=>{p.classList.remove('flash'); void p.offsetWidth; p.classList.add('flash');});
-  }
   last=watch;
+  const sig = res ? res.band+'|'+res.sc.tol+res.sc.cap+res.sc.know : 'none';
+  if(sig!==refresh._r){ refresh._r=sig; renderResult(); }
   save();
 }
 
-/* graphique épargne : coût de la vie vs livret (+ rendement visé) */
+/* graphique épargne */
 function chart(c){
   const W=880,H=470,pl=20,pr=230,pt=30,pb=70,Y=10;
   if(!c.L) return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><text x="${W/2-100}" y="${H/2}" text-anchor="middle" font-size="24" fill="#426f69" font-style="italic">Saisissez le montant de vos livrets →</text></svg>`;
   const f=(rate,t)=>c.L*Math.pow(1+rate,t);
   const inf=Array.from({length:Y+1},(_,t)=>f(c.inf,t)), liv=Array.from({length:Y+1},(_,t)=>f(c.r,t)), tgt=Array.from({length:Y+1},(_,t)=>f(c.rt,t));
-  const all=[...inf,...liv,...tgt], lo=c.L*0.97, hi=Math.max(...all)*1.03;
+  const lo=c.L*0.97, hi=Math.max(...inf,...liv,...tgt)*1.03;
   const x=t=>pl+t*(W-pl-pr)/Y, y=v=>pt+(1-(v-lo)/(hi-lo))*(H-pt-pb);
   const line=a=>a.map((v,t)=>`${t?'L':'M'}${x(t).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
   const area=`${line(inf)} ${liv.slice().reverse().map((v,i)=>`L${x(Y-i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')} Z`;
-  const gap=c.I10-c.L10, X=x(Y);
-  const yI=y(c.I10), yL=y(c.L10), yT=y(c.T10);
+  const gap=c.I10-c.L10, X=x(Y), yI=y(c.I10), yL=y(c.L10), yT=y(c.T10);
   const mid=(yI+yL)/2, yTop=Math.min(yI+8, mid-56), yBot=Math.max(yL+8, mid+84);
   return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="Calibri,Carlito,Arial,sans-serif">
     ${[0,.33,.66,1].map(f=>`<line x1="${pl}" x2="${X}" y1="${pt+f*(H-pt-pb)}" y2="${pt+f*(H-pt-pb)}" stroke="#234d47" stroke-opacity=".1"/>`).join('')}
@@ -651,7 +1377,7 @@ function chart(c){
     ${gap>0?`<line x1="${X+24}" x2="${X+24}" y1="${yI}" y2="${yL}" stroke="#c9a97b" stroke-width="3"/>`:''}
     <text x="${X+40}" y="${yTop}" font-size="25" font-weight="700" fill="#234d47">${eur(c.I10)}</text>
     ${gap>0?`<text x="${X+40}" y="${mid+12}" font-size="40" font-weight="700" fill="#234d47">−${eur(gap)}</text>
-      <text x="${X+40}" y="${mid+38}" font-size="22" fill="#426f69">qui manquent</text>`
+      <text x="${X+40}" y="${mid+42}" font-size="22" fill="#426f69">qui manquent</text>`
       :`<text x="${X+40}" y="${mid+8}" font-size="26" font-weight="700" fill="#2f7d4f">Inflation couverte</text>`}
     <text x="${X+40}" y="${yBot}" font-size="25" font-weight="700" fill="#234d47">${eur(c.L10)}</text>
     ${c.T10>c.I10?`<text x="${X-8}" y="${yT-14}" font-size="19" fill="#426f69" text-anchor="end" font-style="italic">à ${fmt(c.rt*100,1)} % : ${eur(c.T10)}</text>`:''}
@@ -659,18 +1385,17 @@ function chart(c){
 }
 
 /* ------------------------------------------------------------ NAVIGATION */
-let cur = Math.min(+(sessionStorage.getItem('mic-r1-slide')||0), SLIDES.length-1);
+let cur = Math.min(+(sessionStorage.getItem(SKEY+'-slide')||0), SLIDES.length-1);
 function show(i){
   cur=Math.max(0,Math.min(SLIDES.length-1,i));
   stage.querySelectorAll('.slide').forEach((s,j)=>{ s.classList.toggle('on',j===cur); s.classList.toggle('prev',j<cur); });
   document.querySelectorAll('#dots button').forEach((b,j)=>b.classList.toggle('on',j===cur));
   const on=document.querySelector('#dots button.on'); on&&on.scrollIntoView({block:'nearest',inline:'center'});
-  sessionStorage.setItem('mic-r1-slide',cur);
+  sessionStorage.setItem(SKEY+'-slide',cur);
 }
 function fit(){
   const vp=document.getElementById('viewport');
-  const s=Math.min(vp.clientWidth/1600, vp.clientHeight/900)*0.98;
-  stage.style.transform=`scale(${s})`;
+  stage.style.transform=`scale(${Math.min(vp.clientWidth/1600, vp.clientHeight/900)*0.98})`;
 }
 document.getElementById('dots').onclick=e=>{ const b=e.target.closest('[data-go]'); if(b) show(+b.dataset.go); };
 document.getElementById('bPrev').onclick=()=>show(cur-1);
@@ -678,39 +1403,46 @@ document.getElementById('bNext').onclick=()=>show(cur+1);
 document.getElementById('bFull').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
 document.addEventListener('keydown',e=>{
   if(e.target.matches('input,textarea')) return;
+  if(SLIDES[cur].id==='quiz' && S.qIdx<CARDS.length && /^[1-6]$/.test(e.key)){
+    const b=document.querySelectorAll('#opts [data-i]')[+e.key-1]; if(b){ b.click(); return; }
+  }
   if(['ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); show(cur+1); }
   if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); show(cur-1); }
   if(e.key==='f'||e.key==='F') document.getElementById('bFull').click();
+  if(e.key==='Escape') document.getElementById('pdfMenu').classList.add('hidden');
 });
-// Tab dans une slide : on suit le focus si le champ est sur une autre slide
 stage.addEventListener('focusin',e=>{ const s=e.target.closest('.slide'); if(s && +s.dataset.i!==cur) show(+s.dataset.i); });
 window.addEventListener('resize',fit);
 
-/* agenda intégré */
-document.getElementById('openCal').onclick=()=>{
-  const f=document.getElementById('calFrame'), ifr=f.querySelector('iframe');
-  if(!ifr.src) ifr.src=CONFIG.calUrl+'?embed=true&theme=light';
-  f.classList.remove('hidden');
-};
-document.getElementById('closeCal').onclick=()=>document.getElementById('calFrame').classList.add('hidden');
+const oc=document.getElementById('openCal');
+if(oc){
+  oc.onclick=()=>{ const f=document.getElementById('calFrame'), ifr=f.querySelector('iframe');
+    if(!ifr.src) ifr.src=CONFIG.calUrl+'?embed=true&theme=light'; f.classList.remove('hidden'); };
+  document.getElementById('closeCal').onclick=()=>document.getElementById('calFrame').classList.add('hidden');
+}
 
 /* PDF */
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);}
-function pdf(){
+function pdf(scope='all'){
+  document.getElementById('pdfMenu').classList.add('hidden');
   document.activeElement && document.activeElement.blur();
+  stage.querySelectorAll('.slide').forEach((s,i)=>s.classList.toggle('skipprint', scope==='bilan' && SLIDES[i].part==='pres'));
   const old=document.title;
-  document.title=`Bilan patrimonial MIC${S.client?' — '+S.client:''}`;
+  document.title=`${scope==='all'&&MODE==='full'?'Présentation':'Bilan patrimonial'} MIC${S.client?' — '+S.client:''}`;
   toast('Destination : « Enregistrer au format PDF », marges : aucune.');
   setTimeout(()=>{ window.print(); document.title=old; },350);
 }
-document.getElementById('bPdf').onclick=pdf;
-document.getElementById('pdf2').onclick=pdf;
+window.addEventListener('beforeprint',()=>{ printing=true; renderQuiz(); });
+window.addEventListener('afterprint',()=>{ printing=false; renderQuiz(); stage.querySelectorAll('.skipprint').forEach(s=>s.classList.remove('skipprint')); });
+document.getElementById('bPdf').onclick=()=>{ if(MODE==='full') document.getElementById('pdfMenu').classList.toggle('hidden'); else pdf('all'); };
+document.querySelectorAll('[data-pdf]').forEach(b=>b.onclick=()=>pdf(b.dataset.pdf));
+document.getElementById('pdf2').onclick=()=>pdf(MODE==='full'?'bilan':'all');
 document.getElementById('bReset').onclick=()=>{
   if(!confirm('Effacer toutes les saisies et démarrer un nouveau client ?')) return;
-  sessionStorage.removeItem('mic-r1'); sessionStorage.removeItem('mic-r1-slide'); location.reload();
+  sessionStorage.removeItem(SKEY); sessionStorage.removeItem(SKEY+'-slide'); location.reload();
 };
 
-refresh(); fit(); show(cur);
+refresh(); renderQuiz(); fit(); show(cur);
 </script>
 </body>
 </html>
