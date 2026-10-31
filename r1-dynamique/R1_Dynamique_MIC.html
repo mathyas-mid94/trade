@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilan patrimonial — Midelton Investment Capital</title>
+<style>
+:root{
+  --green:#234d47;      /* fond des slides sombres */
+  --green2:#2a5952;     /* pilule sombre */
+  --green3:#426f69;     /* pilule claire */
+  --cream:#faf6ec;      /* fond des slides claires */
+  --beige:#ece1c7;      /* pilule beige */
+  --beige2:#f1e8d4;
+  --gold:#c9a97b;
+  --goldDeep:#a8874f;
+  --ivory:#f3ead6;
+  --neg:#b14a3b;
+  --font:Calibri,Carlito,"Segoe UI",Arial,sans-serif;
+  --serif:"Cormorant Garamond",Garamond,"Times New Roman",Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#13302c;font-family:var(--font);color:var(--green);-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums tabular-nums}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit}
+
+/* ---------- scène 16:9 mise à l'échelle ---------- */
+#viewport{position:fixed;inset:0 0 58px 0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#stage{width:1600px;height:900px;position:relative;transform-origin:center center;flex:0 0 auto}
+.slide{position:absolute;inset:0;width:1600px;height:900px;overflow:hidden;opacity:0;pointer-events:none;
+  transition:opacity .45s ease, transform .45s cubic-bezier(.4,0,.2,1);transform:translateX(24px);box-shadow:0 40px 90px -30px rgba(0,0,0,.6)}
+.slide.on{opacity:1;pointer-events:auto;transform:none}
+.slide.prev{transform:translateX(-24px)}
+.dark{background:var(--green);color:#fff}
+.light{background:var(--cream);color:var(--green)}
+
+/* éléments récurrents */
+.logo{position:absolute;top:22px;right:26px;width:104px;height:104px}
+.logo.l{left:22px;right:auto}
+.title{font-size:54px;font-weight:700;margin:0;line-height:1.08;letter-spacing:-.3px}
+.bar{width:240px;height:6px;border-radius:3px;background:var(--gold);margin:22px 0 0}
+.kicker{font-size:17px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:700}
+.foot{position:absolute;left:48px;bottom:22px;font-size:19px;font-style:italic;opacity:.85}
+.dark .foot{color:#9fb7b2}
+.quote{font-style:italic;font-size:22px;line-height:1.5}
+.split{display:grid;height:100%}
+.split>.l{background:var(--green);color:#fff;position:relative;padding:70px 48px}
+.split>.r{position:relative;padding:70px 64px 40px 60px}
+
+/* pilules */
+.pill{display:flex;align-items:center;gap:18px;border-radius:999px;padding:0 36px;min-height:76px;font-size:26px;position:relative;transition:background .2s, transform .2s}
+.pill .lab{flex:1;line-height:1.15}
+.pill .lab small{display:block;font-size:17px;opacity:.75;margin-top:3px;font-style:normal}
+.pill .val{font-weight:700;color:var(--gold);font-size:30px;white-space:nowrap;display:flex;align-items:baseline;gap:6px}
+.pill.g1{background:var(--green3)} .pill.g2{background:var(--green2)}
+.pill.gold{background:var(--gold);color:var(--green);font-weight:700}
+.pill.gold .val{color:var(--green)}
+.pill.b1{background:var(--beige);font-style:italic} .pill.b2{background:var(--beige2);font-style:italic}
+.light .pill .val{color:var(--green)}
+.pill.flash .val{animation:flash .6s ease}
+@keyframes flash{0%{transform:scale(1)}40%{transform:scale(1.07)}100%{transform:scale(1)}}
+
+/* champs de saisie intégrés */
+input.v{border:0;background:transparent;color:inherit;font:inherit;font-weight:700;text-align:right;width:190px;padding:4px 2px;outline:none;
+  border-bottom:2px dashed rgba(201,169,123,.55);transition:border-color .2s}
+input.v:focus{border-bottom-color:var(--gold)}
+input.v::placeholder{color:currentColor;opacity:.35}
+.light input.v{border-bottom-color:rgba(35,77,71,.3)}
+.light input.v:focus{border-bottom-color:var(--green)}
+.unit{font-weight:700}
+textarea.note{width:100%;border:0;border-radius:44px;background:var(--beige);color:var(--green);font-size:23px;font-style:italic;padding:30px 36px;resize:none;outline:none;line-height:1.45}
+textarea.note::placeholder{color:var(--green);opacity:.75}
+textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
+
+/* chips de choix */
+.chips{display:flex;gap:16px}
+.chip{flex:1;border:0;border-radius:999px;background:var(--beige);color:var(--green);font-size:24px;min-height:84px;transition:all .25s;padding:0 10px}
+.chip:hover{background:#e3d4b2}
+.chip.on{background:var(--green);color:#fff;font-weight:700;transform:scale(1.04);box-shadow:0 14px 30px -14px rgba(35,77,71,.7)}
+.dark .chip{background:var(--green3);color:#fff}
+.dark .chip.on{background:var(--gold);color:var(--green)}
+
+/* panneau de saisie fiscalité */
+.form{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:36px;padding:30px 32px}
+.frow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:22px}
+.frow:last-child{border-bottom:0}
+.frow label{color:#d8e4e1}
+.frow .in{display:flex;align-items:baseline;gap:6px;color:var(--gold);font-size:24px}
+.frow input.v{width:150px}
+.seg{display:flex;background:rgba(0,0,0,.18);border-radius:999px;padding:4px}
+.seg button{border:0;background:transparent;color:#d8e4e1;font-size:19px;padding:9px 18px;border-radius:999px;transition:.2s}
+.seg button.on{background:var(--gold);color:var(--green);font-weight:700}
+.step{display:flex;align-items:center;gap:12px}
+.step button{width:40px;height:40px;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold);font-size:24px;line-height:1}
+.step b{min-width:26px;text-align:center;color:var(--gold);font-size:26px}
+.hidden{display:none!important}
+
+/* statistiques gauches */
+.big{font-size:190px;font-weight:700;color:var(--gold);line-height:1;text-align:center;letter-spacing:-4px}
+.bigsub{font-size:34px;font-weight:700;text-align:center;line-height:1.55;margin-top:30px}
+
+/* docs */
+.doc{display:flex;align-items:center;gap:26px;border-radius:999px;padding:0 36px 0 20px;height:74px;font-size:26px;cursor:pointer;user-select:none;transition:background .2s}
+.doc:nth-child(odd){background:var(--green3)} .doc:nth-child(even){background:var(--green2)}
+.doc:hover{filter:brightness(1.08)}
+.doc .ck{width:52px;height:52px;border-radius:50%;background:rgba(201,169,123,.28);display:flex;align-items:center;justify-content:center;transition:.25s}
+.doc .ck svg{opacity:.35;transition:.25s}
+.doc.s1 .ck{background:rgba(201,169,123,.6)} .doc.s1 .ck svg{opacity:.7}
+.doc.s2 .ck{background:var(--gold);transform:scale(1.06)} .doc.s2 .ck svg{opacity:1}
+.doc .lab{flex:1}
+.doc .st{font-style:italic;color:var(--gold);font-size:24px}
+.doc.s2 .st{font-style:normal;font-weight:700}
+
+/* timeline agenda */
+.tl{position:relative;display:flex;justify-content:space-between;margin:0 60px}
+.tl::before{content:"";position:absolute;left:40px;right:40px;top:96px;height:6px;background:var(--green3);border-radius:3px}
+.tl .st{position:relative;width:240px;text-align:center}
+.tl .mk{height:40px;color:var(--gold);font-weight:700;font-size:22px;margin-bottom:28px}
+.tl .dot{width:66px;height:66px;border-radius:50%;margin:0 auto;background:var(--green3);border:3px solid var(--gold);position:relative;z-index:1}
+.tl .st.hot .dot{width:78px;height:78px;margin-top:-6px;background:var(--gold);border:0;box-shadow:0 0 0 10px rgba(201,169,123,.18)}
+.tl .nm{margin-top:28px;font-size:21px;color:#e5ecea}
+.tl .st.hot .nm{color:var(--gold);font-weight:700}
+.book{margin:56px auto 0;width:1200px;background:var(--green3);border-radius:120px;padding:34px 60px;text-align:center}
+.book p{margin:0;font-size:30px}
+.book a{display:inline-block;margin-top:16px;color:var(--gold);font-size:46px;font-weight:700;text-decoration:none;border-bottom:3px solid transparent;transition:.2s}
+.book a:hover{border-bottom-color:var(--gold)}
+.book .when{margin-top:18px;font-size:22px;color:#d8e4e1;display:flex;gap:14px;justify-content:center;align-items:center}
+.book .when input{background:rgba(0,0,0,.2);border:1px solid rgba(201,169,123,.5);color:#fff;border-radius:999px;padding:8px 16px;font-size:20px;color-scheme:dark}
+.btn{border:0;border-radius:999px;background:var(--gold);color:var(--green);font-weight:700;font-size:22px;padding:14px 30px;transition:.2s;display:inline-flex;align-items:center;gap:10px}
+.btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--gold);border:2px solid var(--gold)}
+#calFrame{position:absolute;inset:40px 60px 40px 60px;background:#fff;border-radius:30px;overflow:hidden;z-index:5;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+#calFrame iframe{width:100%;height:100%;border:0}
+#calFrame .x{position:absolute;top:14px;right:14px;z-index:2}
+
+/* synthèse */
+.band{display:flex;align-items:center;gap:26px;background:var(--beige);border-radius:110px;padding:22px 34px 26px 30px;margin-bottom:26px}
+.band .ico{width:96px;flex:0 0 96px;display:flex;justify-content:center}
+.band h3{font-size:30px;margin:0 0 14px}
+.band .cells{display:grid;grid-template-columns:repeat(3,1fr);gap:34px}
+.cell{background:var(--green);color:#fff;border-radius:999px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:22px}
+.cell b{color:var(--gold);font-size:27px;margin-top:6px;display:flex;align-items:baseline;gap:6px}
+.cell b i{font-style:normal;font-weight:400;font-size:20px;opacity:.85}
+.cell input.v{width:120px;text-align:right;color:var(--gold)}
+
+/* barre de navigation (écran uniquement) */
+#chrome{position:fixed;left:0;right:0;bottom:0;height:58px;background:#0f2723;display:flex;align-items:center;gap:10px;padding:0 16px;color:#cfe0dc;z-index:10}
+#chrome .nb{background:transparent;border:1px solid rgba(201,169,123,.4);color:var(--gold);border-radius:999px;height:38px;padding:0 14px;font-size:15px;display:inline-flex;align-items:center;gap:8px}
+#chrome .nb:hover{background:rgba(201,169,123,.12)}
+#chrome .nb.main{background:var(--gold);color:var(--green);font-weight:700;border-color:var(--gold)}
+#dots{flex:1;display:flex;gap:6px;justify-content:center;overflow-x:auto;scrollbar-width:none}
+#dots button{border:0;background:transparent;color:#87a39d;font-size:13.5px;padding:7px 11px;border-radius:999px;white-space:nowrap}
+#dots button.on{background:var(--gold);color:var(--green);font-weight:700}
+#toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--green);font-weight:700;padding:12px 22px;border-radius:999px;opacity:0;transition:.3s;z-index:20;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%)}
+
+/* ---------- impression / PDF : une slide par page ---------- */
+@page{size:1600px 900px;margin:0}
+@media print{
+  html,body{background:none;height:auto}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #chrome,#toast,.noprint,#calFrame{display:none!important}
+  #viewport{position:static;display:block}
+  #stage{transform:none!important;height:auto}
+  .slide{position:relative;opacity:1;transform:none;box-shadow:none;page-break-after:always;break-after:page;transition:none}
+  .slide.skipprint{display:none}
+  input.v{border-bottom:0!important}
+  input.v::placeholder,textarea.note::placeholder{color:transparent!important}
+  .pill.flash .val{animation:none}
+}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage"></div></div>
+<nav id="chrome">
+  <button class="nb" id="bPrev" title="Slide précédente (←)">‹</button>
+  <div id="dots"></div>
+  <button class="nb" id="bNext" title="Slide suivante (→)">›</button>
+  <button class="nb" id="bFull" title="Plein écran (F)">⛶</button>
+  <button class="nb" id="bReset" title="Effacer toutes les saisies">Nouveau client</button>
+  <button class="nb main" id="bPdf">⤓ PDF</button>
+</nav>
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   MIDELTON INVESTMENT CAPITAL — R1 dynamique (bilan patrimonial)
+   Remplace les slides 13 à 22 du rendez-vous de découverte.
+   Tout est calculé dans le navigateur. Les saisies restent dans
+   l'onglet (sessionStorage) et disparaissent à sa fermeture.
+   ============================================================ */
+
+const CONFIG = {
+  advisor:'Mathyas Midelton', phone:'07 71 01 82 99', email:'mathyas@midelton-capital.fr',
+  firm:'Midelton Investment Capital',
+  calUrl:'https://cal.com/mathyas-midelton', calLabel:'cal.com/mathyas-midelton',
+
+  /* ---- Impôt sur le revenu — ⚠ à vérifier chaque année (loi de finances) ----
+     Barème appliqué aux revenus 2025 (indexation +0,9 %). */
+  irLabel:'Barème IR 2026 (revenus 2025)',
+  bareme:[[11600,0],[29579,.11],[84577,.30],[181917,.41],[Infinity,.45]],
+  qfCap:1807,            // plafond de l'avantage par demi-part
+  qfCapIsole:4262,       // plafond de la demi-part « parent isolé » (case T)
+  decote:{seul:897, couple:1483, taux:.4525},
+  abat:{taux:.10, min:509, max:14298},   // frais professionnels forfaitaires
+  irMinRecouvrement:61,
+
+  /* ---- Net → coût employeur (salarié du privé). Point 36 000 € calé URSSAF,
+     les autres sont des estimations à affiner sur mon-entreprise.urssaf.fr ---- */
+  urssaf:[[17300,23400],[22000,33000],[28000,46000],[36000,63598],[45000,82500],[60000,112000],[80000,150000],[120000,223000]],
+
+  retirementAge:64,
+  replaceRates:[.25,.50], // taux de remplacement proposés (25 % = hypothèse INSEE 2050)
+  withdrawRate:.04,       // règle des 4 % pour le capital à constituer
+  reserveMonths:3,        // réserve de précaution = 3 mois de revenus nets du foyer
+  debtCap:.35,            // seuil d'endettement HCSF
+  loan:{rate:3.5, years:20},
+  livretRate:1.7, inflation:3.0, targetRate:5.0,
+};
+
+/* ------------------------------------------------------------ ÉTAT */
+const DEFAULT = () => ({
+  client:'', date:new Date().toISOString().slice(0,10),
+  sit:'seul', enfants:0, isole:false,
+  age:null, rev1:null, rev2:null, irAvis:null, retAge:CONFIG.retirementAge,
+  patFin:null, patImmo:null,
+  livrets:null, livretRate:CONFIG.livretRate, targetRate:CONFIG.targetRate, inflation:CONFIG.inflation, epNote:'',
+  mensualites:null, immoNote:'',
+  retWanted:null, retRate:CONFIG.replaceRates[0], retNote:'',
+  know:null, risk:null, loss:null, esg:null,
+  capMens:null,
+  docs:[0,0,0,0,0,0,0,0],
+  rdvDate:'', rdvTime:'',
+});
+let S;
+try{ S = Object.assign(DEFAULT(), JSON.parse(sessionStorage.getItem('mic-r1')||'{}')); }catch(e){ S = DEFAULT(); }
+const save = () => { try{ sessionStorage.setItem('mic-r1', JSON.stringify(S)); }catch(e){} };
+
+/* ------------------------------------------------------------ CALCULS */
+const n = v => (v==null || isNaN(v)) ? 0 : +v;
+
+function bareme(q){ // impôt pour une part de quotient q
+  let t=0, prev=0;
+  for(const [lim,rate] of CONFIG.bareme){ if(q>prev) t += (Math.min(q,lim)-prev)*rate; prev=lim; }
+  return t;
+}
+function tmi(q){ let prev=0; for(const [lim,rate] of CONFIG.bareme){ if(q<=lim) return rate; prev=lim; } return .45; }
+function abattement(sal){ if(sal<=0) return 0; const {taux,min,max}=CONFIG.abat; return Math.min(sal, Math.max(min, Math.min(max, sal*taux))); }
+function nbParts(){
+  const base = S.sit==='couple' ? 2 : 1, k = n(S.enfants);
+  let p = base + Math.min(k,2)*.5 + Math.max(0,k-2);
+  if(S.sit!=='couple' && S.isole && k>0) p += .5;
+  return {base, parts:p};
+}
+function coutEmployeur(net){
+  const T=CONFIG.urssaf; if(!net||net<=0) return 0;
+  if(net<=T[0][0]) return net*T[0][1]/T[0][0];
+  const L=T[T.length-1]; if(net>=L[0]) return net*L[1]/L[0];
+  for(let i=1;i<T.length;i++) if(net<=T[i][0]){ const a=T[i-1],b=T[i],t=(net-a[0])/(b[0]-a[0]); return a[1]+t*(b[1]-a[1]); }
+}
+function pmt2capital(m, ratePct, years){ const r=ratePct/100/12, N=years*12; return m<=0?0:(r? m*(1-Math.pow(1+r,-N))/r : m*N); }
+
+function calc(){
+  const couple = S.sit==='couple';
+  const r1=n(S.rev1), r2=couple?n(S.rev2):0, revFoyer=r1+r2, netM=revFoyer/12;
+  // --- IR ---
+  const rni = Math.max(0, r1-abattement(r1) + r2-abattement(r2));
+  const {base, parts} = nbParts();
+  const brutParts = bareme(rni/parts)*parts;
+  const brutBase  = bareme(rni/base)*base;
+  const halfs = (parts-base)*2;
+  let capAvantage = halfs*CONFIG.qfCap;
+  if(!couple && S.isole && n(S.enfants)>0) capAvantage += CONFIG.qfCapIsole - CONFIG.qfCap;
+  let ir = Math.max(brutParts, brutBase - capAvantage);
+  const d = couple ? CONFIG.decote.couple : CONFIG.decote.seul;
+  const decote = Math.max(0, Math.min(ir, d - CONFIG.decote.taux*ir));
+  ir = Math.max(0, ir-decote);
+  if(ir < CONFIG.irMinRecouvrement) ir = 0;
+  ir = Math.round(ir);
+  const irUsed = S.irAvis!=null ? n(S.irAvis) : ir;
+  const qfUsed = brutParts >= brutBase - capAvantage ? rni/parts : rni/base;
+  // --- cotisations sociales (coût employeur − net) ---
+  const ps = (r1?coutEmployeur(r1)-r1:0) + (r2?coutEmployeur(r2)-r2:0);
+  const totalTax = irUsed + ps;
+  const years = Math.max(0, n(S.retAge)-n(S.age));
+  const patTotal = n(S.patFin)+n(S.patImmo);
+  // --- épargne ---
+  const L=n(S.livrets), r=n(S.livretRate)/100, rt=n(S.targetRate)/100, inf=n(S.inflation)/100;
+  const L10=L*Math.pow(1+r,10), I10=L*Math.pow(1+inf,10), T10=L*Math.pow(1+rt,10);
+  // --- immobilier ---
+  const partImmo = patTotal? n(S.patImmo)/patTotal : 0;
+  const debtRate = netM? n(S.mensualites)/netM : 0;
+  // --- retraite (revenu du déclarant 1) ---
+  const est = r1/12*S.retRate, w=n(S.retWanted), toCreate=Math.max(0,w-est);
+  const capital = toCreate*12/CONFIG.withdrawRate;
+  // --- synthèse ---
+  const reserve = CONFIG.reserveMonths*netM;
+  const investable = Math.max(0, n(S.patFin)-reserve);
+  const shortfall = Math.max(0, reserve - n(S.patFin));
+  const cap = n(S.capMens);
+  const precaution = Math.min(cap, shortfall/12);
+  const dispo = Math.max(0, cap-precaution);
+  const debtMargin = Math.max(0, CONFIG.debtCap*netM - n(S.mensualites));
+  const borrow = pmt2capital(debtMargin, CONFIG.loan.rate, CONFIG.loan.years);
+  return {couple, r1, r2, revFoyer, netM, rni, parts, ir, irUsed, tmi:tmi(qfUsed), tauxMoyen: revFoyer? irUsed/revFoyer:0,
+    ps, totalTax, years, proj: totalTax*years, patTotal,
+    L, r, rt, inf, L10, I10, T10, gapPts:(rt-r)*100,
+    partImmo, debtRate, est, w, toCreate, capital,
+    reserve, investable, shortfall, cap, precaution, dispo, debtMargin, borrow};
+}
+
+/* ------------------------------------------------------------ FORMATS */
+const fmt = (v,d=0) => (+v).toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const eur = v => fmt(Math.round(n(v)))+' €';
+const pct = (f,d=1) => fmt(100*n(f),d).replace(/,0$/,'')+' %';
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const parseNum = v => { const t=String(v).replace(/[\s  €%]/g,'').replace(',','.'); if(t==='') return null; const x=parseFloat(t); return isNaN(x)?null:x; };
+const fmtIn = v => v==null ? '' : (Number.isInteger(v) ? v.toLocaleString('fr-FR') : String(v).replace('.',','));
+
+/* ------------------------------------------------------------ GABARITS */
+const LOGO = (light=true) => { const c = light?'#f3ead6':'#234d47';
+  return `<svg viewBox="0 0 200 200" aria-label="MIC"><circle cx="100" cy="100" r="96" fill="none" stroke="${c}" stroke-width="2.4"/>
+  <circle cx="100" cy="100" r="88" fill="none" stroke="${c}" stroke-width="1" opacity=".7"/>
+  <text x="100" y="118" text-anchor="middle" font-family="'Times New Roman',Georgia,serif" font-size="66" fill="${c}">MIC</text>
+  <line x1="58" y1="136" x2="142" y2="136" stroke="${c}" stroke-width="1.4" opacity=".8"/></svg>`; };
+const FOOT = `<div class="foot">${CONFIG.firm} · CGP Indépendant · ${CONFIG.email}</div>`;
+const inp = (k,ph='',w) => `<input class="v" data-k="${k}" inputmode="decimal" autocomplete="off" placeholder="${ph}" ${w?`style="width:${w}px"`:''}>`;
+const out = k => `<span data-o="${k}">—</span>`;
+const ICON = {
+  check:`<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#234d47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`,
+  chart:`<svg width="86" height="74" viewBox="0 0 24 21" fill="#234d47"><path d="M2 1h2.4v15.6H23V19H2z"/><path d="M6 13.5l4.2-4.4 3.2 3 4.4-4.9-1.9-1.6H22v5.6l-1.7-1.8-6.7 7.3-3.2-3-2.8 2.9z"/></svg>`,
+  pig:`<svg width="90" height="80" viewBox="0 0 64 56" fill="#234d47"><circle cx="34" cy="9" r="6"/><path d="M8 28c0-10 10-16 24-16 9 0 15 2 19 6l7-3-2 9c2 2 3 4 3 6h4v8h-5c-2 4-5 7-9 8v8h-8v-6H28v6h-8v-9c-5-3-8-7-9-11H5c-3 0-5-2-5-5 0-2 2-4 4-4 1 0 1 1 0 1-1 0-2 1-2 3 0 1 1 2 3 2h3z"/><circle cx="47" cy="26" r="2" fill="#ece1c7"/></svg>`,
+  house:`<svg width="90" height="82" viewBox="0 0 24 22" fill="#234d47"><path d="M12 1L0 11.5l1.6 1.8L3 12v10h7v-6h4v6h7V12l1.4 1.3 1.6-1.8L20 8V2h-3v3.4z"/></svg>`,
+};
+
+/* ------------------------------------------------------------ SLIDES */
+const SLIDES = [
+/* 0 — couverture */
+{short:'Bilan', cls:'dark', html:()=>`
+  <div class="logo l">${LOGO()}</div>
+  <div style="position:absolute;right:-420px;top:-330px;width:900px;height:900px;border-radius:50%;border:2px solid rgba(255,255,255,.12)"></div>
+  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+    <div class="kicker">Diagnostic · Rendez-vous de découverte</div>
+    <h1 style="font-size:84px;color:var(--ivory);margin:24px 0 0;font-weight:700">Votre Bilan Patrimonial</h1>
+    <div class="bar" style="width:520px;margin:34px auto 44px"></div>
+    <div style="font-size:30px;color:#d8e4e1;display:flex;align-items:baseline;gap:16px">Préparé pour
+      <input class="v" data-k="client" data-t="txt" placeholder="Nom du client" style="width:520px;text-align:center;color:var(--gold);font-size:40px"></div>
+    <div style="font-size:24px;color:#9fb7b2;margin-top:26px">le <span data-o="dateTxt"></span>
+      <input type="date" class="noprint" data-k="date" data-t="raw" style="margin-left:12px;background:transparent;border:1px solid rgba(201,169,123,.4);color:#d8e4e1;border-radius:999px;padding:4px 12px;color-scheme:dark;font-size:16px"></div>
+  </div>
+  <div class="foot" style="left:0;right:0;text-align:center;font-style:normal">${CONFIG.advisor} · CIF enregistré · ${CONFIG.phone}</div>`},
+
+/* 1 — fiscalité */
+{short:'Fiscalité', cls:'dark', html:()=>`
+  <div class="logo">${LOGO()}</div>
+  <div style="padding:58px 64px 0">
+    <h2 class="title">Votre situation fiscale</h2><div class="bar"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:520px 1fr;gap:40px;padding:34px 64px 0">
+    <div class="form">
+      <div class="frow"><label>Situation</label><div class="seg" data-seg="sit"><button data-v="seul">Célibataire</button><button data-v="couple">Marié · Pacsé</button></div></div>
+      <div class="frow"><label>Enfants à charge</label><div class="step"><button data-step="-1">−</button><b data-o="enfants">0</b><button data-step="1">+</button></div></div>
+      <div class="frow" data-show="isoleRow"><label>Parent isolé (case T)</label><div class="seg" data-seg="isole"><button data-v="false">Non</button><button data-v="true">Oui</button></div></div>
+      <div class="frow"><label>Âge · départ retraite</label><div class="in">${inp('age','35',70)}<span class="unit">·</span>${inp('retAge','64',70)}<span class="unit">ans</span></div></div>
+      <div class="frow"><label>Salaire net annuel</label><div class="in">${inp('rev1','36 000')}<span class="unit">€</span></div></div>
+      <div class="frow" data-show="couple"><label>Salaire net conjoint</label><div class="in">${inp('rev2','0')}<span class="unit">€</span></div></div>
+      <div class="frow"><label>IR selon l'avis <small style="opacity:.6">(facultatif)</small></label><div class="in">${inp('irAvis','calculé')}<span class="unit">€</span></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="pill g1" data-p="ir"><span class="lab">Impôt sur le revenu (IR)<small data-o="irSub"></small></span><span class="val">${out('irUsed')}</span></div>
+      <div class="pill g2" data-p="ps"><span class="lab">Prélèvements sociaux &amp; charges<small>cotisations : coût employeur − salaire net</small></span><span class="val">${out('ps')}</span></div>
+      <div class="pill gold" data-p="tot"><span class="lab">Total IR + PS</span><span class="val">${out('totalTax')}<small style="font-size:18px;font-weight:400">/ an</small></span></div>
+      <div class="pill g2" data-p="proj"><span class="lab">Projection jusqu'à la retraite<small data-o="projSub"></small></span><span class="val">${out('proj')}</span></div>
+      <div class="pill g1"><span class="lab">Capitalisation mobilière actuelle<small>livrets, assurance-vie, PEA, CTO, PER…</small></span><span class="val">${inp('patFin','0')}<span class="unit">€</span></span></div>
+      <div class="pill g2"><span class="lab">Capitalisation immobilière (actif net)<small>valeur des biens − capital restant dû</small></span><span class="val">${inp('patImmo','0')}<span class="unit">€</span></span></div>
+      <div class="pill gold" data-p="cap"><span class="lab">Total capitalisation</span><span class="val">${out('patTotal')}</span></div>
+    </div>
+  </div>
+  <div class="quote" style="position:absolute;left:0;right:0;bottom:22px;text-align:center;color:#9fb7b2;font-size:21px">« Nous avons construit un État obèse qui dévore ses citoyens à travers des prélèvements étouffants. » — Gaspard Koenig</div>`},
+
+/* 2 — épargne */
+{short:'Épargne', cls:'light', html:()=>`
+  <div class="logo">${LOGO(false)}</div>
+  <div style="padding:58px 80px 0">
+    <div class="kicker" style="color:var(--green3)">Diagnostic</div>
+    <h2 class="title" style="margin-top:6px">Votre épargne actuelle</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 540px;gap:50px;padding:24px 80px 0">
+    <div>
+      <div style="font-size:30px;font-weight:700">Les prix montent plus vite que votre livret</div>
+      <div style="display:flex;gap:36px;font-size:21px;margin:16px 0 4px;align-items:center">
+        <span><i style="display:inline-block;width:34px;height:6px;border-radius:3px;background:var(--gold);vertical-align:middle;margin-right:10px"></i>Coût de la vie · inflation <b>${inp('inflation','3',54)}</b><b>%</b></span>
+        <span><i style="display:inline-block;width:34px;height:6px;border-radius:3px;background:var(--green);vertical-align:middle;margin-right:10px"></i>Votre livret · <b data-o="livretRateTxt"></b></span>
+      </div>
+      <div data-o="chart" data-html="1"></div>
+    </div>
+    <div style="background:var(--green);color:#fff;border-radius:40px;padding:40px 44px;align-self:start">
+      <div style="font-family:var(--serif);font-size:42px;margin-bottom:18px">Votre situation</div>
+      ${[['Épargne sur livrets',inp('livrets','10 000',170),'€'],['Rendement actuel',inp('livretRate','1,7',80),'%'],['Rendement visé',inp('targetRate','5',80),'%']]
+        .map(([l,i,u])=>`<div class="frow" style="font-size:24px"><label>${l}</label><div class="in" style="font-size:26px">${i}<span class="unit">${u}</span></div></div>`).join('')}
+      <div class="frow" style="font-size:24px"><label>Écart à combler</label><div class="in" style="font-size:26px;font-weight:700">${out('gapPts')}</div></div>
+      <div style="font-size:22px;color:#d8e4e1;margin:18px 0 8px">Remarques</div>
+      <textarea class="note" data-k="epNote" data-t="txt" rows="3" style="background:rgba(255,255,255,.08);color:#fff;border-radius:22px;font-size:20px;padding:16px 20px" placeholder="Épargne de précaution à conserver, projets à venir…"></textarea>
+    </div>
+  </div>
+  <div class="quote" style="position:absolute;left:80px;bottom:56px;color:var(--green3)">« L'inflation, c'est l'impôt sans la loi. » — Milton Friedman</div>
+  <div style="position:absolute;left:80px;bottom:22px;font-size:16px;font-style:italic;color:var(--green3)">Livret A : taux en vigueur depuis le 01/08/2026. Inflation : hypothèse modifiable. Projection à taux constants sur 10 ans, non garantie.</div>`},
+
+/* 3 — immobilier */
+{short:'Immobilier', cls:'light', html:()=>`
+  <div class="split" style="grid-template-columns:640px 1fr">
+    <div class="l">
+      <div class="big" style="margin-top:50px">47%</div>
+      <div class="bigsub">des Français envisagent<br>d'investir dans l'immobilier<br>dans les prochaines années</div>
+      <div class="bar" style="width:100%;margin:44px 0"></div>
+      <div class="quote" style="text-align:center;color:var(--ivory)">« L'effet de levier bancaire est le moyen le plus puissant pour accélérer la constitution de patrimoine. »</div>
+      <div class="foot" style="font-size:17px">${CONFIG.firm} · CGP Indépendant · ${CONFIG.email}</div>
+    </div>
+    <div class="r">
+      <div class="logo">${LOGO(false)}</div>
+      <h2 class="title">L'investissement immobilier</h2><div class="bar" style="width:290px"></div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:34px">
+        <div class="pill b1"><span class="lab">Votre patrimoine global actuel (actif net)</span><span class="val">${out('patTotal')}</span></div>
+        <div class="pill b2"><span class="lab">Votre patrimoine immobilier actuel (actif net)</span><span class="val">${inp('patImmo','0')}<span class="unit">€</span></span></div>
+        <div class="pill b1"><span class="lab">% de l'immobilier / global (actif net)</span><span class="val">${out('partImmo')}</span></div>
+        <div class="pill b2"><span class="lab">Mensualités de crédit en cours</span><span class="val">${inp('mensualites','0',140)}<span class="unit">€/mois</span></span></div>
+        <div class="pill b1" data-p="debt"><span class="lab">Votre taux d'endettement actuel<small data-o="debtSub"></small></span><span class="val">${out('debtRate')}</span></div>
+      </div>
+      <textarea class="note" data-k="immoNote" data-t="txt" rows="4" style="margin-top:26px" placeholder="Des remarques et des commentaires sur vos projets d'investissement immobilier ?"></textarea>
+    </div>
+  </div>`},
+
+/* 4 — retraite */
+{short:'Retraite', cls:'light', html:()=>`
+  <div class="split" style="grid-template-columns:640px 1fr">
+    <div class="l">
+      <div class="big" style="margin-top:50px">67%</div>
+      <div class="bigsub">des salariés craignent<br>de ne pas toucher<br>de retraite du tout</div>
+      <div class="bar" style="width:100%;margin:44px 0"></div>
+      <div class="quote" style="text-align:center;color:var(--ivory)">« Le système de retraite par répartition est condamné à terme, car il repose sur un équilibre démographique qui n'existe plus. »</div>
+      <div class="foot" style="font-size:17px">${CONFIG.firm} · CGP Indépendant · ${CONFIG.email}</div>
+    </div>
+    <div class="r">
+      <div class="logo">${LOGO(false)}</div>
+      <h2 class="title">Votre retraite</h2><div class="bar"></div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:34px">
+        <div class="pill b1" style="min-height:96px"><span class="lab">Revenus souhaités<small>en euros d'aujourd'hui</small></span><span class="val">${inp('retWanted','2 500',150)}<span class="unit">€ / mois</span></span></div>
+        <div class="pill b2" style="min-height:96px"><span class="lab">Revenus estimés
+            <span class="seg" data-seg="retRate" style="display:inline-flex;vertical-align:middle;margin-left:10px;background:rgba(35,77,71,.1)">${CONFIG.replaceRates.map(r=>`<button data-v="${r}" style="color:var(--green)">${r*100} %</button>`).join('')}</span>
+            <small data-o="retSub"></small></span><span class="val">${out('est')}<span class="unit">€ / mois</span></span></div>
+        <div class="pill gold" style="min-height:96px;font-style:normal" data-p="ret"><span class="lab" style="font-weight:400">Revenus à créer<small data-o="capitalSub" style="font-weight:400"></small></span><span class="val">${out('toCreate')}<span class="unit">€ / mois</span></span></div>
+      </div>
+      <textarea class="note" data-k="retNote" data-t="txt" rows="5" style="margin-top:30px" placeholder="Des remarques et des commentaires sur votre retraite ?"></textarea>
+    </div>
+  </div>`},
+
+/* 5 — profil investisseur */
+{short:'Profil', cls:'light', html:()=>`
+  <div class="logo">${LOGO(false)}</div>
+  <div style="padding:58px 80px 0"><h2 class="title">Votre profil investisseur</h2></div>
+  <div style="padding:6px 80px 0;display:flex;flex-direction:column">
+    ${[['know','Connaissance & expérience',['Novice','Informé','Expérimenté']],
+       ['risk','Profil de risque',['Sécuritaire','Défensif','Équilibré','Dynamique','Offensif']],
+       ['loss','Capacité à subir des pertes',['Très faible','Faible','Moyenne','Élevée','Très élevée']],
+       ['esg','Sensibilité extra-financière (ESG)',['Neutre','Modérée','Significative','Forte']]]
+      .map(([k,l,opts])=>`<div style="font-size:29px;font-weight:700;margin:30px 0 14px">${l}</div>
+        <div class="chips" data-chips="${k}">${opts.map((o,i)=>`<button class="chip" data-v="${i}">${o}</button>`).join('')}</div>`).join('')}
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:62px;text-align:center;font-style:italic;font-size:23px">Le profil est établi par questionnaire de conformité — il conditionne les recommandations qui vous seront faites.</div>
+  ${FOOT}`},
+
+/* 6 — synthèse */
+{short:'Synthèse', cls:'light', html:()=>`
+  <div class="logo">${LOGO(false)}</div>
+  <div style="padding:58px 80px 0"><h2 class="title">Synthèse de votre patrimoine</h2></div>
+  <div style="padding:40px 64px 0">
+    <div class="band"><div class="ico">${ICON.chart}</div><div style="flex:1"><h3>Patrimoine financier</h3><div class="cells">
+      <div class="cell">Valeur totale<b>${out('patFin')}<i>${out('patFinPct')}</i></b></div>
+      <div class="cell">Réserve de précaution<b>${out('reserve')}<i>${out('reservePct')}</i></b></div>
+      <div class="cell">Épargne investissable<b>${out('investable')}<i>${out('investablePct')}</i></b></div>
+    </div></div></div>
+    <div class="band"><div class="ico">${ICON.pig}</div><div style="flex:1"><h3>Épargne mensuelle</h3><div class="cells">
+      <div class="cell">Capacité mensuelle<b>${inp('capMens','500',110)}<span>€</span><i>${out('capPct')}</i></b></div>
+      <div class="cell">Précaution<b>${out('precaution')}<i>${out('precPct')}</i></b></div>
+      <div class="cell">Disponible<b>${out('dispo')}<i>${out('dispoPct')}</i></b></div>
+    </div></div></div>
+    <div class="band"><div class="ico">${ICON.house}</div><div style="flex:1"><h3>Capacité d'emprunt</h3><div class="cells">
+      <div class="cell">Endettement actuel<b>${out('debtRate')}</b></div>
+      <div class="cell">Capacité restante<b>${out('debtMargin')}<i>${out('debtMarginPts')}</i></b></div>
+      <div class="cell">Capital empruntable<b>${out('borrow')}</b></div>
+    </div></div></div>
+  </div>
+  <div style="position:absolute;right:64px;bottom:24px;font-size:15px;font-style:italic;color:var(--green3);max-width:760px;text-align:right" data-o="synthNote"></div>
+  ${FOOT}`},
+
+/* 7 — documents réglementaires */
+{short:'Conformité', cls:'dark', html:()=>`
+  <div class="logo">${LOGO()}</div>
+  <div style="padding:58px 64px 0"><h2 class="title">Conformité : protocole réglementaire</h2></div>
+  <div style="padding:40px 64px 0;display:flex;flex-direction:column;gap:10px" id="docs">
+    ${["Document d'entrée en relation (DER)","Lettre de mission CIF","Lettre de mission IAS","Document de Connaissance Client (DCC)",
+       "Recueil d'information KYC","Profil investisseur","Rapport d'adéquation","Déclaration d'adéquation"]
+      .map((d,i)=>`<div class="doc" data-doc="${i}"><span class="ck">${ICON.check}</span><span class="lab">${d}</span><span class="st"></span></div>`).join('')}
+  </div>
+  <div class="noprint" style="position:absolute;right:64px;bottom:18px;font-size:15px;color:#87a39d;font-style:italic">Cliquez sur une ligne pour changer son statut</div>`},
+
+/* 8 — prochain rendez-vous */
+{short:'Agenda', cls:'dark', html:()=>`
+  <div class="logo">${LOGO()}</div>
+  <div style="text-align:center;padding-top:70px"><h2 class="title">Votre prochain rendez-vous</h2><div class="bar" style="width:480px;margin:28px auto 0"></div></div>
+  <div class="tl" style="margin-top:80px">
+    ${[['Écoute & recueil','▼ Vous êtes ici',1],['Analyse de votre situation','',0],['Préconisations sur-mesure','▼ Prochain RDV',1],['Solutions','',0],['Suivi','',0]]
+      .map(([nm,mk,hot])=>`<div class="st ${hot?'hot':''}"><div class="mk">${mk}</div><div class="dot"></div><div class="nm">${nm}</div></div>`).join('')}
+  </div>
+  <div class="book">
+    <p>Réservez votre créneau directement :</p>
+    <a href="${CONFIG.calUrl}" target="_blank" rel="noopener">${CONFIG.calLabel}</a>
+    <div class="when"><span style="white-space:nowrap">Prochain RDV :</span><span data-o="rdvTxt" style="color:var(--gold);font-weight:700;white-space:nowrap"></span>
+      <input type="date" class="noprint" data-k="rdvDate" data-t="raw"><input type="time" class="noprint" data-k="rdvTime" data-t="raw" step="900">
+      <button class="btn noprint" id="openCal" style="font-size:18px;padding:9px 20px;white-space:nowrap">Ouvrir l'agenda ici</button></div>
+  </div>
+  <div id="calFrame" class="hidden"><button class="btn x" id="closeCal">Fermer ✕</button><iframe title="Agenda" loading="lazy"></iframe></div>
+  <div class="foot" style="left:0;right:0;text-align:center;font-style:normal">${CONFIG.advisor} · ${CONFIG.phone} · ${CONFIG.email}</div>`},
+
+/* 9 — clôture */
+{short:'Merci', cls:'light', html:()=>`
+  <div style="position:absolute;left:1130px;top:-260px;width:900px;height:900px;border-radius:50%;background:#eeede3;border:2px solid var(--green3)"></div>
+  <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+    <div style="width:300px;height:300px">${LOGO(false)}</div>
+    <div style="font-size:48px;font-weight:700;margin-top:36px">MIDELTON INVESTMENT CAPITAL</div>
+    <div class="bar" style="width:480px;margin:26px auto"></div>
+    <div style="font-size:30px;font-style:italic">Conseil en Gestion de Patrimoine Indépendant</div>
+    <div style="font-size:28px;margin-top:40px">Merci <span data-o="clientTxt"></span> pour votre confiance.</div>
+    <div style="font-size:22px;margin-top:30px">${CONFIG.advisor} · CIF enregistré · ${CONFIG.phone}</div>
+    <button class="btn noprint" id="pdf2" style="margin-top:34px;background:var(--green);color:#fff">⤓ Télécharger le bilan en PDF</button>
+  </div>
+  <div style="position:absolute;left:60px;right:60px;bottom:18px;font-size:13px;color:var(--green3);text-align:center;line-height:1.4" data-o="legal"></div>`},
+];
+
+/* ------------------------------------------------------------ CONSTRUCTION */
+const stage = document.getElementById('stage');
+stage.innerHTML = SLIDES.map((s,i)=>`<section class="slide ${s.cls}" data-i="${i}">${s.html()}</section>`).join('');
+document.getElementById('dots').innerHTML = SLIDES.map((s,i)=>`<button data-go="${i}">${i+1}. ${s.short}</button>`).join('');
+
+// champs liés à l'état (un même champ peut apparaître sur plusieurs slides)
+stage.querySelectorAll('[data-k]').forEach(el=>{
+  const k=el.dataset.k, t=el.dataset.t||'num';
+  el.value = t==='num' ? fmtIn(S[k]) : (S[k]||'');
+  el.addEventListener('input',()=>{
+    S[k] = t==='num' ? parseNum(el.value) : el.value;
+    stage.querySelectorAll(`[data-k="${k}"]`).forEach(o=>{ if(o!==el) o.value = t==='num'?fmtIn(S[k]):S[k]; });
+    refresh();
+  });
+  if(t==='num') el.addEventListener('blur',()=>{ el.value=fmtIn(S[k]); });
+  el.addEventListener('keydown',e=>{ if(e.key==='Enter' && el.tagName==='INPUT') el.blur(); });
+});
+stage.querySelectorAll('[data-seg]').forEach(g=>{
+  const k=g.dataset.seg;
+  g.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const v=b.dataset.v; S[k] = v==='true'?true : v==='false'?false : isNaN(+v)?v:+v; refresh();
+  });
+});
+stage.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{ S.enfants=Math.max(0,Math.min(10,n(S.enfants)+(+b.dataset.step))); refresh(); });
+stage.querySelectorAll('[data-chips]').forEach(g=>{
+  const k=g.dataset.chips;
+  g.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{ S[k] = S[k]===+b.dataset.v ? null : +b.dataset.v; refresh(); });
+});
+const DOC_ST = ['À initier','En cours','Signé ✓'];
+stage.querySelectorAll('[data-doc]').forEach(d=>d.onclick=()=>{ const i=+d.dataset.doc; S.docs[i]=(S.docs[i]+1)%3; refresh(); });
+
+/* ------------------------------------------------------------ RAFRAÎCHISSEMENT */
+let last = {};
+function refresh(){
+  const c = calc();
+  const O = {
+    dateTxt: S.date ? new Date(S.date+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '',
+    clientTxt: esc(S.client||''),
+    enfants: n(S.enfants),
+    irUsed: c.revFoyer||S.irAvis!=null ? eur(c.irUsed) : '— €',
+    irSub: S.irAvis!=null ? `montant de l'avis · calcul MIC : ${eur(c.ir)}`
+         : c.revFoyer ? `${fmt(c.parts,1).replace(/,0$/,'')} part${c.parts>1?'s':''} · TMI ${pct(c.tmi,0)} · taux moyen ${pct(c.tauxMoyen)}` : 'calculé automatiquement',
+    ps: c.revFoyer ? eur(c.ps) : '— €',
+    totalTax: c.revFoyer||S.irAvis!=null ? eur(c.totalTax) : '— €',
+    proj: c.years && (c.revFoyer||S.irAvis!=null) ? eur(c.proj) : '— €',
+    projSub: c.years ? `sur ${c.years} ans, à revenus constants` : 'renseignez âge et départ à la retraite',
+    patTotal: eur(c.patTotal),
+    livretRateTxt: `Livret A ${fmt(n(S.livretRate),1)} %`,
+    gapPts: (c.gapPts>=0?'+':'')+fmt(c.gapPts,1)+' %',
+    chart: chart(c),
+    partImmo: c.patTotal ? pct(c.partImmo) : '— %',
+    debtRate: c.netM ? pct(c.debtRate) : '— %',
+    debtSub: c.netM ? `${eur(n(S.mensualites))} / ${eur(c.netM)} de revenus nets mensuels · seuil ${pct(CONFIG.debtCap,0)}` : 'renseignez les salaires (slide Fiscalité)',
+    est: c.r1 ? fmt(Math.round(c.est)) : '—',
+    retSub: c.r1 ? `${pct(S.retRate,0)} de votre revenu actuel (${eur(c.r1/12)}/mois)${S.retRate===.25?' — données INSEE 2050':''}` : 'renseignez votre salaire (slide Fiscalité)',
+    toCreate: c.w && c.r1 ? fmt(Math.round(c.toCreate)) : '—',
+    capitalSub: c.toCreate>0 && c.r1 ? `soit un capital d'environ ${eur(c.capital)} à constituer (retraits de ${pct(CONFIG.withdrawRate,0)}/an)` : '',
+    patFin: eur(n(S.patFin)), patFinPct: c.patTotal? pct(n(S.patFin)/c.patTotal,0):'',
+    reserve: eur(c.reserve), reservePct: n(S.patFin)? pct(Math.min(1,c.reserve/n(S.patFin)),0):'',
+    investable: eur(c.investable), investablePct: n(S.patFin)? pct(c.investable/n(S.patFin),0):'',
+    capPct: c.netM && c.cap ? pct(c.cap/c.netM,0)+' des revenus' : '',
+    precaution: eur(c.precaution), precPct: c.cap? pct(c.precaution/c.cap,0):'',
+    dispo: eur(c.dispo), dispoPct: c.cap? pct(c.dispo/c.cap,0):'',
+    debtMargin: c.netM ? eur(c.debtMargin)+'/mois' : '—',
+    debtMarginPts: c.netM ? `${fmt(Math.max(0,(CONFIG.debtCap-c.debtRate)*100),1)} pts` : '',
+    borrow: c.netM ? eur(c.borrow) : '—',
+    synthNote: `Réserve = ${CONFIG.reserveMonths} mois de revenus nets · précaution = complément de réserve lissé sur 12 mois · capital empruntable : ${fmt(CONFIG.loan.rate,1)} % sur ${CONFIG.loan.years} ans, seuil d'endettement ${pct(CONFIG.debtCap,0)}.`,
+    rdvTxt: S.rdvDate ? new Date(S.rdvDate+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+(S.rdvTime?' à '+S.rdvTime.replace(':','h'):'') : 'à planifier',
+    legal: `Document établi sur la base des déclarations du client, à titre informatif ; il ne constitue pas un conseil en investissement personnalisé. IR : ${CONFIG.irLabel}, estimation hors revenus non salariaux, réductions et crédits d'impôt. Charges sociales : estimation coût employeur − net (salarié du privé, d'après le simulateur URSSAF). Projections à hypothèses constantes, non garanties ; tout placement à rendement supérieur au livret comporte un risque de perte en capital.`,
+  };
+  stage.querySelectorAll('[data-o]').forEach(el=>{ const k=el.dataset.o; if(k in O) el.innerHTML=O[k]; });
+  // visibilité conditionnelle
+  stage.querySelectorAll('[data-show="couple"]').forEach(e=>e.classList.toggle('hidden', !c.couple));
+  stage.querySelectorAll('[data-show="isoleRow"]').forEach(e=>e.classList.toggle('hidden', c.couple || !n(S.enfants)));
+  stage.querySelectorAll('[data-seg]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', String(S[g.dataset.seg])===b.dataset.v)));
+  stage.querySelectorAll('[data-chips]').forEach(g=>g.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on', S[g.dataset.chips]===+b.dataset.v)));
+  stage.querySelectorAll('[data-doc]').forEach(d=>{ const s=S.docs[+d.dataset.doc]; d.className='doc s'+s; d.querySelector('.st').textContent=DOC_ST[s]; });
+  // petite animation sur les totaux qui changent
+  const watch={tot:c.totalTax, cap:c.patTotal, ir:c.irUsed, proj:c.proj, ret:c.toCreate, debt:c.debtRate};
+  for(const k in watch) if(last[k]!==undefined && last[k]!==watch[k]){
+    stage.querySelectorAll(`[data-p="${k}"]`).forEach(p=>{p.classList.remove('flash'); void p.offsetWidth; p.classList.add('flash');});
+  }
+  last=watch;
+  save();
+}
+
+/* graphique épargne : coût de la vie vs livret (+ rendement visé) */
+function chart(c){
+  const W=880,H=470,pl=20,pr=230,pt=30,pb=70,Y=10;
+  if(!c.L) return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><text x="${W/2-100}" y="${H/2}" text-anchor="middle" font-size="24" fill="#426f69" font-style="italic">Saisissez le montant de vos livrets →</text></svg>`;
+  const f=(rate,t)=>c.L*Math.pow(1+rate,t);
+  const inf=Array.from({length:Y+1},(_,t)=>f(c.inf,t)), liv=Array.from({length:Y+1},(_,t)=>f(c.r,t)), tgt=Array.from({length:Y+1},(_,t)=>f(c.rt,t));
+  const all=[...inf,...liv,...tgt], lo=c.L*0.97, hi=Math.max(...all)*1.03;
+  const x=t=>pl+t*(W-pl-pr)/Y, y=v=>pt+(1-(v-lo)/(hi-lo))*(H-pt-pb);
+  const line=a=>a.map((v,t)=>`${t?'L':'M'}${x(t).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const area=`${line(inf)} ${liv.slice().reverse().map((v,i)=>`L${x(Y-i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')} Z`;
+  const gap=c.I10-c.L10, X=x(Y);
+  const yI=y(c.I10), yL=y(c.L10), yT=y(c.T10);
+  const mid=(yI+yL)/2, yTop=Math.min(yI+8, mid-56), yBot=Math.max(yL+8, mid+84);
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="Calibri,Carlito,Arial,sans-serif">
+    ${[0,.33,.66,1].map(f=>`<line x1="${pl}" x2="${X}" y1="${pt+f*(H-pt-pb)}" y2="${pt+f*(H-pt-pb)}" stroke="#234d47" stroke-opacity=".1"/>`).join('')}
+    <line x1="${pl}" x2="${X}" y1="${H-pb+12}" y2="${H-pb+12}" stroke="#234d47" stroke-opacity=".5"/>
+    ${gap>0?`<path d="${area}" fill="#c9a97b" fill-opacity=".25"/>`:''}
+    <path d="${line(tgt)}" fill="none" stroke="#426f69" stroke-width="2.5" stroke-dasharray="7 7" opacity=".75"/>
+    <path d="${line(inf)}" fill="none" stroke="#c9a97b" stroke-width="6" stroke-linecap="round"/>
+    <path d="${line(liv)}" fill="none" stroke="#234d47" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="${x(0)}" cy="${y(c.L)}" r="9" fill="#234d47"/><circle cx="${X}" cy="${yI}" r="9" fill="#c9a97b"/><circle cx="${X}" cy="${yL}" r="9" fill="#234d47"/>
+    <text x="${x(0)}" y="${H-pb+42}" font-size="22" fill="#426f69">Aujourd'hui</text>
+    <text x="${x(5)}" y="${H-pb+42}" font-size="22" fill="#426f69" text-anchor="middle">5 ans</text>
+    <text x="${X}" y="${H-pb+42}" font-size="22" fill="#426f69" text-anchor="middle">10 ans</text>
+    <text x="${x(0)}" y="${H-4}" font-size="25" font-weight="700" fill="#234d47">${eur(c.L)}</text>
+    ${gap>0?`<line x1="${X+24}" x2="${X+24}" y1="${yI}" y2="${yL}" stroke="#c9a97b" stroke-width="3"/>`:''}
+    <text x="${X+40}" y="${yTop}" font-size="25" font-weight="700" fill="#234d47">${eur(c.I10)}</text>
+    ${gap>0?`<text x="${X+40}" y="${mid+12}" font-size="40" font-weight="700" fill="#234d47">−${eur(gap)}</text>
+      <text x="${X+40}" y="${mid+38}" font-size="22" fill="#426f69">qui manquent</text>`
+      :`<text x="${X+40}" y="${mid+8}" font-size="26" font-weight="700" fill="#2f7d4f">Inflation couverte</text>`}
+    <text x="${X+40}" y="${yBot}" font-size="25" font-weight="700" fill="#234d47">${eur(c.L10)}</text>
+    ${c.T10>c.I10?`<text x="${X-8}" y="${yT-14}" font-size="19" fill="#426f69" text-anchor="end" font-style="italic">à ${fmt(c.rt*100,1)} % : ${eur(c.T10)}</text>`:''}
+  </svg>`;
+}
+
+/* ------------------------------------------------------------ NAVIGATION */
+let cur = Math.min(+(sessionStorage.getItem('mic-r1-slide')||0), SLIDES.length-1);
+function show(i){
+  cur=Math.max(0,Math.min(SLIDES.length-1,i));
+  stage.querySelectorAll('.slide').forEach((s,j)=>{ s.classList.toggle('on',j===cur); s.classList.toggle('prev',j<cur); });
+  document.querySelectorAll('#dots button').forEach((b,j)=>b.classList.toggle('on',j===cur));
+  const on=document.querySelector('#dots button.on'); on&&on.scrollIntoView({block:'nearest',inline:'center'});
+  sessionStorage.setItem('mic-r1-slide',cur);
+}
+function fit(){
+  const vp=document.getElementById('viewport');
+  const s=Math.min(vp.clientWidth/1600, vp.clientHeight/900)*0.98;
+  stage.style.transform=`scale(${s})`;
+}
+document.getElementById('dots').onclick=e=>{ const b=e.target.closest('[data-go]'); if(b) show(+b.dataset.go); };
+document.getElementById('bPrev').onclick=()=>show(cur-1);
+document.getElementById('bNext').onclick=()=>show(cur+1);
+document.getElementById('bFull').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+document.addEventListener('keydown',e=>{
+  if(e.target.matches('input,textarea')) return;
+  if(['ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); show(cur+1); }
+  if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); show(cur-1); }
+  if(e.key==='f'||e.key==='F') document.getElementById('bFull').click();
+});
+// Tab dans une slide : on suit le focus si le champ est sur une autre slide
+stage.addEventListener('focusin',e=>{ const s=e.target.closest('.slide'); if(s && +s.dataset.i!==cur) show(+s.dataset.i); });
+window.addEventListener('resize',fit);
+
+/* agenda intégré */
+document.getElementById('openCal').onclick=()=>{
+  const f=document.getElementById('calFrame'), ifr=f.querySelector('iframe');
+  if(!ifr.src) ifr.src=CONFIG.calUrl+'?embed=true&theme=light';
+  f.classList.remove('hidden');
+};
+document.getElementById('closeCal').onclick=()=>document.getElementById('calFrame').classList.add('hidden');
+
+/* PDF */
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);}
+function pdf(){
+  document.activeElement && document.activeElement.blur();
+  const old=document.title;
+  document.title=`Bilan patrimonial MIC${S.client?' — '+S.client:''}`;
+  toast('Destination : « Enregistrer au format PDF », marges : aucune.');
+  setTimeout(()=>{ window.print(); document.title=old; },350);
+}
+document.getElementById('bPdf').onclick=pdf;
+document.getElementById('pdf2').onclick=pdf;
+document.getElementById('bReset').onclick=()=>{
+  if(!confirm('Effacer toutes les saisies et démarrer un nouveau client ?')) return;
+  sessionStorage.removeItem('mic-r1'); sessionStorage.removeItem('mic-r1-slide'); location.reload();
+};
+
+refresh(); fit(); show(cur);
+</script>
+</body>
+</html>
