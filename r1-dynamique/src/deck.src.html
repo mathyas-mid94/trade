@@ -146,7 +146,10 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 .cell{background:var(--green);color:#fff;border-radius:999px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:22px}
 .cell b{color:var(--gold);font-size:27px;margin-top:6px;display:flex;align-items:baseline;gap:6px}
 .cell b i{font-style:normal;font-weight:400;font-size:20px;opacity:.85}
-.cell input.v{width:120px;text-align:right;color:var(--gold)}
+.cell{position:relative}
+.cell input.v{width:120px;text-align:right;color:var(--gold);border-bottom-color:rgba(201,169,123,.35)}
+.ovreset{position:absolute;top:35px;right:18px;width:30px;height:30px;border-radius:50%;border:0;background:var(--gold);color:var(--green);font-size:17px;font-weight:700;display:none}
+@media screen{.cell.edited{box-shadow:0 0 0 3px var(--gold) inset}.cell.edited .ovreset{display:block}}
 
 /* ---------- présentation (slides 1 à 8) ---------- */
 .card4{display:flex;gap:30px;background:var(--green3);border-radius:70px;padding:44px 44px 40px 40px;min-height:240px}
@@ -168,7 +171,7 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 .appr .link{position:absolute;top:92px;left:335px;width:130px;height:6px;border-radius:3px;background:var(--gold)}
 .appr h3{font-size:30px;margin:30px 0 22px}
 .appr .box{background:var(--beige);border-radius:60px;padding:46px 34px;font-size:22px;line-height:1.6;min-height:250px;display:flex;align-items:center;justify-content:center}
-.badge{width:230px;height:230px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fdfbf5;position:relative}
+.bcap{margin-top:26px;font-size:22px;font-weight:700;line-height:1.4}.bcap span{font-weight:400;font-style:italic;color:var(--green3)}
 .rv{background:#fff;border-radius:18px;padding:14px 18px 12px;margin:0 0 14px;box-shadow:0 10px 26px -18px rgba(35,77,71,.5);font-size:13.6px;line-height:1.42;color:#2b2b2b}
 .rv .who{display:flex;align-items:center;gap:10px}
 .rv .av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#4b3a1a;flex:0 0 36px}
@@ -220,6 +223,17 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 .jump .ico{width:36px;height:36px;color:var(--gold)}
 .jump i{font-family:var(--serif);color:var(--gold);font-size:28px}
 
+.mjwin{position:relative;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 34px 60px -30px rgba(35,77,71,.7);border:1px solid rgba(35,77,71,.1);align-self:start}
+.mjbar{display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;background:#eef0f4;border-bottom:1px solid #dde1e8}
+.mjbar i{width:11px;height:11px;border-radius:50%;background:#d7dbe2}
+.mjbar span{margin-left:14px;font-size:14px;color:#7a8191}
+.mjwin img{display:block;width:100%}
+.mjtag{position:absolute;right:16px;bottom:16px;background:var(--green);color:var(--gold);font-weight:700;font-size:17px;padding:10px 18px;border-radius:999px;box-shadow:0 10px 24px -10px rgba(0,0,0,.5)}
+.mjpt{display:flex;gap:16px;margin-bottom:26px}
+.mjpt i{width:20px;height:20px;border-radius:50%;background:var(--gold);flex:0 0 20px;margin-top:6px}
+.mjpt b{display:block;font-size:25px}
+.mjpt span{display:block;font-size:20px;color:var(--green3);margin-top:4px;line-height:1.3}
+
 /* questionnaire */
 .qdots{display:flex;gap:10px;margin:12px 0 26px}
 .qdots button{width:22px;height:22px;border-radius:50%;border:2px solid #8fb0aa;background:transparent;padding:0;transition:.2s}
@@ -269,7 +283,13 @@ input[type=range].rg::-webkit-slider-thumb{-webkit-appearance:none;width:36px;he
 input[type=range].rg::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--green);border:5px solid var(--gold);cursor:pointer}
 
 /* barre de navigation (écran) */
-#chrome{position:fixed;left:0;right:0;bottom:0;height:58px;background:#0f2723;display:flex;align-items:center;gap:10px;padding:0 16px;color:#cfe0dc;z-index:10}
+#chrome{position:fixed;left:0;right:0;bottom:0;height:58px;background:#0f2723;display:flex;align-items:center;gap:10px;padding:0 16px;color:#cfe0dc;z-index:10;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+#viewport{transition:bottom .35s cubic-bezier(.4,0,.2,1)}
+body.nobar #chrome{transform:translateY(100%)}
+body.nobar #viewport{bottom:0}
+#barTab{position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);z-index:9;border:0;border-radius:14px 14px 0 0;background:rgba(15,39,35,.85);color:var(--gold);font-size:14px;padding:6px 22px;opacity:0;transition:.3s}
+body.nobar #barTab{transform:translate(-50%,0);opacity:.25}
+body.nobar #barTab:hover{opacity:1}
 #chrome .nb{background:transparent;border:1px solid rgba(201,169,123,.4);color:var(--gold);border-radius:999px;height:38px;padding:0 14px;font-size:15px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
 #chrome .nb:hover{background:rgba(201,169,123,.12)}
 #chrome .nb.main{background:var(--gold);color:var(--green);font-weight:700;border-color:var(--gold)}
@@ -289,7 +309,7 @@ input[type=range].rg::-moz-range-thumb{width:28px;height:28px;border-radius:50%;
 @media print{
   html,body{background:none;height:auto}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #chrome,#toast,#pdfMenu,.noprint,#calFrame{display:none!important}
+  #chrome,#toast,#pdfMenu,#barTab,.noprint,#calFrame{display:none!important}
   #viewport{position:static;display:block}
   #stage{transform:none!important;height:auto}
   .slide{position:relative;opacity:1;transform:none;box-shadow:none;page-break-after:always;break-after:page;transition:none}
@@ -311,7 +331,9 @@ input[type=range].rg::-moz-range-thumb{width:28px;height:28px;border-radius:50%;
   <button class="nb" id="bFull" title="Plein écran (F)">⛶</button>
   <button class="nb" id="bReset" title="Effacer toutes les saisies">Nouveau client</button>
   <button class="nb main" id="bPdf">⤓ PDF</button>
+  <button class="nb" id="bHide" title="Masquer la barre (H)">▾</button>
 </nav>
+<button id="barTab" title="Afficher la barre (H)">▴ menu</button>
 <div id="pdfMenu" class="hidden">
   <button data-pdf="bilan">Bilan client<small>de « Votre Bilan Patrimonial » à la fin</small></button>
   <button data-pdf="all">Présentation complète<small>toutes les slides</small></button>
@@ -332,6 +354,7 @@ const CONFIG = {
   advisor:'Mathyas Midelton', phone:'07 71 01 82 99', email:'mathyas@midelton-capital.fr',
   firm:'Midelton Investment Capital',
   calUrl:'https://cal.com/mathyas-midelton', calLabel:'cal.com/mathyas-midelton',
+  majorsUrl:'',   // adresse de connexion à Majors (laisser vide pour masquer le bouton « Ouvrir Majors »)
 
   /* ---- Impôt sur le revenu — ⚠ à vérifier chaque année (loi de finances) ---- */
   irLabel:'Barème IR 2026 (revenus 2025)',
@@ -449,7 +472,7 @@ const DEFAULT = () => ({
   retWanted:null, retRate:CONFIG.replaceRates[0], retNote:'',
   answers:{}, qIdx:0, simAmt:50000, simShock:10, simProfile:null,
   know:null, risk:null, loss:null, esg:null,
-  capMens:null, docs:[0,0,0,0,0,0,0,0], rdvDate:'', rdvTime:'',
+  capMens:null, ov:{}, docs:[0,0,0,0,0,0,0,0], rdvDate:'', rdvTime:'',
 });
 const SKEY='mic-'+MODE;
 let S;
@@ -502,16 +525,21 @@ function calc(){
   const debtRate = netM? n(S.mensualites)/netM : 0;
   const est = r1/12*S.retRate, w=n(S.retWanted), toCreate=Math.max(0,w-est);
   const capital = toCreate*12/CONFIG.withdrawRate;
-  const reserve = CONFIG.reserveMonths*netM;
-  const investable = Math.max(0, n(S.patFin)-reserve);
-  const shortfall = Math.max(0, reserve - n(S.patFin));
+  // synthèse : chaque valeur est calculée (auto) mais peut être ajustée par le conseiller (S.ov)
+  const ov = S.ov||{}, auto = {}, pick = (k,v) => { auto[k]=v; return ov[k]!=null ? ov[k] : v; };
+  const patFinS   = pick('patFinS', n(S.patFin));
+  const reserve   = pick('reserve', CONFIG.reserveMonths*netM);
+  const investable= pick('investable', Math.max(0, patFinS-reserve));
+  const shortfall = Math.max(0, reserve - patFinS);
   const cap = n(S.capMens);
-  const precaution = Math.min(cap, shortfall/12), dispo = Math.max(0, cap-precaution);
-  const debtMargin = Math.max(0, CONFIG.debtCap*netM - n(S.mensualites));
-  const borrow = pmt2capital(debtMargin, CONFIG.loan.rate, CONFIG.loan.years);
+  const precaution= pick('precaution', Math.min(cap, shortfall/12));
+  const dispo     = pick('dispo', Math.max(0, cap-precaution));
+  const debtRateS = pick('debtRate', debtRate*100)/100;
+  const debtMargin= pick('debtMargin', Math.max(0, (CONFIG.debtCap-debtRateS)*netM));
+  const borrow    = pick('borrow', pmt2capital(debtMargin, CONFIG.loan.rate, CONFIG.loan.years));
   return {couple, r1, r2, revFoyer, netM, rni, parts, ir, irUsed, tmi:tmi(qfUsed), tauxMoyen: revFoyer? irUsed/revFoyer:0,
     ps, totalTax, years, proj: totalTax*years, patTotal, L, r, rt, inf, L10, I10, T10, gapPts:(rt-r)*100,
-    partImmo, debtRate, est, w, toCreate, capital, reserve, investable, shortfall, cap, precaution, dispo, debtMargin, borrow};
+    partImmo, debtRate, est, w, toCreate, capital, reserve, investable, shortfall, cap, precaution, dispo, debtMargin, borrow, patFinS, debtRateS, auto};
 }
 
 /* profil : scores, bande, correspondance avec la slide à pilules */
@@ -596,6 +624,22 @@ const inp = (k,ph='',w,extra='') => `<input class="v ${extra}" data-k="${k}" inp
 const txt = (k,ph='',style='',extra='') => `<input class="v ${extra}" data-k="${k}" data-t="txt" autocomplete="off" placeholder="${ph}" style="${style}">`;
 const out = k => `<span data-o="${k}">—</span>`;
 const CHECK = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#234d47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${P.check}</svg>`;
+
+/* badges AMF / RGPD : tout est dessiné dans un cercle de 280 px, centré au pixel */
+const STAR5 = (cx,cy,R,fill) => { let d=''; for(let i=0;i<10;i++){ const r=i%2?R*.42:R, a=-Math.PI/2+i*Math.PI/5; d+=(i?'L':'M')+(cx+r*Math.cos(a)).toFixed(2)+','+(cy+r*Math.sin(a)).toFixed(2); } return `<path d="${d}Z" fill="${fill}"/>`; };
+const BADGE_AMF = `<svg width="280" height="280" viewBox="0 0 280 280" font-family="Calibri,Carlito,Arial,sans-serif">
+  <circle cx="140" cy="140" r="134" fill="#fdfbf5" stroke="#234d47" stroke-width="4"/>
+  <circle cx="140" cy="140" r="122" fill="none" stroke="#c9a97b" stroke-width="1.2"/>
+  <text x="140" y="96" text-anchor="middle" font-size="14" letter-spacing="3" fill="#234d47" font-weight="700">AUTORITÉ DES</text>
+  <text x="140" y="116" text-anchor="middle" font-size="14" letter-spacing="3" fill="#426f69">MARCHÉS FINANCIERS</text>
+  <text x="140" y="180" text-anchor="middle" font-size="76" font-weight="700" letter-spacing="2" fill="#234d47">AM<tspan fill="#c9a97b">F</tspan></text>
+  <line x1="104" y1="204" x2="176" y2="204" stroke="#c9a97b" stroke-width="3" stroke-linecap="round"/>
+</svg>`;
+const BADGE_RGPD = `<svg width="280" height="280" viewBox="0 0 280 280" font-family="Calibri,Carlito,Arial,sans-serif">
+  <circle cx="140" cy="140" r="134" fill="#fdfbf5" stroke="#c9a97b" stroke-width="5"/>
+  ${Array.from({length:12},(_,i)=>{ const a=i/12*2*Math.PI; return STAR5(140+98*Math.sin(a), 140-98*Math.cos(a), 11, '#c9a97b'); }).join('')}
+  <text x="140" y="157" text-anchor="middle" font-size="50" font-weight="700" fill="#234d47">RGPD</text>
+</svg>`;
 
 /* avis clients (slide 8) — retranscrits tels quels */
 const REVIEWS = [
@@ -716,15 +760,9 @@ const SLIDES = [
 {id:'confiance', short:'AMF · RGPD', part:'pres', modes:FULL, cls:'light', html:()=>`
   <div class="logo">${LOGO(false)}</div>
   <div style="text-align:center;padding-top:44px"><h2 class="title" style="font-size:46px">Vous êtes entre de bonnes mains</h2></div>
-  <div class="anim" style="display:flex;justify-content:center;gap:250px;margin-top:180px">
-    <div class="badge" style="border:3px solid var(--green)">
-      <div style="font-size:12px;letter-spacing:2px;color:var(--green);border-left:2px solid var(--gold);padding-left:6px;line-height:1.3;text-align:left">AUTORITÉ<br><span style="opacity:.7">DES MARCHÉS FINANCIERS</span></div>
-      <div style="font-size:64px;font-weight:700;letter-spacing:2px;margin-top:6px"><span style="color:var(--green)">AM</span><span style="color:var(--gold)">F</span></div>
-    </div>
-    <div class="badge" style="border:4px solid var(--gold)">
-      <svg viewBox="0 0 230 230" width="230" height="230" style="position:absolute;inset:0">${Array.from({length:12},(_,i)=>{const a=i/12*2*Math.PI;return `<text x="${115+82*Math.sin(a)}" y="${121-82*Math.cos(a)}" text-anchor="middle" font-size="20" fill="#c9a97b">★</text>`}).join('')}</svg>
-      <div style="font-size:50px;font-weight:700">RGPD</div>
-    </div>
+  <div class="anim" style="display:flex;justify-content:center;gap:230px;margin-top:120px;text-align:center">
+    <div>${BADGE_AMF}<div class="bcap">Conseiller en Investissements Financiers<br><span>soumis au contrôle de l'AMF</span></div></div>
+    <div>${BADGE_RGPD}<div class="bcap">Protection des données personnelles<br><span>conforme au RGPD</span></div></div>
   </div>
   <div style="position:absolute;left:104px;right:104px;bottom:76px;background:var(--beige);border-bottom:6px solid var(--green);padding:36px 80px;text-align:center;font-size:24px;line-height:1.6;color:#253a5a">
     Vous pouvez nous faire confiance : le MIC applique et respecte les règlements nationaux et européens les plus exigeants en matière de devoir de conseil et de protection de vos données personnelles.</div>`},
@@ -802,28 +840,38 @@ const SLIDES = [
     </div>
   </div>`},
 
-/* 12 — bilan en chiffres */
-{id:'chiffres', short:'En chiffres', modes:FULL, cls:'light', html:()=>`
+/* 12 — bilan en chiffres : passage sur Majors */
+{id:'chiffres', short:'Majors', modes:FULL, cls:'light', html:()=>`
   <div class="split" style="grid-template-columns:630px 1fr">
     <div class="l" style="padding:100px 70px">
       <div class="kicker" style="font-size:20px">Diagnostic · Étape 02</div>
       <h2 style="font-family:var(--serif);font-size:74px;font-weight:500;line-height:1.1;margin:30px 0 0">Votre bilan, en chiffres</h2>
       <div class="bar" style="width:110px"></div>
       <p style="font-size:24px;line-height:1.45;color:#ecdfc3;margin:30px 0 40px">Vos priorités sont posées. Place aux faits : on saisit ensemble votre situation pour savoir, chiffres à l'appui, où vous en êtes.</p>
-      ${[['percent','01','Votre fiscalité','fiscal'],['piggy','02','Votre épargne','epargne'],['home','03','Votre immobilier','immo'],['sunrise','04','Votre retraite','retraite'],['user','05','Votre profil investisseur','quiz']]
-        .map(([i,nn,t,go])=>`<div class="jump" data-goid="${go}">${ic(i,1.6)}<i>${nn}</i><span>${t}</span></div>`).join('')}
-    </div>
-    <div class="r" style="padding:80px 64px 40px 60px">
-      <div style="font-family:var(--serif);font-style:italic;font-size:44px;color:var(--green3);margin-bottom:28px">Votre situation, en un coup d'œil</div>
-      <div class="kpi4 anim">
-        <div class="kpi"><small>Actif net</small><b data-o="patTotal">—</b><em>financier + immobilier net</em></div>
-        <div class="kpi"><small>Capacité d'épargne</small><b data-o="capAn">—</b><em data-o="capAnSub"></em></div>
-        <div class="kpi"><small>Endettement</small><b data-o="debtRate">—</b><em>seuil ${pct(CONFIG.debtCap,0)}</em></div>
-        <div class="kpi"><small>Impôt sur le revenu</small><b data-o="irUsed">—</b><em data-o="tmiTxt"></em></div>
+      <div class="anim">
+      ${[['mail','01','Vos coordonnées'],['users','02','Votre état civil'],['bars','03','Votre situation patrimoniale'],['info','04','Vos informations générales']]
+        .map(([i,nn,t])=>`<div class="jump" style="cursor:default">${ic(i,1.6)}<i>${nn}</i><span>${t}</span></div>`).join('')}
       </div>
-      <div class="alerts"><div style="font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--green3);font-weight:700">Points d'attention</div>
-        <ul data-o="alerts" style="margin:8px 0 0;padding-left:24px"></ul></div>
-      <div style="font-style:italic;font-size:23px;color:var(--green3);margin-top:22px">Saisie en direct, ensemble, au fil du rendez-vous.</div>
+    </div>
+    <div class="r" style="padding:64px 56px 40px 60px">
+      <div style="font-family:var(--serif);font-style:italic;font-size:46px;color:var(--green3)">Votre situation, en un coup d'œil</div>
+      <div style="display:grid;grid-template-columns:1fr 250px;gap:34px;margin-top:26px">
+        <div class="mjwin">
+          <div class="mjbar"><i></i><i></i><i></i><span>majors · bilan patrimonial</span></div>
+          <img src="__MAJORS_DASH__" alt="Bilan patrimonial dans Majors">
+          <div class="mjtag">Hors présentation · on passe sur Majors ↗</div>
+        </div>
+        <div class="anim">
+          <div style="font-size:32px;font-weight:700;line-height:1.15;margin-bottom:26px">Ce que le bilan révèle</div>
+          ${[['Actif net','Ce que vous possédez, dettes déduites'],['Capacité d\'épargne','Ce qui reste pour investir'],['Endettement','Votre marge pour emprunter'],['Points d\'attention','Les angles morts à corriger']]
+            .map(([t,d])=>`<div class="mjpt"><i></i><div><b>${t}</b><span>${d}</span></div></div>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:30px;margin-top:30px">
+        <div style="font-style:italic;font-size:25px;color:var(--green3);flex:1;line-height:1.35">Saisie en direct, ensemble, dans notre logiciel de gestion de patrimoine.</div>
+        <img src="__MAJORS_LOGO__" alt="majors" style="height:62px;mix-blend-mode:multiply">
+        ${CONFIG.majorsUrl?`<a class="btn dk noprint" href="${CONFIG.majorsUrl}" target="_blank" rel="noopener" style="text-decoration:none">Ouvrir Majors ↗</a>`:''}
+      </div>
     </div>
   </div>`},
 
@@ -998,28 +1046,33 @@ const SLIDES = [
   ${FOOT}`},
 
 /* 19 — synthèse */
-{id:'synthese', short:'Synthèse', modes:BOTH, cls:'light', html:()=>`
+{id:'synthese', short:'Synthèse', modes:BOTH, cls:'light', html:()=>{
+  const cell=(lab,k,unit,pctK,w=150)=>`<div class="cell" data-cell="${k}">${lab}
+    <b><input class="v ovr" data-ov="${k}" inputmode="decimal" autocomplete="off" placeholder="—" style="width:${w}px"><span>${unit}</span>${pctK?`<i>${out(pctK)}</i>`:''}</b>
+    <button class="ovreset noprint" data-ovreset="${k}" title="Revenir au calcul automatique">↺</button></div>`;
+  return `
   <div class="logo">${LOGO(false)}</div>
-  <div style="padding:58px 80px 0"><h2 class="title">Synthèse de votre patrimoine</h2></div>
+  <div style="padding:58px 80px 0;display:flex;align-items:center;gap:30px"><h2 class="title">Synthèse de votre patrimoine</h2>
+    <button class="btn lk noprint hidden" id="ovAll" style="font-size:18px">↺ Tout recalculer</button></div>
   <div class="anim" style="padding:40px 64px 0">
     <div class="band"><div class="bico">${ic('chart',2)}</div><div style="flex:1"><h3>Patrimoine financier</h3><div class="cells">
-      <div class="cell">Valeur totale<b>${out('patFin')}<i>${out('patFinPct')}</i></b></div>
-      <div class="cell">Réserve de précaution<b>${out('reserve')}<i>${out('reservePct')}</i></b></div>
-      <div class="cell">Épargne investissable<b>${out('investable')}<i>${out('investablePct')}</i></b></div>
+      ${cell('Valeur retenue','patFinS','€','patFinPct')}
+      ${cell('Réserve de précaution','reserve','€','reservePct')}
+      ${cell('Épargne investissable','investable','€','investablePct')}
     </div></div></div>
     <div class="band"><div class="bico">${ic('piggy',2)}</div><div style="flex:1"><h3>Épargne mensuelle</h3><div class="cells">
       <div class="cell">Capacité mensuelle<b>${inp('capMens','500',110)}<span>€</span><i>${out('capPct')}</i></b></div>
-      <div class="cell">Précaution<b>${out('precaution')}<i>${out('precPct')}</i></b></div>
-      <div class="cell">Disponible<b>${out('dispo')}<i>${out('dispoPct')}</i></b></div>
+      ${cell('Précaution','precaution','€','precPct',110)}
+      ${cell('Disponible','dispo','€','dispoPct',110)}
     </div></div></div>
     <div class="band"><div class="bico">${ic('house',2)}</div><div style="flex:1"><h3>Capacité d'emprunt</h3><div class="cells">
-      <div class="cell">Endettement actuel<b>${out('debtRate')}</b></div>
-      <div class="cell">Capacité restante<b>${out('debtMargin')}<i>${out('debtMarginPts')}</i></b></div>
-      <div class="cell">Capital empruntable<b>${out('borrow')}</b></div>
+      ${cell('Endettement actuel','debtRate','%','',90)}
+      ${cell('Capacité restante','debtMargin','€/mois','debtMarginPts',110)}
+      ${cell('Capital empruntable','borrow','€','',160)}
     </div></div></div>
   </div>
-  <div style="position:absolute;right:64px;bottom:24px;font-size:15px;font-style:italic;color:var(--green3);max-width:760px;text-align:right" data-o="synthNote"></div>
-  ${FOOT}`},
+  <div style="position:absolute;right:64px;bottom:24px;font-size:15px;font-style:italic;color:var(--green3);max-width:820px;text-align:right" data-o="synthNote"></div>
+  ${FOOT}`}},
 
 /* 20 — conformité */
 {id:'docs', short:'Conformité', modes:BOTH, cls:'dark', html:()=>`
@@ -1098,6 +1151,13 @@ stage.querySelectorAll('[data-chips]').forEach(g=>{
   const k=g.dataset.chips;
   g.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{ S[k] = S[k]===+b.dataset.v ? null : +b.dataset.v; refresh(); });
 });
+stage.querySelectorAll('[data-ov]').forEach(el=>{
+  el.addEventListener('input',()=>{ S.ov[el.dataset.ov]=parseNum(el.value); refresh(); });
+  el.addEventListener('blur',()=>refresh());
+  el.addEventListener('keydown',e=>{ if(e.key==='Enter') el.blur(); });
+});
+stage.querySelectorAll('[data-ovreset]').forEach(b=>b.onclick=()=>{ delete S.ov[b.dataset.ovreset]; refresh(); });
+{ const oa=document.getElementById('ovAll'); if(oa) oa.onclick=()=>{ S.ov={}; refresh(); }; }
 stage.querySelectorAll('[data-simp] .chip').forEach(b=>b.onclick=()=>{ S.simProfile=+b.dataset.v; refresh(); });
 stage.querySelectorAll('[data-rate]').forEach(g=>{
   const k=g.dataset.rate;
@@ -1306,16 +1366,14 @@ function refresh(){
     retSub: c.r1 ? `${pct(S.retRate,0)} de votre revenu actuel (${eur(c.r1/12)}/mois)${S.retRate===.25?' — données INSEE 2050':''}` : 'renseignez votre salaire (slide Fiscalité)',
     toCreate: c.w && c.r1 ? fmt(Math.round(c.toCreate)) : '—',
     capitalSub: c.toCreate>0 && c.r1 ? `soit un capital d'environ ${eur(c.capital)} à constituer (retraits de ${pct(CONFIG.withdrawRate,0)}/an)` : '',
-    patFin: eur(n(S.patFin)), patFinPct: c.patTotal? pct(n(S.patFin)/c.patTotal,0):'',
-    reserve: eur(c.reserve), reservePct: n(S.patFin)? pct(Math.min(1,c.reserve/n(S.patFin)),0):'',
-    investable: eur(c.investable), investablePct: n(S.patFin)? pct(c.investable/n(S.patFin),0):'',
+    patFinPct: c.patFinS+n(S.patImmo) ? pct(c.patFinS/(c.patFinS+n(S.patImmo)),0)+' du total' : '',
+    reservePct: c.patFinS? pct(Math.min(1,c.reserve/c.patFinS),0):'',
+    investablePct: c.patFinS? pct(c.investable/c.patFinS,0):'',
     capPct: c.netM && c.cap ? pct(c.cap/c.netM,0)+' des revenus' : '',
-    precaution: eur(c.precaution), precPct: c.cap? pct(c.precaution/c.cap,0):'',
-    dispo: eur(c.dispo), dispoPct: c.cap? pct(c.dispo/c.cap,0):'',
-    debtMargin: c.netM ? eur(c.debtMargin)+'/mois' : '—',
-    debtMarginPts: c.netM ? `${fmt(Math.max(0,(CONFIG.debtCap-c.debtRate)*100),1)} pts` : '',
-    borrow: c.netM ? eur(c.borrow) : '—',
-    synthNote: `Réserve = ${CONFIG.reserveMonths} mois de revenus nets · précaution = complément de réserve lissé sur 12 mois · capital empruntable : ${fmt(CONFIG.loan.rate,1)} % sur ${CONFIG.loan.years} ans, seuil d'endettement ${pct(CONFIG.debtCap,0)}.`,
+    precPct: c.cap? pct(c.precaution/c.cap,0):'',
+    dispoPct: c.cap? pct(c.dispo/c.cap,0):'',
+    debtMarginPts: c.netM||S.ov.debtRate!=null ? `${fmt(Math.max(0,(CONFIG.debtCap-c.debtRateS)*100),1)} pts` : '',
+    synthNote: (Object.keys(S.ov).some(k=>S.ov[k]!=null) ? `<b>Valeurs ajustées avec votre conseiller.</b> ` : '') + `Calcul par défaut : réserve = ${CONFIG.reserveMonths} mois de revenus nets · précaution = complément de réserve lissé sur 12 mois · capital empruntable : ${fmt(CONFIG.loan.rate,1)} % sur ${CONFIG.loan.years} ans, seuil d'endettement ${pct(CONFIG.debtCap,0)}.`,
     profilNote: res ? `Prérempli d'après le questionnaire (profil ${res.p.key}) — ajustable d'un clic. Le profil conditionne les recommandations qui vous seront faites.`
                     : 'Le profil est établi par questionnaire de conformité — il conditionne les recommandations qui vous seront faites.',
     shockTxt: `± ${sh} %`, amt: eur(A), eqTxt: `dont ${pct(sp.eq,0)} d'actifs dynamiques`,
@@ -1332,6 +1390,16 @@ function refresh(){
   OBJ.forEach(([k])=>{ O['dots_'+k] = [1,2,3].map(v=>`<i class="${S.prio[k]>=v?'f':''}"></i>`).join(''); O['ph_'+k]=ph[k]; });
 
   stage.querySelectorAll('[data-o]').forEach(el=>{ const k=el.dataset.o; if(k in O) el.innerHTML=O[k]; });
+  const OVDEC={debtRate:1};
+  const OVNEED={debtRate:1,debtMargin:1,borrow:1,reserve:1};   // n'ont de sens qu'avec des revenus saisis
+  stage.querySelectorAll('[data-ov]').forEach(el=>{
+    const k=el.dataset.ov, edited=S.ov[k]!=null;
+    el.closest('.cell').classList.toggle('edited',edited);
+    if(document.activeElement===el) return;
+    const v = edited ? S.ov[k] : c.auto[k];
+    el.value = (!edited && OVNEED[k] && !c.netM) ? '' : fmtIn(OVDEC[k] ? Math.round(v*10)/10 : Math.round(v));
+  });
+  const oa=document.getElementById('ovAll'); if(oa) oa.classList.toggle('hidden', !Object.keys(S.ov).some(k=>S.ov[k]!=null));
   stage.querySelectorAll('[data-phk]').forEach(el=>{ el.placeholder = O[el.dataset.phk]||''; });
   stage.querySelectorAll('[data-show="couple"]').forEach(e=>e.classList.toggle('hidden', !c.couple));
   stage.querySelectorAll('[data-show="isoleRow"]').forEach(e=>e.classList.toggle('hidden', c.couple || !n(S.enfants)));
@@ -1410,6 +1478,7 @@ document.addEventListener('keydown',e=>{
   if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); show(cur-1); }
   if(e.key==='f'||e.key==='F') document.getElementById('bFull').click();
   if(e.key==='Escape') document.getElementById('pdfMenu').classList.add('hidden');
+  if(e.key==='h'||e.key==='H') toggleBar();
 });
 stage.addEventListener('focusin',e=>{ const s=e.target.closest('.slide'); if(s && +s.dataset.i!==cur) show(+s.dataset.i); });
 window.addEventListener('resize',fit);
@@ -1441,6 +1510,18 @@ document.getElementById('bReset').onclick=()=>{
   if(!confirm('Effacer toutes les saisies et démarrer un nouveau client ?')) return;
   sessionStorage.removeItem(SKEY); sessionStorage.removeItem(SKEY+'-slide'); location.reload();
 };
+
+function toggleBar(force){
+  const hide = force!=null ? force : !document.body.classList.contains('nobar');
+  document.body.classList.toggle('nobar', hide);
+  document.getElementById('pdfMenu').classList.add('hidden');
+  sessionStorage.setItem(SKEY+'-nobar', hide?'1':'');
+  fit(); setTimeout(fit,380);
+  if(hide && force==null) toast('Barre masquée — touche H ou « menu » en bas pour la réafficher');
+}
+document.getElementById('bHide').onclick=()=>toggleBar();
+document.getElementById('barTab').onclick=()=>toggleBar(false);
+if(sessionStorage.getItem(SKEY+'-nobar')) toggleBar(true);
 
 refresh(); renderQuiz(); fit(); show(cur);
 </script>
