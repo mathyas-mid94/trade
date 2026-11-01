@@ -68,7 +68,7 @@ SC("23", "LES OUTILS · LE DÉMEMBREMENT", (g, A) => {
 SC("24", "LES OUTILS · LE PACTE ADJOINT", (g, A) => {
   const m = A.m, head = title(g, 190, "Le pacte adjoint au don manuel");
   const gift = cadeau(g), doc = el("g", {}, g); D.icons.contract(doc);
-  const use = pill(g, 380, 330, "SCHÉMA A · POCHE A DU SCHÉMA C · DON EN SCHÉMA B", { bg: C.face, size: 16 });
+  const use = pill(g, 380, 330, "SCHÉMA A · POCHE A DU SCHÉMA C · DON EN SCHÉMA B", { bg: C.face, size: 13 });
   const lab = txt(g, 380, 820, "un don, et un écrit qui en fixe les règles", 26, { font: "Serif", weight: 600, fill: C.inkSoft });
   const nt = notaire(g), modele = pill(g, 380, 880, "MODÈLE DE L'ASSUREUR · SUR-MESURE : LE NOTAIRE", { bg: C.accentSoft, size: 16 });
   const Q = [["toque", "Clause d'emploi", "études, logement, voiture", 4], ["lock", "Inaliénabilité", "rien avant un âge fixé", 5], ["people", "Administration", "un parent ou un tiers gère", 6], ["back", "Droit de retour", "les fonds vous reviennent", 7]].map(([k, a, b, mk], i) => {
