@@ -72,9 +72,9 @@ Et un don, c'est définitif. Donner, c'est donner, reprendre, c'est voler. On es
 Prenons un cas pratique. Dans le schéma A, si l'un des parents décède, en fait, rien ne change.
 Le contrat appartient à Léo, l'argent est déjà donné. Si maman décède, papa continue de gérer le contrat jusqu'à ses 18 ans.
 Si les deux parents décèdent, un tuteur prend le relais : mamie, papi, tata… Il gère à la place des parents, sous le contrôle du juge. Mais le contrat reste à Léo.
-Et à 18 ans, Léo récupère tout : la gestion et les fonds. Sauf si on a prévu une clause d'inaliénabilité ou un pacte adjoint, qu'on verra juste après.
+Et à 18 ans, Léo récupère tout : la gestion et les fonds. Sauf si on a prévu un pacte adjoint avec une clause d'inaliénabilité, qu'on verra juste après.
 Dans le schéma B, par contre, tout dépendra de la clause, et de la communauté entre les parents. On va en parler.
-Donc avec le schéma A, il n'y a rien à écrire, rien à régler : le don est fait, le contrat est à l'abri.
+Donc avec le schéma A, au décès, il n'y a rien à régler : le don est fait, le contrat est à l'abri.
 Mais on l'a compris, le pépin du schéma A, c'est que les parents perdent le contrôle dès ses 18 ans.
 
 ## 09 · Schéma B : le contrat au nom du parent
@@ -121,7 +121,7 @@ Ce qu'il faut retenir : seul le contrat au nom de l'enfant ne dépend d'aucun d�
 ## 13 · Ma recommandation : un contrat par parent
 Ma recommandation, en général : Sophie fait un contrat pour l'enfant, et Marc fait un contrat pour l'enfant. Et s'il y a 450 enfants, on verra ça après.
 C'est simple : chacun sa part. Chaque parent verse pour l'enfant sur son propre contrat, même si c'est de l'argent commun.
-Et quoi qu'il arrive, c'est transmis : si l'un décède, l'enfant touche, avec 152 500 euros d'abattement sur chaque contrat. Et si les deux partent en même temps, c'est le jackpot pour l'enfant. Financier, on est d'accord.
+Et quoi qu'il arrive, c'est transmis : si l'un décède, l'enfant touche, avec 152 500 euros d'abattement par parent. Et si les deux partent en même temps, c'est le jackpot pour l'enfant. Financier, on est d'accord.
 Et pour les couples non mariés, ou en séparation de biens, c'est top : chacun garde le sien, et en cas de séparation, c'est très simple à gérer.
 
 ## 14 · Chacun écrit sa clause
@@ -130,7 +130,7 @@ Exemple : Sophie décède, Léo a 10 ans, et son contrat vaut 8 000 euros.
 Avec une clause simple, Léo touche les 8 000 euros, et Marc les gère jusqu'à ses 18 ans.
 Avec une clause démembrée, Marc peut profiter de l'argent, et plus tard, il devra le rendre à Léo. On en reparle juste après.
 Avec un tiers administrateur, si Sophie n'a pas trop confiance en Marc pour la gestion, c'est mamie qui gère, et Léo récupère tout à ses 18 ans. Si l'assureur l'accepte.
-Et avec une clause d'inaliénabilité temporaire, un mot que j'ai beaucoup de mal à dire, Léo ne peut pas tout claquer : par exemple, le capital est bloqué jusqu'à ses 25 ans.
+Et pour que Léo ne puisse pas tout claquer, il y a la clause d'inaliénabilité temporaire, un mot que j'ai beaucoup de mal à dire. Mais attention : elle ne se met pas dans ta clause bénéficiaire. Elle se met une fois l'argent donné, sur un contrat au nom de l'enfant. On la voit juste après.
 Et ces clauses se combinent, et elles sont modifiables à tout moment.
 
 ## 15 · Plusieurs enfants
@@ -139,7 +139,7 @@ Léo a 17 ans. Il a besoin de 12 000 euros, pour le permis et l'école de commer
 Camille a 12 ans. Elle, on la connaît, elle veut être indépendante : 8 000 euros pour son premier logement.
 Et Noé a 6 ans. Lui, il est un peu plus foufou, il a besoin d'être accompagné : 5 000 euros.
 Chacun ses objectifs, chacun ses projets. Donc on peut mettre une clause par enfant :
-une clause simple pour Léo, le capital bloqué jusqu'à 25 ans pour Camille, parce que malgré son caractère, on va bien la bloquer celle-là… et un tiers de confiance pour Noé.
+une clause simple pour Léo, pour Camille, un blocage jusqu'à 25 ans, posé le jour où on lui donne, parce que malgré son caractère, on va bien la bloquer celle-là… et un tiers de confiance pour Noé.
 
 ## 16 · Le piège du pot unique
 Et là, il y a un piège : le pot unique.
@@ -162,6 +162,7 @@ Le vrai choix, c'est : garder la main, ou donner. Et c'est le notaire qui tranch
 Pour les couples solides, et j'insiste, solides, il existe une variante : un contrat à deux noms. La co-souscription.
 Marc et Sophie ouvrent un contrat ensemble pour Léo, un pour Camille, et un pour Noé. Trois contrats au lieu de six.
 Les plus : moins de contrats, moins de frais, et ça colle à la réalité, puisque l'argent est commun.
+Le prix à payer : un seul abattement de 152 500 euros par enfant, au lieu de deux. Pour la plupart des familles, ça ne change rien.
 À savoir : en pratique, c'est réservé aux couples mariés, et tout se signe à deux : un rachat, une modification de clause…
 Imagine : Camille veut aller voir les Jonas Brothers en concert. Marc dit « OK, je te retire un peu d'argent ». Sauf qu'il n'en a pas parlé à Sophie… et Sophie doit signer. De quoi s'entretuer en famille.
 Donc ça marche si le couple reste d'accord. Sinon, deux contrats séparés, c'est plus sûr. C'est très bien pour la paix des ménages.
@@ -171,7 +172,7 @@ Léo arrive à ses 18 ans, les parents sont vivants, c'est le moment de lui donn
 Ils font un rachat de 5 000 euros sur son contrat.
 Ça fait 2 500 euros de la part de Marc, et 2 500 de la part de Sophie. Chacun utilise son propre abattement pour le don.
 Et les gains profitent de l'abattement du couple : 9 200 euros par an après 8 ans.
-On peut même encadrer l'usage de cet argent avec un pacte adjoint. On le voit juste après.
+Et pour encadrer cet argent, un an avant, on ouvre un contrat au nom de Léo, avec un pacte adjoint. On le voit juste après.
 Et en cas de décès, le couple choisit dès l'ouverture.
 Option 1 : le contrat se ferme au premier décès, et le capital part aux bénéficiaires. Si c'est Léo, il touche tout.
 Option 2 : le contrat continue jusqu'au second décès. Le parent survivant garde le contrat, et Léo touche à la fin, ou quand le parent décide de lui donner.
@@ -197,11 +198,11 @@ Les grands-parents versent directement sur le contrat de leur petit-enfant. Et s
 ## 22 · Les outils : la clause d'inaliénabilité temporaire
 Maintenant, les outils. Les garde-fous pour que le capital serve vraiment à ce pour quoi il est fait.
 Le premier : la clause d'inaliénabilité temporaire. Allez, on va l'appeler la clause « Dina », comme ça j'arrête de m'embrouiller.
-Elle va dans la clause bénéficiaire, dans le schéma B.
-Aujourd'hui, tu gardes 100 % de la main. Si tu décèdes, le capital revient à l'enfant.
-Mais avec la clause Dina, il est bloqué jusqu'à l'âge que tu choisis, souvent 25 ans. Après, il en dispose librement.
+Elle ne va pas dans ta clause bénéficiaire : elle va dans un pacte adjoint, sur un contrat au nom de l'enfant.
+Tu fais le don, l'argent arrive sur son contrat, et avec la clause Dina, il est bloqué jusqu'à l'âge que tu choisis, entre 18 et 25 ans. Après, il en dispose librement.
+Et si tu es en schéma B, c'est simple : le jour où tu donnes, tu ouvres son contrat, et tu poses le blocage à ce moment-là.
 C'est très utile si tu sais que ton enfant a la main un peu rapide sur la carte bleue.
-Pendant ce temps-là, l'enfant ne peut pas racheter, pas vendre, pas donner, pas mettre en garantie à la banque. Rien. Et tu peux choisir dans la clause quels droits tu bloques.
+Pendant ce temps-là, l'enfant ne peut pas racheter, pas vendre, pas donner, pas mettre en garantie à la banque. Rien. Et si tu disparais avant, une personne de confiance désignée dans le pacte prend le relais.
 Pour être valable, elle doit être temporaire, et répondre à un intérêt sérieux : finir ses études, mûrir. Il ne faut pas faire n'importe quoi non plus.
 
 ## 23 · Le démembrement de la clause
@@ -214,9 +215,9 @@ Mais il a une dette envers Léo : un jour, il devra les rendre. Et au décès de
 Attention quand même : Léo n'a rien à 18 ans, il attend. Et la dette envers Léo doit être écrite noir sur blanc, à date certaine.
 
 ## 24 · Le pacte adjoint au don manuel
-Troisième outil : le pacte adjoint au don manuel. Il est très utile pour le schéma A, et pour la poche A du schéma C.
+Troisième outil : le pacte adjoint au don manuel. Il est très utile pour le schéma A, pour la poche A du schéma C, et le jour où tu donnes en schéma B.
 Dans le schéma A, tu le sais, l'argent est déjà donné. Difficile de revenir en arrière.
-Mais au moment du don, avec le notaire, tu peux ajouter un écrit qui en fixe les règles.
+Mais au moment du don, tu peux ajouter un écrit qui en fixe les règles. L'assureur fournit un modèle, et pour du sur-mesure, on passe par le notaire.
 Une clause d'emploi : l'argent sert uniquement à financer ses études, un logement, ou une voiture.
 L'inaliénabilité : pas d'utilisation avant un certain âge. Sans abus, bien sûr.
 L'administration : un parent, ou un tiers, gère l'argent jusqu'à sa majorité.

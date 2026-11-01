@@ -66,7 +66,7 @@ SC("13", "MA RECOMMANDATION", (g, A) => {
   const c1 = contrat(g, "CONTRAT DE SOPHIE"), c2 = contrat(g, "CONTRAT DE MARC");
   const a1 = arrow(g, 620, 560, 860, 640, m(4) - 0.4, m(4) + 0.2), a2 = arrow(g, 1300, 560, 1060, 640, m(4) - 0.2, m(4) + 0.4);
   const f1 = flux(g, 3), f2 = flux(g, 3);
-  const cards = [["Chacun sa part", "chaque parent verse sur son contrat", 4], ["Toujours transmis", "152 500 € d'abattement par contrat", 6], ["Couples non mariés", "chacun garde le sien", 7]].map(([a, b, k], i) => ({ c: bloc(g, 480, 140, a, b, { size: 34, fill: i === 1 ? C.accentSoft : C.face }), x: 400 + i * 560, a: m(k) }));
+  const cards = [["Chacun sa part", "chaque parent verse sur son contrat", 4], ["Toujours transmis", "152 500 € d'abattement par parent", 6], ["Couples non mariés", "chacun garde le sien", 7]].map(([a, b, k], i) => ({ c: bloc(g, 480, 140, a, b, { size: 34, fill: i === 1 ? C.accentSoft : C.face }), x: 400 + i * 560, a: m(k) }));
   const jack = pill(g, 960, 330, "JACKPOT (FINANCIER, ON EST D'ACCORD)", { bg: C.accent, size: 22 });
   const kids = pill(g, 1500, 300, "450 ENFANTS ? ON VOIT ÇA APRÈS", { bg: C.face, size: 20 });
   return t => {
@@ -88,7 +88,7 @@ SC("14", "CHACUN ÉCRIT SA CLAUSE", (g, A) => {
   const leo = member(g, "leo"), age = pill(g, 260, 360, "LÉO · 10 ANS", { bg: C.face, size: 22 }), val = big(g, 260, 470, "8 000 €", 60);
   const ct = contrat(g, "");
   const Q = [["CLAUSE SIMPLE", "Léo touche, Marc gère jusqu'à 18 ans", 4], ["CLAUSE DÉMEMBRÉE", "Marc en profite, puis rend à Léo", 5],
-    ["TIERS ADMINISTRATEUR", "Mamie gère, pas Marc", 6], ["INALIÉNABILITÉ TEMPORAIRE", "bloqué jusqu'à 25 ans", 8]].map(([a, b, k], i) => {
+    ["TIERS ADMINISTRATEUR", "Mamie gère, pas Marc", 6], ["INALIÉNABILITÉ TEMPORAIRE", "posée au don, sur son contrat", 8]].map(([a, b, k], i) => {
     const c = card(g, 560, 170); txt(c, -250, -30, a, 22, { anchor: "start", weight: 800, ls: 4, fill: C.accent }); txt(c, -250, 22, b, 32, { anchor: "start", font: "Serif", weight: 600 });
     return { c, x: 820 + (i % 2) * 600, y: 380 + Math.floor(i / 2) * 210, a: m(k) };
   });
@@ -110,7 +110,7 @@ SC("14", "CHACUN ÉCRIT SA CLAUSE", (g, A) => {
 // ---- 15 · Plusieurs enfants ----
 SC("15", "PLUSIEURS ENFANTS", (g, A) => {
   const m = A.m, head = title(g, 190, "Un enfant, un projet, une clause");
-  const K3 = [["leo", "17 ans", "12 000 €", "permis et école", "Clause simple : il touche", 2, 3, 8], ["camille", "12 ans", "8 000 €", "premier logement", "Bloqué jusqu'à 25 ans", 4, 5, 9],
+  const K3 = [["leo", "17 ans", "12 000 €", "permis et école", "Clause simple : il touche", 2, 3, 8], ["camille", "12 ans", "8 000 €", "premier logement", "Bloqué 25 ans, posé au don", 4, 5, 9],
     ["noe", "6 ans", "5 000 €", "besoin d'être accompagné", "Un tiers de confiance gère", 6, 7, 11]].map(([w, age, v, proj, cl, a, b, c], i) => {
     const x = 400 + i * 560, kid = member(g, w);
     const ag = txt(g, x, 980, age, 22, { weight: 600, fill: C.inkSoft });
@@ -199,7 +199,7 @@ SC("18", "LA CO-SOUSCRIPTION", (g, A) => {
     el("rect", { ...D.line, fill: C.ink, x: -150, y: -45, width: 150, height: 90, rx: 18 }, c); el("rect", { ...D.line, fill: C.accent, x: 0, y: -45, width: 150, height: 90, rx: 18 }, c);
     txt(c, -75, 9, "Marc", 24, { weight: 700, fill: C.paper }); txt(c, 75, 9, "Sophie", 24, { weight: 700 }); txt(c, 0, -66, n, 28, { font: "Serif", weight: 700 });
     return { c, x: 320 + i * 360, a: i ? m(4) - 0.6 + i * 0.3 : m(3) }; });
-  const trois = big(g, 680, 650, "3 contrats au lieu de 6", 50);
+  const trois = big(g, 680, 650, "3 contrats au lieu de 6", 50), abat = pill(g, 1300, 700, "UN SEUL ABATTEMENT DE 152 500 € PAR ENFANT", { bg: C.accentSoft, size: 18 });
   const L = (s, k, ok, y) => { const r = el("g", {}, g); const c = check(r, ok); c.setAttribute("transform", "scale(0.7)");
     txt(r, 44, 12, s, 30, { anchor: "start", font: "Serif", weight: 600 }); return { r, a: m(k), y }; };
   const pros = [L("Moins de contrats, moins de frais", 5, true, 380), L("Colle à la réalité : l'argent est commun", 6, true, 460), L("En pratique, réservé aux couples mariés", 7, false, 540), L("Tout se signe à deux", 8, false, 620)];
@@ -212,7 +212,7 @@ SC("18", "LA CO-SOUSCRIPTION", (g, A) => {
     show(head, fade(t, m(1) - 0.5) * p1); place(solid.g, solid.x, solid.y, pop(t, m(1) - 0.2) * p1);
     duo.forEach(d => place(d.c, d.x, 480, pop(t, d.a - 0.3) * p1));
     show(trois, fade(t, m(4)) * p1);
-    pros.forEach(p => place(p.r, 1300, p.y, pop(t, p.a - 0.3) * p1));
+    pros.forEach(p => place(p.r, 1300, p.y, pop(t, p.a - 0.3) * p1)); place(abat.g, abat.x, abat.y, pop(t, m(6) + 1.2) * out(t, m(7) - 0.4));
     cam.at(t, m(9) - 0.5, 520, 900, { k: p2, armR: -30 }); place(conc.g, conc.x, conc.y - 200, pop(t, m(9)) * p2);
     marc.at(t, m(9) + 0.6, 900, 900, { k: p2, armR: 20 }); sophie.at(t, m(10) - 0.3, 1400, 900, { k: p2, flip: true, armR: t > m(10) + 0.3 ? -40 : 75 });
     place(sign, 1160, 560, pop(t, m(10)) * p2); place(no, 1220, 500, pop(t, m(10) + 0.5) * p2);
@@ -228,7 +228,7 @@ SC("19", "CO-SOUSCRIPTION · DONNER, TRANSMETTRE", (g, A) => {
   const r5 = pill(g, 760, 330, "RACHAT : 5 000 €", { bg: C.accent, size: 26 });
   const parts = [pill(g, 0, 0, "2 500 € DE MARC", { bg: C.ink, fg: C.paper, size: 20 }), pill(g, 0, 0, "2 500 € DE SOPHIE", { bg: C.accent, size: 20 })];
   const ab = pill(g, 760, 820, "GAINS : 9 200 € D'ABATTEMENT PAR AN APRÈS 8 ANS", { bg: C.face, size: 20 });
-  const pa = pill(g, 760, 900, "+ UN PACTE ADJOINT POUR ENCADRER L'USAGE", { bg: C.face, size: 20 });
+  const pa = pill(g, 760, 900, "UN AN AVANT : UN CONTRAT AU NOM DE LÉO + PACTE ADJOINT", { bg: C.face, size: 20 });
   const o1 = bloc(g, 700, 220, "Option 1 · au premier décès", "le contrat se ferme, Léo touche tout", { size: 36 });
   const o2 = bloc(g, 700, 220, "Option 2 · au second décès", "le survivant garde, Léo touche à la fin", { size: 36, fill: C.accentSoft });
   const choix = pill(g, 960, 330, "LE COUPLE CHOISIT À L'OUVERTURE", { bg: C.accent, size: 24 });

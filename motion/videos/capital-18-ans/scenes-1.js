@@ -236,7 +236,7 @@ SC("08", "SCHÉMA A · LE DÉCÈS D'UN PARENT", (g, A) => {
   const cts = [0, 1, 2].map(() => contrat(g, "LÉO", { lock: true }));
   const juge = pill(g, 960, 830, "SOUS LE CONTRÔLE DU JUGE", { bg: C.face, size: 18 });
   const vol = volant(g);
-  const banner = card(g, 1500, 110, { fill: C.ink }); txt(banner, 0, 12, "Schéma A : rien à écrire, rien à régler. Le don est fait.", 34, { font: "Serif", weight: 600, fill: C.paper });
+  const banner = card(g, 1500, 110, { fill: C.ink }); txt(banner, 0, 12, "Schéma A : au décès, rien à régler. Le don est fait.", 34, { font: "Serif", weight: 600, fill: C.paper });
   const pep = pill(g, 960, 1010, "LE PÉPIN : LES PARENTS PERDENT LA MAIN À SES 18 ANS", { bg: C.accent, size: 22 });
   return t => {
     show(head, fade(t, m(1) - 0.5));

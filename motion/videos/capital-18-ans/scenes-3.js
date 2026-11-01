@@ -7,13 +7,14 @@ SC("22", "LES OUTILS · LA CLAUSE « DINA »", (g, A) => {
   const sh = el("g", {}, g); shield(sh); const shL = padlock(sh); shL.g.setAttribute("transform", "translate(0 0) scale(0.55)");
   const name = big(g, 960, 300, "La clause d'inaliénabilité temporaire", 50);
   const dina = pill(g, 960, 380, "ALIAS LA CLAUSE « DINA »", { bg: C.accent, size: 24 });
-  const where = pill(g, 960, 380, "DANS LA CLAUSE BÉNÉFICIAIRE · SCHÉMA B", { bg: C.face, size: 22 });
-  const steps = [["AUJOURD'HUI", "vous gardez 100 % de la main", 4], ["VOUS DÉCÉDEZ", "le capital revient à l'enfant", 5], ["BLOQUÉ", "jusqu'à 25 ans, souvent", 6], ["ENSUITE", "il en dispose librement", 7]].map(([a, b, k], i) => {
+  const where = pill(g, 960, 380, "DANS UN PACTE ADJOINT · CONTRAT AU NOM DE L'ENFANT", { bg: C.face, size: 22 });
+  const steps = [["LE DON", "vous donnez", 4], ["SON CONTRAT", "l'argent arrive à son nom", 5], ["BLOQUÉ", "entre 18 et 25 ans", 6], ["ENSUITE", "il en dispose librement", 7]].map(([a, b, k], i) => {
     const c = card(g, 380, 150, { fill: i === 2 ? C.ink : C.face }); txt(c, 0, -22, a, 22, { weight: 800, ls: 5, fill: C.accent });
     txt(c, 0, 26, b, 26, { font: "Serif", weight: 600, fill: i === 2 ? C.paper : C.ink }); return { c, x: 300 + i * 440, a: m(k) };
   });
   const arrs = [0, 1, 2].map(i => arrow(g, 495 + i * 440, 560, 545 + i * 440, 560, m(5 + i) - 0.5, m(5 + i) - 0.2, { w: 6 }));
-  const cb = pill(g, 960, 690, "UTILE SI L'ENFANT A LA MAIN RAPIDE SUR LA CARTE BLEUE", { bg: C.face, size: 18 });
+  const cb = pill(g, 960, 690, "UTILE SI L'ENFANT A LA MAIN RAPIDE SUR LA CARTE BLEUE", { bg: C.face, size: 18 }), sb = pill(g, 960, 690, "SCHÉMA B : ON OUVRE SON CONTRAT ET ON POSE LE BLOCAGE LE JOUR DU DON", { bg: C.accentSoft, size: 18 });
+  const relais = pill(g, 960, 820, "SI VOUS DISPARAISSEZ AVANT : UNE PERSONNE DE CONFIANCE PREND LE RELAIS", { bg: C.accentSoft, size: 18 });
   const no = [["RACHETER", 8], ["VENDRE", 9], ["DONNER", 10], ["METTRE EN GARANTIE", 11]].map(([s, k], i) => ({ p: pill(g, 0, 0, s, { bg: C.face, size: 22 }), a: m(k), x: 330 + i * 340 }));
   const bars = no.map(() => el("path", { ...D.line, stroke: C.accent, "stroke-width": 6, d: "M-90 0 L90 0" }, g));
   const valid = card(g, 1500, 110, { fill: C.ink }); const vt = txt(valid, 0, 12, "", 32, { font: "Serif", weight: 600, fill: C.paper });
@@ -23,7 +24,9 @@ SC("22", "LES OUTILS · LA CLAUSE « DINA »", (g, A) => {
     show(name, fade(t, m(2) - 0.3)); place(dina.g, dina.x, dina.y, pop(t, m(2) + 0.6) * out(t, m(3) - 0.3)); place(where.g, where.x, where.y, pop(t, m(3)));
     steps.forEach(s => place(s.c, s.x, 560, pop(t, s.a - 0.3)));
     arrs.forEach(a => a.render(t));
-    place(cb.g, cb.x, cb.y, pop(t, m(7) + 0.6) * out(t, m(8) - 0.2));
+    place(sb.g, sb.x, sb.y, pop(t, m(7) + 0.6) * out(t, m(7) + 0.6 + 0.55 * (m(8) - m(7) - 0.6)));
+    place(cb.g, cb.x, cb.y, pop(t, m(7) + 0.6 + 0.6 * (m(8) - m(7) - 0.6)) * out(t, m(8) - 0.2));
+    place(relais.g, relais.x, relais.y, pop(t, m(11) + 1.0) * out(t, m(12) - 0.4));
     no.forEach((n, i) => { place(n.p.g, n.x + 140, 720, pop(t, n.a - 0.2)); place(bars[i], n.x + 140, 720, pop(t, n.a + 0.2)); });
     vt.textContent = t < m(13) - 0.3 ? "Pour être valable : temporaire…" : "Pour être valable : temporaire, et un intérêt sérieux (études, maturité).";
     place(valid, 960, 900, pop(t, m(12) - 0.3));
@@ -65,9 +68,9 @@ SC("23", "LES OUTILS · LE DÉMEMBREMENT", (g, A) => {
 SC("24", "LES OUTILS · LE PACTE ADJOINT", (g, A) => {
   const m = A.m, head = title(g, 190, "Le pacte adjoint au don manuel");
   const gift = cadeau(g), doc = el("g", {}, g); D.icons.contract(doc);
-  const use = pill(g, 380, 330, "SCHÉMA A · POCHE A DU SCHÉMA C", { bg: C.face, size: 18 });
+  const use = pill(g, 380, 330, "SCHÉMA A · POCHE A DU SCHÉMA C · DON EN SCHÉMA B", { bg: C.face, size: 16 });
   const lab = txt(g, 380, 820, "un don, et un écrit qui en fixe les règles", 26, { font: "Serif", weight: 600, fill: C.inkSoft });
-  const nt = notaire(g);
+  const nt = notaire(g), modele = pill(g, 380, 880, "MODÈLE DE L'ASSUREUR · SUR-MESURE : LE NOTAIRE", { bg: C.accentSoft, size: 16 });
   const Q = [["toque", "Clause d'emploi", "études, logement, voiture", 4], ["lock", "Inaliénabilité", "rien avant un âge fixé", 5], ["people", "Administration", "un parent ou un tiers gère", 6], ["back", "Droit de retour", "les fonds vous reviennent", 7]].map(([k, a, b, mk], i) => {
     const c = card(g, 560, 220); const ic = el("g", { transform: "translate(-200 -10) scale(0.6)" }, c);
     if (k === "toque") toque(ic); else if (k === "lock") padlock(ic); else if (k === "people") { D.guy(ic).place(-30, 120, 0.4); D.guy(ic, { hair: "f", vest: C.inkSoft }).place(40, 120, 0.4); }
@@ -80,7 +83,7 @@ SC("24", "LES OUTILS · LE PACTE ADJOINT", (g, A) => {
     place(use.g, use.x, use.y, pop(t, m(1)));
     place(gift, 330, 600, pop(t, m(2) - 0.3) * 1.3);
     place(doc, 470, 560, pop(t, m(3) - 0.3) * 1.2, 8); lab.style.opacity = fade(t, m(3));
-    place(nt, 380, 960, pop(t, m(3)) * 0.0);
+    place(nt, 380, 960, pop(t, m(3)) * 0.0); place(modele.g, modele.x, modele.y, pop(t, m(3) + 1.0));
     Q.forEach(q => place(q.c, q.x, q.y, pop(t, q.a - 0.3)));
   };
 });
@@ -188,7 +191,7 @@ SC("29", "TROIS POINTS DE VIGILANCE", (g, A) => {
     txt(cd, -200, 56, b, 24, { anchor: "start", weight: 500, fill: C.inkSoft }); txt(cd, -200, 90, c, 24, { anchor: "start", weight: 500, fill: C.inkSoft });
     return { cd, x: 400 + i * 560, a: m(k) };
   });
-  const nt = notaire(g);
+  const nt = notaire(g), modele = pill(g, 380, 880, "MODÈLE DE L'ASSUREUR · SUR-MESURE : LE NOTAIRE", { bg: C.accentSoft, size: 16 });
   return t => {
     show(head, fade(t, m(1) - 0.5));
     P.forEach(p => place(p.cd, p.x, 560, pop(t, p.a - 0.3)));
@@ -229,7 +232,7 @@ SC("31", "CHACUN SON MÉTIER", (g, A) => {
   const li = [LI(left, 290, 470, "Fixer l'objectif à 18 ans", 3), LI(left, 290, 530, "Choisir le contrat et l'allocation", 3), LI(left, 290, 590, "Mettre en place les versements", 4), LI(left, 290, 650, "Suivre et ajuster chaque année", 5),
     LI(right, 1070, 470, "Trancher : schéma A, B ou C", 6, true), LI(right, 1070, 530, "Rédiger les clauses et le pacte", 6, true), LI(right, 1070, 590, "Sécuriser la succession", 6, true), LI(right, 1070, 650, "Déclarer les dons", 6, true)];
   const plus = el("g", {}, g); el("circle", { ...D.line, fill: C.accent, r: 46 }, plus); el("path", { ...D.line, "stroke-width": 8, d: "M-20 0 L20 0 M0 -20 L0 20" }, plus);
-  const nt = notaire(g);
+  const nt = notaire(g), modele = pill(g, 380, 880, "MODÈLE DE L'ASSUREUR · SUR-MESURE : LE NOTAIRE", { bg: C.accentSoft, size: 16 });
   const secu = pill(g, 960, 870, "UNE SÉCURITÉ DE DINGUE", { bg: C.accent, size: 24 });
   const q1 = big(g, 960, 470, "Le meilleur moment pour commencer,", 60), q2 = big(g, 960, 550, "c'était à sa naissance.", 60), q3 = big(g, 960, 680, "Le deuxième, c'est aujourd'hui.", 72, C.inkSoft);
   const sp = el("g", {}, g); const spI = el("g", { transform: "scale(1.6)" }, sp); D.icons.sprout(spI);

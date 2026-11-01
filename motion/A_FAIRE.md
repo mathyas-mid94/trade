@@ -95,6 +95,8 @@ Style Dalio + palette MIC, intro thématique, outro site, voix ElevenLabs (clone
       retirés du texte : « la moitié des retraités sous le seuil de pauvreté » (faux, ≈ 10 %) et « système de Napoléon »
 
 ## Vidéo « Un capital pour ses 18 ans » (`videos/capital-18-ans/`, suite de l'assurance vie)
+- [ ] 8 passages corrigés (parties 08, 13, 14, 15, 18, 19, 22, 24 : inaliénabilité via pacte adjoint sur un contrat au nom de l'enfant, abattement par parent, co-souscription = un seul abattement…) → `elevenlabs/correction/corrections_novembre.txt` à générer, puis recollage, recalage, rendu normal + ×1,25
+- [ ] Slides : slide 20 « 4 contrats au lieu de 6 » → 3 (la vidéo dit déjà 3)
 - [x] Transcript brut des 2 parties (`TRANSCRIPT.md`) → script unique, tutoiement, ton Mathyas (`SCRIPT.md`, 32 parties, ~21 min estimées)
 - [x] Version muette sur minutage estimé (`tools/estime.py` → `estimation.js`), intro + outro thème « enfants »
 - [x] Voix ElevenLabs reçue (3 MP3), calage `REPRISES=0 PAUSE=1.2 align.py` (REPRISES=0 : sinon les tournures répétées exprès sont coupées)
