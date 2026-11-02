@@ -337,8 +337,8 @@ body.nobar #barTab:hover{opacity:1}
 </nav>
 <button id="barTab" title="Afficher la barre (H)">▴ menu</button>
 <div id="pdfMenu" class="hidden">
-  <button data-pdf="bilan">Bilan client<small>de « Votre Bilan Patrimonial » à la fin</small></button>
-  <button data-pdf="all">Présentation complète<small>toutes les slides</small></button>
+  <button data-pdf="all">Rendez-vous complet<small>toutes les slides, de A à Z</small></button>
+  <button data-pdf="bilan">Bilan seul<small>de « Votre Bilan Patrimonial » à la fin</small></button>
 </div>
 <div id="toast"></div>
 
@@ -1119,7 +1119,7 @@ const SLIDES = [
     <div style="font-size:30px;font-style:italic">Conseil en Gestion de Patrimoine Indépendant</div>
     <div style="font-size:28px;margin-top:40px">Merci <span data-o="clientTxt"></span> pour votre confiance.</div>
     <div style="font-size:22px;margin-top:30px">${CONFIG.advisor} · CIF enregistré · ${CONFIG.phone}</div>
-    <div><button class="btn dk noprint" id="pdf2" style="margin-top:34px">⤓ Télécharger le bilan en PDF</button></div>
+    <div><button class="btn dk noprint" id="pdf2" style="margin-top:34px">⤓ ${MODE==='full'?'Télécharger le rendez-vous complet en PDF':'Télécharger le bilan en PDF'}</button></div>
   </div>
   <div style="position:absolute;left:60px;right:60px;bottom:18px;font-size:13px;color:var(--green3);text-align:center;line-height:1.4" data-o="legal"></div>`},
 ].filter(s=>s.modes.includes(MODE));
@@ -1505,7 +1505,7 @@ function pdf(scope='all'){
   document.activeElement && document.activeElement.blur();
   stage.querySelectorAll('.slide').forEach((s,i)=>s.classList.toggle('skipprint', scope==='bilan' && SLIDES[i].part==='pres'));
   const old=document.title;
-  document.title=`${scope==='all'&&MODE==='full'?'Présentation':'Bilan patrimonial'} MIC${S.client?' — '+S.client:''}`;
+  document.title=`${scope==='all'&&MODE==='full'?'Rendez-vous patrimonial':'Bilan patrimonial'} MIC${S.client?' — '+S.client:''}`;
   toast('Destination : « Enregistrer au format PDF », marges : aucune.');
   setTimeout(()=>{ window.print(); document.title=old; },350);
 }
@@ -1513,7 +1513,7 @@ window.addEventListener('beforeprint',()=>{ printing=true; renderQuiz(); });
 window.addEventListener('afterprint',()=>{ printing=false; renderQuiz(); stage.querySelectorAll('.skipprint').forEach(s=>s.classList.remove('skipprint')); });
 document.getElementById('bPdf').onclick=()=>{ if(MODE==='full') document.getElementById('pdfMenu').classList.toggle('hidden'); else pdf('all'); };
 document.querySelectorAll('[data-pdf]').forEach(b=>b.onclick=()=>pdf(b.dataset.pdf));
-document.getElementById('pdf2').onclick=()=>pdf(MODE==='full'?'bilan':'all');
+document.getElementById('pdf2').onclick=()=>pdf('all');
 document.getElementById('bReset').onclick=()=>{
   if(!confirm('Effacer toutes les saisies et démarrer un nouveau client ?')) return;
   sessionStorage.removeItem(SKEY); sessionStorage.removeItem(SKEY+'-slide'); location.reload();

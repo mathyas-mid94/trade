@@ -12,8 +12,8 @@ touches 1 à 6 pour répondre au questionnaire.
 
 **Valeurs ajustables** : les cases de la synthèse, le revenu estimé à la retraite (relevé du client) et le patrimoine global
 (repris de Majors) sont calculés automatiquement mais restent modifiables ; « ↺ » revient au calcul.
-**PDF** : bouton « PDF », puis « Enregistrer au format PDF » avec marges « Aucune ». La version complète propose
-« Bilan client » (de « Votre Bilan Patrimonial » à la fin) ou « Présentation complète ».
+**PDF** : bouton « PDF », puis « Enregistrer au format PDF » avec marges « Aucune ». Dans la version complète, le bouton
+de la dernière slide télécharge tout le rendez-vous (slides 1 à 22) ; le menu « PDF » propose aussi le bilan seul.
 
 Les saisies restent dans l'onglet et disparaissent à sa fermeture (bouton « Nouveau client » pour repartir de zéro).
 
