@@ -149,7 +149,9 @@ textarea.note:focus{box-shadow:0 0 0 3px var(--gold) inset}
 .cell{position:relative}
 .cell input.v{width:120px;text-align:right;color:var(--gold);border-bottom-color:rgba(201,169,123,.35)}
 .ovreset{position:absolute;top:35px;right:18px;width:30px;height:30px;border-radius:50%;border:0;background:var(--gold);color:var(--green);font-size:17px;font-weight:700;display:none}
-@media screen{.cell.edited{box-shadow:0 0 0 3px var(--gold) inset}.cell.edited .ovreset{display:block}}
+@media screen{.cell.edited{box-shadow:0 0 0 3px var(--gold) inset}.cell.edited .ovreset{display:block}
+  .pill.edited{box-shadow:0 0 0 3px var(--gold) inset}.pill.edited .ovreset{display:inline-block}}
+.pill .ovreset{position:static;align-self:center;margin-right:6px;font-style:normal}
 
 /* ---------- présentation (slides 1 à 8) ---------- */
 .card4{display:flex;gap:30px;background:var(--green3);border-radius:70px;padding:44px 44px 40px 40px;min-height:240px}
@@ -521,12 +523,14 @@ function calc(){
   const patTotal = n(S.patFin)+n(S.patImmo);
   const L=n(S.livrets), r=n(S.livretRate)/100, rt=n(S.targetRate)/100, inf=n(S.inflation)/100;
   const L10=L*Math.pow(1+r,10), I10=L*Math.pow(1+inf,10), T10=L*Math.pow(1+rt,10);
-  const partImmo = patTotal? n(S.patImmo)/patTotal : 0;
+  // valeurs calculées (auto) mais ajustables par le conseiller (S.ov)
+  const ov = S.ov||{}, auto = {}, pick = (k,v) => { auto[k]=v; return ov[k]!=null ? ov[k] : v; };
+  const patGlobal = pick('patGlobal', patTotal);          // repris de Majors si besoin
+  const partImmo = patGlobal? n(S.patImmo)/patGlobal : 0;
   const debtRate = netM? n(S.mensualites)/netM : 0;
-  const est = r1/12*S.retRate, w=n(S.retWanted), toCreate=Math.max(0,w-est);
+  const est = pick('est', r1/12*S.retRate), w=n(S.retWanted), toCreate=Math.max(0,w-est);   // est : relevé de retraite si saisi
   const capital = toCreate*12/CONFIG.withdrawRate;
   // synthèse : chaque valeur est calculée (auto) mais peut être ajustée par le conseiller (S.ov)
-  const ov = S.ov||{}, auto = {}, pick = (k,v) => { auto[k]=v; return ov[k]!=null ? ov[k] : v; };
   const patFinS   = pick('patFinS', n(S.patFin));
   const reserve   = pick('reserve', CONFIG.reserveMonths*netM);
   const investable= pick('investable', Math.max(0, patFinS-reserve));
@@ -539,7 +543,7 @@ function calc(){
   const borrow    = pick('borrow', pmt2capital(debtMargin, CONFIG.loan.rate, CONFIG.loan.years));
   return {couple, r1, r2, revFoyer, netM, rni, parts, ir, irUsed, tmi:tmi(qfUsed), tauxMoyen: revFoyer? irUsed/revFoyer:0,
     ps, totalTax, years, proj: totalTax*years, patTotal, L, r, rt, inf, L10, I10, T10, gapPts:(rt-r)*100,
-    partImmo, debtRate, est, w, toCreate, capital, reserve, investable, shortfall, cap, precaution, dispo, debtMargin, borrow, patFinS, debtRateS, auto};
+    partImmo, patGlobal, debtRate, est, w, toCreate, capital, reserve, investable, shortfall, cap, precaution, dispo, debtMargin, borrow, patFinS, debtRateS, auto};
 }
 
 /* profil : scores, bande, correspondance avec la slide à pilules */
@@ -623,6 +627,8 @@ const FOOT = `<div class="foot">${CONFIG.firm} · CGP Indépendant · ${CONFIG.e
 const inp = (k,ph='',w,extra='') => `<input class="v ${extra}" data-k="${k}" inputmode="decimal" autocomplete="off" placeholder="${ph}" ${w?`style="width:${w}px"`:''}>`;
 const txt = (k,ph='',style='',extra='') => `<input class="v ${extra}" data-k="${k}" data-t="txt" autocomplete="off" placeholder="${ph}" style="${style}">`;
 const out = k => `<span data-o="${k}">—</span>`;
+const ovIn = (k,w) => `<input class="v ovr" data-ov="${k}" inputmode="decimal" autocomplete="off" placeholder="—" style="width:${w}px">`;
+const ovBtn = k => `<button class="ovreset noprint" data-ovreset="${k}" title="Revenir au calcul automatique">↺</button>`;
 const CHECK = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#234d47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${P.check}</svg>`;
 
 /* badges AMF / RGPD : tout est dessiné dans un cercle de 280 px, centré au pixel */
@@ -940,7 +946,7 @@ const SLIDES = [
       <div class="logo">${LOGO(false)}</div>
       <h2 class="title">L'investissement immobilier</h2><div class="bar" style="width:290px"></div>
       <div class="anim" style="display:flex;flex-direction:column;gap:12px;margin-top:34px">
-        <div class="pill b1"><span class="lab">Votre patrimoine global actuel (actif net)</span><span class="val">${out('patTotal')}</span></div>
+        <div class="pill b1"><span class="lab">Votre patrimoine global actuel (actif net)<small data-o="globalSub"></small></span><span class="val">${ovBtn('patGlobal')}${ovIn('patGlobal',190)}<span class="unit">€</span></span></div>
         <div class="pill b2"><span class="lab">Votre patrimoine immobilier actuel (actif net)</span><span class="val">${inp('patImmo','0')}<span class="unit">€</span></span></div>
         <div class="pill b1"><span class="lab">% de l'immobilier / global (actif net)</span><span class="val">${out('partImmo')}</span></div>
         <div class="pill b2"><span class="lab">Mensualités de crédit en cours</span><span class="val">${inp('mensualites','0',140)}<span class="unit">€/mois</span></span></div>
@@ -967,7 +973,7 @@ const SLIDES = [
         <div class="pill b1" style="min-height:96px"><span class="lab">Revenus souhaités<small>en euros d'aujourd'hui</small></span><span class="val">${inp('retWanted','2 500',150)}<span class="unit">€ / mois</span></span></div>
         <div class="pill b2" style="min-height:96px"><span class="lab">Revenus estimés
             <span class="seg" data-seg="retRate" style="display:inline-flex;vertical-align:middle;margin-left:10px;background:rgba(35,77,71,.1)">${CONFIG.replaceRates.map(r=>`<button data-v="${r}" style="color:var(--green)">${r*100} %</button>`).join('')}</span>
-            <small data-o="retSub"></small></span><span class="val">${out('est')}<span class="unit">€ / mois</span></span></div>
+            <small data-o="retSub"></small></span><span class="val">${ovBtn('est')}${ovIn('est',140)}<span class="unit">€ / mois</span></span></div>
         <div class="pill gold" style="min-height:96px;font-style:normal" data-p="ret"><span class="lab" style="font-weight:400">Revenus à créer<small data-o="capitalSub" style="font-weight:400"></small></span><span class="val">${out('toCreate')}<span class="unit">€ / mois</span></span></div>
       </div>
       <textarea class="note" data-k="retNote" data-t="txt" rows="5" style="margin-top:30px" placeholder="Des remarques et des commentaires sur votre retraite ?"></textarea>
@@ -1144,7 +1150,7 @@ function bindFields(root){
 bindFields(stage);
 stage.querySelectorAll('[data-seg]').forEach(g=>{
   const k=g.dataset.seg;
-  g.querySelectorAll('button').forEach(b=>b.onclick=()=>{ const v=b.dataset.v; S[k] = v==='true'?true : v==='false'?false : isNaN(+v)?v:+v; refresh(); });
+  g.querySelectorAll('button').forEach(b=>b.onclick=()=>{ const v=b.dataset.v; if(k==='retRate') delete S.ov.est; S[k] = v==='true'?true : v==='false'?false : isNaN(+v)?v:+v; refresh(); });
 });
 stage.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{ S.enfants=Math.max(0,Math.min(10,n(S.enfants)+(+b.dataset.step))); refresh(); });
 stage.querySelectorAll('[data-chips]').forEach(g=>{
@@ -1157,13 +1163,14 @@ stage.querySelectorAll('[data-ov]').forEach(el=>{
   el.addEventListener('keydown',e=>{ if(e.key==='Enter') el.blur(); });
 });
 stage.querySelectorAll('[data-ovreset]').forEach(b=>b.onclick=()=>{ delete S.ov[b.dataset.ovreset]; refresh(); });
-{ const oa=document.getElementById('ovAll'); if(oa) oa.onclick=()=>{ S.ov={}; refresh(); }; }
+{ const oa=document.getElementById('ovAll'); if(oa) oa.onclick=()=>{ SYN.forEach(k=>delete S.ov[k]); refresh(); }; }
 stage.querySelectorAll('[data-simp] .chip').forEach(b=>b.onclick=()=>{ S.simProfile=+b.dataset.v; refresh(); });
 stage.querySelectorAll('[data-rate]').forEach(g=>{
   const k=g.dataset.rate;
   g.querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.prio[k] = S.prio[k]===+b.dataset.v ? 0 : +b.dataset.v; refresh(); });
 });
 stage.querySelectorAll('[data-goid]').forEach(b=>b.onclick=()=>show(idx(b.dataset.goid)));
+const SYN = ['patFinS','reserve','investable','precaution','dispo','debtRate','debtMargin','borrow'];
 const DOC_ST = ['À initier','En cours','Signé ✓'];
 stage.querySelectorAll('[data-doc]').forEach(d=>d.onclick=()=>{ const i=+d.dataset.doc; S.docs[i]=(S.docs[i]+1)%3; refresh(); });
 
@@ -1337,7 +1344,7 @@ function refresh(){
   if(c.netM && c.debtRate>CONFIG.debtCap) alerts.push(`Endettement à <b>${pct(c.debtRate)}</b>, au-dessus du seuil de ${pct(CONFIG.debtCap,0)}`);
   else if(c.netM && c.borrow>0) alerts.push(`Capacité d'emprunt disponible : environ <b>${eur(c.borrow)}</b>`);
   if(c.patTotal && c.partImmo>.7) alerts.push(`Patrimoine concentré sur l'immobilier : <b>${pct(c.partImmo,0)}</b>`);
-  if(c.toCreate>0 && c.r1) alerts.push(`Retraite : <b>${eur(c.toCreate)}/mois</b> de revenus à créer`);
+  if(c.toCreate>0 && (c.r1||S.ov.est!=null)) alerts.push(`Retraite : <b>${eur(c.toCreate)}/mois</b> de revenus à créer`);
   if(c.shortfall>0 && c.netM) alerts.push(`Réserve de précaution incomplète : il manque <b>${eur(c.shortfall)}</b>`);
   const has = c.revFoyer||S.irAvis!=null;
   const O = {
@@ -1359,13 +1366,14 @@ function refresh(){
     livretRateTxt: `Livret A ${fmt(n(S.livretRate),1)} %`,
     gapPts: (c.gapPts>=0?'+':'')+fmt(c.gapPts,1)+' %',
     chart: chart(c),
-    partImmo: c.patTotal ? pct(c.partImmo) : '— %',
+    partImmo: c.patGlobal ? pct(c.partImmo) : '— %',
+    globalSub: S.ov.patGlobal!=null ? `montant ajusté (Majors) · calcul : ${eur(c.auto.patGlobal)}` : 'financier + immobilier net, modifiable',
     debtRate: c.netM ? pct(c.debtRate) : '— %',
     debtSub: c.netM ? `${eur(n(S.mensualites))} / ${eur(c.netM)} de revenus nets mensuels · seuil ${pct(CONFIG.debtCap,0)}` : 'renseignez les salaires (slide Fiscalité)',
-    est: c.r1 ? fmt(Math.round(c.est)) : '—',
-    retSub: c.r1 ? `${pct(S.retRate,0)} de votre revenu actuel (${eur(c.r1/12)}/mois)${S.retRate===.25?' — données INSEE 2050':''}` : 'renseignez votre salaire (slide Fiscalité)',
-    toCreate: c.w && c.r1 ? fmt(Math.round(c.toCreate)) : '—',
-    capitalSub: c.toCreate>0 && c.r1 ? `soit un capital d'environ ${eur(c.capital)} à constituer (retraits de ${pct(CONFIG.withdrawRate,0)}/an)` : '',
+    retSub: S.ov.est!=null ? `relevé de retraite du client${c.r1?` · calcul ${pct(S.retRate,0)} : ${eur(c.auto.est)}`:''}`
+          : c.r1 ? `${pct(S.retRate,0)} de votre revenu actuel (${eur(c.r1/12)}/mois)${S.retRate===.25?' — données INSEE 2050':''}` : 'renseignez votre salaire (slide Fiscalité)',
+    toCreate: c.w && (c.r1||S.ov.est!=null) ? fmt(Math.round(c.toCreate)) : '—',
+    capitalSub: c.toCreate>0 && (c.r1||S.ov.est!=null) ? `soit un capital d'environ ${eur(c.capital)} à constituer (retraits de ${pct(CONFIG.withdrawRate,0)}/an)` : '',
     patFinPct: c.patFinS+n(S.patImmo) ? pct(c.patFinS/(c.patFinS+n(S.patImmo)),0)+' du total' : '',
     reservePct: c.patFinS? pct(Math.min(1,c.reserve/c.patFinS),0):'',
     investablePct: c.patFinS? pct(c.investable/c.patFinS,0):'',
@@ -1373,7 +1381,7 @@ function refresh(){
     precPct: c.cap? pct(c.precaution/c.cap,0):'',
     dispoPct: c.cap? pct(c.dispo/c.cap,0):'',
     debtMarginPts: c.netM||S.ov.debtRate!=null ? `${fmt(Math.max(0,(CONFIG.debtCap-c.debtRateS)*100),1)} pts` : '',
-    synthNote: (Object.keys(S.ov).some(k=>S.ov[k]!=null) ? `<b>Valeurs ajustées avec votre conseiller.</b> ` : '') + `Calcul par défaut : réserve = ${CONFIG.reserveMonths} mois de revenus nets · précaution = complément de réserve lissé sur 12 mois · capital empruntable : ${fmt(CONFIG.loan.rate,1)} % sur ${CONFIG.loan.years} ans, seuil d'endettement ${pct(CONFIG.debtCap,0)}.`,
+    synthNote: (SYN.some(k=>S.ov[k]!=null) ? `<b>Valeurs ajustées avec votre conseiller.</b> ` : '') + `Calcul par défaut : réserve = ${CONFIG.reserveMonths} mois de revenus nets · précaution = complément de réserve lissé sur 12 mois · capital empruntable : ${fmt(CONFIG.loan.rate,1)} % sur ${CONFIG.loan.years} ans, seuil d'endettement ${pct(CONFIG.debtCap,0)}.`,
     profilNote: res ? `Prérempli d'après le questionnaire (profil ${res.p.key}) — ajustable d'un clic. Le profil conditionne les recommandations qui vous seront faites.`
                     : 'Le profil est établi par questionnaire de conformité — il conditionne les recommandations qui vous seront faites.',
     shockTxt: `± ${sh} %`, amt: eur(A), eqTxt: `dont ${pct(sp.eq,0)} d'actifs dynamiques`,
@@ -1391,19 +1399,19 @@ function refresh(){
 
   stage.querySelectorAll('[data-o]').forEach(el=>{ const k=el.dataset.o; if(k in O) el.innerHTML=O[k]; });
   const OVDEC={debtRate:1};
-  const OVNEED={debtRate:1,debtMargin:1,borrow:1,reserve:1};   // n'ont de sens qu'avec des revenus saisis
+  const OVNEED={debtRate:c.netM,debtMargin:c.netM,borrow:c.netM,reserve:c.netM,est:c.r1,patGlobal:c.patTotal};   // vide tant que la base n'est pas saisie
   stage.querySelectorAll('[data-ov]').forEach(el=>{
     const k=el.dataset.ov, edited=S.ov[k]!=null;
-    el.closest('.cell').classList.toggle('edited',edited);
+    el.closest('.cell,.pill').classList.toggle('edited',edited);
     if(document.activeElement===el) return;
     const v = edited ? S.ov[k] : c.auto[k];
-    el.value = (!edited && OVNEED[k] && !c.netM) ? '' : fmtIn(OVDEC[k] ? Math.round(v*10)/10 : Math.round(v));
+    el.value = (!edited && k in OVNEED && !OVNEED[k]) ? '' : fmtIn(OVDEC[k] ? Math.round(v*10)/10 : Math.round(v));
   });
-  const oa=document.getElementById('ovAll'); if(oa) oa.classList.toggle('hidden', !Object.keys(S.ov).some(k=>S.ov[k]!=null));
+  const oa=document.getElementById('ovAll'); if(oa) oa.classList.toggle('hidden', !SYN.some(k=>S.ov[k]!=null));
   stage.querySelectorAll('[data-phk]').forEach(el=>{ el.placeholder = O[el.dataset.phk]||''; });
   stage.querySelectorAll('[data-show="couple"]').forEach(e=>e.classList.toggle('hidden', !c.couple));
   stage.querySelectorAll('[data-show="isoleRow"]').forEach(e=>e.classList.toggle('hidden', c.couple || !n(S.enfants)));
-  stage.querySelectorAll('[data-seg]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', String(S[g.dataset.seg])===b.dataset.v)));
+  stage.querySelectorAll('[data-seg]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', String(S[g.dataset.seg])===b.dataset.v && !(g.dataset.seg==='retRate' && S.ov.est!=null))));
   stage.querySelectorAll('[data-chips]').forEach(g=>g.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on', S[g.dataset.chips]===+b.dataset.v)));
   stage.querySelectorAll('[data-simp] .chip').forEach(b=>b.classList.toggle('on', +b.dataset.v===simBand));
   stage.querySelectorAll('[data-rate]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', S.prio[g.dataset.rate]===+b.dataset.v)));
