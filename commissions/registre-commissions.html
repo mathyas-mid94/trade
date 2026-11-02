@@ -193,7 +193,7 @@ function tauxSupports(c) {
 
 let db = null, S = { ...DEFAULTS }, contrats = [], partenaires = [], loaded = false;
 let OBJ = { lignes: [1, 2, 3, 4, 5].map(h => ({ h, encRem: "", linNN: "", upNN: "" })), capLin: "", capUp: "", ticketInit: "", vpReal: "" };
-let chartMode = "net", tab = "bord", filtre = "", cumul = false;
+let chartMode = "net", tab = "bord", filtre = "", cumul = false, prevVue = "tout";
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -555,14 +555,22 @@ function rowC(p) {
     <td>${tags.join(" ")}</td></tr>`;
 }
 
+function vueSeg() {
+  const o = [["tout", "Ensemble"], ["lin", "Linéaire"], ["up", "Upfront"]];
+  return `<div class="seg" role="group" aria-label="Vue">${o.map(([k, l]) => `<button type="button" data-pv="${k}" aria-pressed="${prevVue === k}">${l}</button>`).join("")}</div>`;
+}
+function bindVue() { document.querySelectorAll("[data-pv]").forEach(b => b.onclick = () => { prevVue = b.dataset.pv; render(); }); }
+
 function renderPrev(R) {
   if (!contrats.length) { $("#view-prev").innerHTML = emptyState(); return; }
+  if (prevVue === "lin") return renderPrevLin(R);
+  if (prevVue === "up") return renderPrevUp(R);
   const ys = Object.keys(R.years).map(Number).sort((a, b) => a - b);
   const cols = ys.map(y => R.years[y]);
   const line = (lbl, f, cls = "") => `<tr class="${cls}"><td>${lbl}</td>${cols.map(y => `<td class="n">${eur(f(y))}</td>`).join("")}</tr>`;
   $("#view-prev").innerHTML = `<div class="panel">
     <div class="row" style="justify-content:space-between"><div><h2>Prévisionnel sur ${S.horizon} ans</h2><div class="hint">Projection à contrats constants : versements programmés poursuivis, linéaire versé à chaque fin de trimestre, aucune nouvelle souscription.</div></div>
-      <div class="row"><div class="seg" role="group" aria-label="Affichage"><button type="button" data-cu="0" aria-pressed="${!cumul}">Par an</button><button type="button" data-cu="1" aria-pressed="${cumul}">Cumulé</button></div>${chartSeg()}</div></div>
+      <div class="row">${vueSeg()}<div class="seg" role="group" aria-label="Affichage"><button type="button" data-cu="0" aria-pressed="${!cumul}">Par an</button><button type="button" data-cu="1" aria-pressed="${cumul}">Cumulé</button></div>${chartSeg()}</div></div>
     <label class="row small" for="prevRev"><input type="checkbox" id="prevRev" ${S.revalo ? "checked" : ""}> Revaloriser l'encours (${REVALO_PRODUITS.filter(p => num((S.rdtProduit || {})[p])).map(p => esc(p) + " " + pct(num(S.rdtProduit[p]))).join(", ") || "taux à régler"}, modifiables dans Réglages)</label>
     ${croissance(R, ys)}
     <div class="chart">${chart(R.years)}</div>
@@ -585,13 +593,96 @@ function renderPrev(R) {
         ${(() => { let t = 0; return line("<b>Net-net cumulé</b>", y => (t += y.nnUp + y.nnLin)); })()}
       </tbody></table></div>
   </div>`;
-  bindSeg();
+  bindSeg(); bindVue();
   document.querySelectorAll("[data-cu]").forEach(b => b.onclick = () => { cumul = b.dataset.cu === "1"; render(); });
   $("#prevRev").onchange = async e => {
     S.revalo = e.target.checked; render();
     try { await db.doc("config/reglages").set(S); toast(S.revalo ? "Revalorisation activée" : "Revalorisation désactivée"); } catch (er) { toast("Échec de l'enregistrement : " + (er.message || er.code)); }
   };
 }
+// vue linéaire seule : courbes brut / net / net-net, sans l'upfront qui écrase l'échelle
+function renderPrevLin(R) {
+  const ys = Object.keys(R.years).map(Number).sort((a, b) => a - b), Y0 = now.getFullYear();
+  const pts = ys.map(y => ({ an: y === Y0 ? y + " (en cours)" : y, ...R.years[y] }));
+  let cb = 0, cn = 0, cnn = 0;
+  const cum = pts.map(p => ({ an: p.an, lin: cb += p.lin, nLin: cn += p.nLin, nnLin: cnn += p.nnLin }));
+  const P = cumul ? cum : pts;
+  const cols = ys.map(y => R.years[y]);
+  const line = (lbl, f, cls = "") => `<tr class="${cls}"><td>${lbl}</td>${cols.map((y, i) => `<td class="n">${f(y, i)}</td>`).join("")}</tr>`;
+  const a = R.years[ys[1]], z = R.years[ys[ys.length - 1]];
+  const re = R.T.recur;
+  $("#view-prev").innerHTML = `<div class="panel">
+    <div class="row" style="justify-content:space-between"><div><h2>Linéaire sur ${S.horizon} ans</h2><div class="hint">Le linéaire seul, versé chaque année, sans l'upfront. ${ys[0] === Y0 ? Y0 + " ne compte que les mois restants." : ""}</div></div>
+      <div class="row">${vueSeg()}<div class="seg" role="group" aria-label="Affichage"><button type="button" data-cu="0" aria-pressed="${!cumul}">Par an</button><button type="button" data-cu="1" aria-pressed="${cumul}">Cumulé</button></div></div></div>
+    <label class="row small" for="prevRev"><input type="checkbox" id="prevRev" ${S.revalo ? "checked" : ""}> Revaloriser l'encours (${REVALO_PRODUITS.filter(p => num((S.rdtProduit || {})[p])).map(p => esc(p) + " " + pct(num(S.rdtProduit[p]))).join(", ") || "taux à régler"})</label>
+    <div class="kpis">
+      ${kpi("lin", "Rythme actuel", eur(re.lin) + "/an", `brut · net ${eur(re.nLin)} · net-net ${eur(re.nnLin)}`)}
+      ${a && z ? kpi("lin", `En ${ys[ys.length - 1]}`, eur(z.lin) + "/an", `brut · net-net ${eur(z.nnLin)} (${a.nnLin ? (z.nnLin >= a.nnLin ? "+" : "") + Math.round((z.nnLin / a.nnLin - 1) * 100) + " % vs " + ys[1] : "—"})`) : ""}
+      ${kpi("lin", "Cumul sur la période", eur(cb), `brut · net-net ${eur(cnn)} · ${eur(cnn / ys.length / 12)}/mois en moyenne`)}
+    </div>
+    <div class="chart">${lineChart(P, [
+      { v: p => p.lin, color: "var(--muted)", label: true }, { v: p => p.nLin, color: "var(--upfront)" }, { v: p => p.nnLin, color: "var(--accent)", fill: true, label: true, below: true },
+    ])}</div>
+    <div class="legend"><span><span class="sw" style="background:var(--muted)"></span>Brut</span><span><span class="sw" style="background:var(--upfront)"></span>Net (après ${esc(S.nomReseau)} et partages)</span><span><span class="sw" style="background:var(--accent)"></span>Net-net (après URSSAF)</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th></th>${ys.map(y => `<th class="n">${y}${y === Y0 ? " · en cours" : ""}</th>`).join("")}</tr></thead>
+      <tbody>
+        ${line("Encours rémunéré fin d'année", y => eur(y.encRem))}
+        ${line("dont versements programmés de l'année", y => eur(y.vp), "muted")}
+        ${line("<b>Linéaire brut</b>", y => eur(y.lin))}
+        ${line(`− Réseau (${esc(S.nomReseau)})`, y => eur(-y.rLin))}
+        ${line("− Apporteurs et cabinets", y => eur(-y.aLin))}
+        ${line("<b>Linéaire net</b>", y => eur(y.nLin))}
+        ${line("− URSSAF", y => eur(-y.uLin))}
+        ${line("<b>Linéaire net-net</b>", y => eur(y.nnLin))}
+        ${line("Net-net par mois", y => eur(y.nnLin / 12), "muted")}
+        ${line("Progression du net-net", (y, i) => i < 2 || !cols[i - 1].nnLin ? "—" : (y.nnLin >= cols[i - 1].nnLin ? "+" : "") + Math.round((y.nnLin / cols[i - 1].nnLin - 1) * 100) + " %", "muted")}
+        ${(() => { let t = 0; return line("<b>Net-net cumulé</b>", y => eur(t += y.nnLin)); })()}
+      </tbody></table></div>
+  </div>`;
+  bindVue();
+  document.querySelectorAll("[data-cu]").forEach(b => b.onclick = () => { cumul = b.dataset.cu === "1"; render(); });
+  $("#prevRev").onchange = async e => {
+    S.revalo = e.target.checked; render();
+    try { await db.doc("config/reglages").set(S); toast(S.revalo ? "Revalorisation activée" : "Revalorisation désactivée"); } catch (er) { toast("Échec de l'enregistrement : " + (er.message || er.code)); }
+  };
+}
+// vue upfront seule : brut / net / net-net par année
+function renderPrevUp(R) {
+  const ys = Object.keys(R.years).map(Number).sort((a, b) => a - b), Y0 = now.getFullYear();
+  const cols = ys.map(y => R.years[y]);
+  const line = (lbl, f, cls = "") => `<tr class="${cls}"><td>${lbl}</td>${cols.map(y => `<td class="n">${eur(f(y))}</td>`).join("")}</tr>`;
+  const max = Math.max(1, ...cols.map(y => y.up)), step = niceStep(max / 4), top = Math.ceil(max / step) * step;
+  const W = 760, H = 280, L = 64, B = 30, Tp = 22, Rr = 10, bw = (W - L - Rr) / ys.length, yy = v => H - B - v / top * (H - B - Tp);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Upfront par année">`;
+  for (let t = 0; t <= top + 1e-6; t += step) svg += `<line x1="${L}" x2="${W - Rr}" y1="${yy(t)}" y2="${yy(t)}" stroke="var(--line)"/><text x="${L - 8}" y="${yy(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${kfmt(t)}</text>`;
+  ys.forEach((yr, i) => {
+    const c = R.years[yr], w = bw * 0.22, x0 = L + i * bw + bw * 0.17;
+    [[c.up, "var(--muted)"], [c.nUp, "var(--upfront)"], [c.nnUp, "var(--accent)"]].forEach(([v, col], k) => { svg += `<rect x="${x0 + k * w}" y="${yy(v)}" width="${w - 2}" height="${Math.max(0, yy(0) - yy(v))}" fill="${col}"/>`; });
+    if (c.up) svg += `<text x="${x0 + w * 1.5}" y="${yy(c.up) - 6}" text-anchor="middle" font-size="11" fill="var(--ink)" font-family="var(--mono)">${kfmt(c.nnUp)}</text>`;
+    svg += `<text x="${L + i * bw + bw / 2}" y="${H - 10}" text-anchor="middle" font-size="12" fill="${yr === Y0 ? "var(--ink)" : "var(--muted)"}">${yr}</text>`;
+  });
+  svg += `</svg>`;
+  $("#view-prev").innerHTML = `<div class="panel">
+    <div class="row" style="justify-content:space-between"><div><h2>Upfront sur ${S.horizon} ans</h2><div class="hint">L'upfront seul. Sans nouvelle souscription, il ne vient plus que des versements programmés soumis à upfront : c'est l'activité de l'année qui le refait.</div></div>
+      <div class="row">${vueSeg()}</div></div>
+    <div class="chart">${svg}</div>
+    <div class="legend"><span><span class="sw" style="background:var(--muted)"></span>Brut</span><span><span class="sw" style="background:var(--upfront)"></span>Net</span><span><span class="sw" style="background:var(--accent)"></span>Net-net (chiffre affiché)</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th></th>${ys.map(y => `<th class="n">${y}${y === Y0 ? " · en cours" : ""}</th>`).join("")}</tr></thead>
+      <tbody>
+        ${line("Collecte de l'année", y => y.vers)}
+        ${line("<b>Upfront brut</b>", y => y.up)}
+        ${line(`− Réseau (${esc(S.nomReseau)})`, y => -y.rUp)}
+        ${line("− Apporteurs et cabinets", y => -y.aUp)}
+        ${line("<b>Upfront net</b>", y => y.nUp)}
+        ${line("− URSSAF", y => -y.uUp)}
+        ${line("<b>Upfront net-net</b>", y => y.nnUp)}
+      </tbody></table></div>
+  </div>`;
+  bindVue();
+}
+
 // phrase qui chiffre l'effet des versements programmés sur le linéaire
 function croissance(R, ys) {
   const a = R.years[ys[1]] || R.years[ys[0]], z = R.years[ys[ys.length - 1]];
@@ -762,6 +853,9 @@ function lineChart(pts, lines) {
     if (l.fill) s += `<path d="${d} L${x(pts.length - 1)},${y(0)} L${x(0)},${y(0)} Z" fill="${l.color}" opacity="0.12"/>`;
     s += `<path d="${d}" fill="none" stroke="${l.color}" stroke-width="2.5" ${l.dash ? 'stroke-dasharray="6 5"' : ""} stroke-linejoin="round"/>`;
     const lp = pts[pts.length - 1]; s += `<circle cx="${x(pts.length - 1)}" cy="${y(l.v(lp))}" r="4" fill="${l.color}"/>`;
+    // étiquette au-dessus ou sous le point ; montants exacts sous 10 k€
+    const lbl = v => v < 10000 ? Math.round(v).toLocaleString("fr-FR") + " €" : kfmt(v);
+    if (l.label) pts.forEach((p, i) => { const yl = l.below ? Math.min(H - B - 4, y(l.v(p)) + 18) : y(l.v(p)) - 8; s += `<circle cx="${x(i)}" cy="${y(l.v(p))}" r="3" fill="${l.color}"/><text x="${Math.min(W - R - 24, Math.max(L + 24, x(i)))}" y="${yl}" text-anchor="middle" font-size="11" fill="var(--ink)" font-family="var(--mono)">${lbl(l.v(p))}</text>`; });
   });
   return s + `</svg>`;
 }
