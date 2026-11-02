@@ -73,6 +73,11 @@ tfoot td { font-weight: 600; border-bottom: 0; border-top: 2px solid var(--line)
 .wf.minus .n1, .wf.minus .n2 { color: var(--bad) }
 .wf.total { font-weight: 600 }
 .wf.total .n1, .wf.total .n2 { color: var(--good) }
+table.pa tr.minus td.n { color: var(--bad) }
+table.pa td:first-child { white-space: nowrap }
+table.pa tr.total td { font-weight: 600 }
+table.pa tr.total td.n { color: var(--good) }
+table.pa td.att, table.pa th:nth-child(3), table.pa th:nth-child(5) { background: var(--accent-soft) }
 .wf .n1, .wf .n2 { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; min-width: 92px }
 .wf.head { border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em }
 
@@ -388,7 +393,7 @@ function kpi(cls, h, v, d) { return `<div class="kpi ${cls}"><h3>${h}</h3><div c
 function wfRow(lbl, a, b, cls = "") { return `<div class="wf ${cls}"><div class="lbl">${lbl}</div><div class="n1">${a}</div><div class="n2">${b}</div></div>`; }
 
 function renderBord(R) {
-  const { T } = R, cu = T.cumul, re = T.recur;
+  const { T } = R, cu = T.cumul, re = T.recur, nx = T.next12;
   const tauxMoy = T.encRem ? T.linEnc / T.encRem * 100 : 0;
   const nC = actifs().length;
   if (!contrats.length) { $("#view-bord").innerHTML = emptyState(); return; }
@@ -397,23 +402,26 @@ function renderBord(R) {
     ${kpi("", "Collecte totale", eur(T.vers), `dont ${eur(T.versUp)} sur contrats upfront · ${eur(T.versLin)} sur contrats linéaires`)}
     ${kpi("lin", "Encours global", eur(T.enc), `dont ${eur(T.encRem)} rémunéré en linéaire`)}
     ${kpi("lin", "Linéaire annualisé", eur(re.lin), `taux moyen pondéré ${pct(tauxMoy)} · net ${eur(re.nLin)}/an`)}
-    ${kpi("up", "Upfront encaissé", eur(cu.up), `net après réseau et apporteur ${eur(cu.nUp)}`)}
+    ${kpi("up", "Upfront perçu", eur(cu.up), `net ${eur(cu.nUp)} · <b>${eur(nx.up)}</b> attendu sur 12 mois`)}
     ${kpi("", "Net-net à date", eur(cu.nnUp + cu.nnLin), `après URSSAF ${pct(S.urssaf)}`)}
     ${kpi("", "12 prochains mois", eur(T.next12.nnUp + T.next12.nnLin), `net-net prévu · dont ${eur(T.vp12)} de versements programmés` + (T.retard ? ` · <b style="color:var(--warn)">${eur(T.retard)} en retard à percevoir</b>` : ""))}
   </div>
-  <div class="grid2">
-    <div class="panel">
-      <div><h2>Où part l'argent, à date</h2><div class="hint">Cumul des commissions versées jusqu'à ${lblIdx(TODAY)}. Le linéaire du trimestre en cours arrive à sa fin.</div></div>
-      <div class="waterfall">
-        ${wfRow("", "Upfront", "Linéaire", "head")}
-        ${wfRow("Commission brute", eur(cu.up), eur(cu.lin))}
-        ${wfRow(`− Réseau (${esc(S.nomReseau)})`, eur(-cu.rUp), eur(-cu.rLin), "minus")}
-        ${wfRow("− Apporteurs et cabinets", eur(-cu.aUp), eur(-cu.aLin), "minus")}
-        ${wfRow("= Commission nette", eur(cu.nUp), eur(cu.nLin))}
-        ${wfRow(`− URSSAF (${pct(S.urssaf)})`, eur(-cu.uUp), eur(-cu.uLin), "minus")}
-        ${wfRow("= Net-net dans ta poche", eur(cu.nnUp), eur(cu.nnLin), "total")}
-      </div>
+  <div class="panel">
+      <div><h2>Perçu et attendu</h2><div class="hint">Perçu : versé jusqu'à ${lblIdx(TODAY)}. Attendu : ce qui doit tomber sur les 12 prochains mois${T.retard ? `, dont <b style="color:var(--warn)">${eur(T.retard)} en retard</b>` : ""}. Le linéaire du trimestre en cours est versé à sa fin.</div></div>
+      <div class="scroll"><table class="pa">
+        <thead><tr><th></th><th class="n">Upfront perçu</th><th class="n">Upfront attendu</th><th class="n">Linéaire perçu</th><th class="n">Linéaire attendu</th></tr></thead>
+        <tbody>${[
+          ["Commission brute", "up", "lin", 1, ""],
+          [`− Réseau (${esc(S.nomReseau)})`, "rUp", "rLin", -1, "minus"],
+          ["− Apporteurs et cabinets", "aUp", "aLin", -1, "minus"],
+          ["= Commission nette", "nUp", "nLin", 1, ""],
+          [`− URSSAF (${pct(S.urssaf)})`, "uUp", "uLin", -1, "minus"],
+          ["= Net-net", "nnUp", "nnLin", 1, "total"],
+        ].map(([l, ku, kl, sg, cls]) => `<tr class="${cls}"><td>${l}</td><td class="n">${eur(sg * cu[ku])}</td><td class="n att">${eur(sg * nx[ku])}</td><td class="n">${eur(sg * cu[kl])}</td><td class="n att">${eur(sg * nx[kl])}</td></tr>`).join("")}</tbody>
+        <tfoot><tr><td>Net-net perçu + attendu</td><td class="n" colspan="2">${eur(cu.nnUp + nx.nnUp)}</td><td class="n" colspan="2">${eur(cu.nnLin + nx.nnLin)}</td></tr></tfoot>
+      </table></div>
     </div>
+  <div class="grid2">
     <div class="panel">
       <div><h2>Ce que ton encours te rapporte chaque année</h2><div class="hint">Rémunération récurrente si rien ne bouge, calculée sur l'encours de ${lblIdx(TODAY)}.</div></div>
       <div class="waterfall">
