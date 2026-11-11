@@ -174,7 +174,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
 const PRODUITS = ["SCPI", "Assurance-vie", "PER", "Girardin", "Private Equity", "Emprunteur", "Prévoyance", "Autre"];
 const PRIME = new Set(["Emprunteur", "Prévoyance"]);   // assiette = prime annuelle, pas de collecte
 const SANS_ENCOURS = new Set(["Girardin"]);            // collecte one-shot, pas d'encours
-const DEFAULTS = { tauxReseau: 36, nomReseau: "Fyneo", urssaf: 26.1, horizon: 5, baseApporteur: "apres", revalo: false,
+const DEFAULTS = { tauxReseau: 36, nomReseau: "Fyneo", urssaf: 26.1, horizon: 5, baseApporteur: "apres", revalo: false, tolerance: 30,
   rdtProduit: { "SCPI": 0, "Assurance-vie": 3, "PER": 4, "Private Equity": 5, "Autre": 0 },
   // délais de paiement en jours : upfront après la souscription (ou le prélèvement), linéaire après la fin de période
   delais: { "SCPI": { up: 50, lin: 30 }, "Assurance-vie": { up: 30, lin: 45 }, "PER": { up: 30, lin: 45 }, "Girardin": { up: 60, lin: 0 },
@@ -182,6 +182,8 @@ const DEFAULTS = { tauxReseau: 36, nomReseau: "Fyneo", urssaf: 26.1, horizon: 5,
 const dateIdx = (m, jour) => new Date(Math.floor(m / 12), m % 12, Math.min(jour || 1, 28));
 const ajoutJours = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const idxD = d => d.getFullYear() * 12 + d.getMonth();
+// au-delà de cette date, une commission attendue et non perçue est « en retard » ; avant, elle reste attendue
+const seuilRetard = () => isoD(ajoutJours(now, -num(S.tolerance ?? 30)));
 const isoD = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 // délai du partenaire s'il est renseigné, sinon celui du produit
 function delais(c) {
@@ -238,10 +240,13 @@ const statutEff = r => r.statut || (idxOf(r.date) <= TODAY ? "percue" : "a_perce
 
 // toutes les échéances des commissions saisies à la main (lignes répétées dépliées)
 function reelsOcc(c, endIdx) {
-  // une commission « à percevoir » dont la date est passée est attendue le mois prochain
-  const auj = isoD(now);
-  const decale = (r, m) => statutEff(r) === "a_percevoir" && isoD(dateIdx(m, +r.date.slice(8, 10))) < auj ? TODAY + 1 : m;
-  const marque = (r, m) => ({ ...r, m: decale(r, m), retard: decale(r, m) !== m, m0: m });
+  // « à percevoir » et date passée : en retard au-delà de la tolérance, sinon toujours attendue ce mois-ci
+  const auj = isoD(now), seuil = seuilRetard();
+  const marque = (r, m) => {
+    const d = isoD(dateIdx(m, +r.date.slice(8, 10)));
+    if (statutEff(r) !== "a_percevoir" || d >= auj) return { ...r, m, m0: m };
+    return d < seuil ? { ...r, m: TODAY + 1, retard: true, m0: m } : { ...r, m: TODAY, att: true, m0: m };
+  };
   // une ligne répétée (chaque mois, trimestre, année) devient une occurrence par échéance
   return (c.reels || []).filter(r => r.date && num(r.montant)).flatMap(r => {
     const d = idxOf(r.date), f = num(r.repet), fin = r.jusquau ? idxOf(r.jusquau) : endIdx;
@@ -283,12 +288,17 @@ function simulate(c, endIdx) {
   // commission calculée marquée « non perçue » : ce qui était dû est attendu le mois prochain
   const att = (k, champs) => {
     if (c[k] !== "a_percevoir") return;
-    let du = 0; const evs = [], t = champs[0] === "up" ? "up" : "lin", auj = isoD(now);
-    // seules les échéances déjà passées sont en retard ; celles plus tard dans le mois restent attendues
+    let du = 0; const evs = [], recents = [], t = champs[0] === "up" ? "up" : "lin", auj = isoD(now), seuil = seuilRetard();
+    // échéance passée de plus que la tolérance : en retard ; passée depuis peu : encore attendue ce mois-ci
     for (const [m, x] of out) if (m <= TODAY && x.ev) {
       const dues = x.ev.filter(e => e.t === t && e.d < auj);
-      for (const e of dues) { du += e.v; x[t] -= e.v; }
-      evs.push(...dues); x.ev = x.ev.filter(e => !dues.includes(e));
+      for (const e of dues) { x[t] -= e.v; if (e.d < seuil) { du += e.v; evs.push(e); } else recents.push(e); }
+      x.ev = x.ev.filter(e => !dues.includes(e));
+    }
+    if (recents.length) {
+      if (!out.has(TODAY)) out.set(TODAY, vide());
+      const x = out.get(TODAY); x[t] += recents.reduce((a, e) => a + e.v, 0);
+      (x.ev = x.ev || []).push(...recents.map(e => ({ ...e, att: true })));
     }
     if (!du) return;
     if (!out.has(TODAY + 1)) out.set(TODAY + 1, vide());
@@ -301,7 +311,7 @@ function simulate(c, endIdx) {
     const m = r.m; if (!out.has(m)) out.set(m, vide());
     const x = out.get(m), net = r.base === "net", lin = r.type === "lineaire";
     if (r.retard) x.retard = (x.retard || 0) + num(r.montant);
-    (x.ev = x.ev || []).push({ t: lin ? "lin" : "up", v: num(r.montant), net, d: isoD(dateIdx(r.m0, +r.date.slice(8, 10))), src: "saisi", retard: r.retard, note: r.note || "" });
+    (x.ev = x.ev || []).push({ t: lin ? "lin" : "up", v: num(r.montant), net, d: isoD(dateIdx(r.m0, +r.date.slice(8, 10))), src: "saisi", retard: r.retard, att: r.att, note: r.note || "" });
     if (lin) { if (net) x.linN = (x.linN || 0) + num(r.montant); else x.lin += num(r.montant); }
     else if (net) x.upN = (x.upN || 0) + num(r.montant); else x.up += num(r.montant);
   }
@@ -402,7 +412,7 @@ function compute() {
       // mois en cours : ce qui tombe après aujourd'hui est attendu, pas encore perçu
       let sFut = null;
       if (m === TODAY && x.ev) {
-        const f = x.ev.filter(e => e.d >= isoD(now) && !e.retard), g = (t, n) => f.filter(e => e.t === t && !!e.net === n).reduce((a, e) => a + e.v, 0);
+        const f = x.ev.filter(e => (e.d >= isoD(now) || e.att) && !e.retard), g = (t, n) => f.filter(e => e.t === t && !!e.net === n).reduce((a, e) => a + e.v, 0);
         if (f.length) sFut = split(c, g("up", false), g("lin", false), m, g("up", true), g("lin", true));
       }
       const y = Math.floor(m / 12);
@@ -755,10 +765,10 @@ function echeances() {
     for (const [m, x] of simulate(c, TODAY + 12)) {
       if (m < TODAY || m > TODAY + 12) continue;
       for (const e of x.ev || []) {
-        if (m === TODAY && e.d < auj && !e.retard) continue;   // déjà tombé ce mois-ci
+        if (m === TODAY && e.d < auj && !e.retard && !e.att) continue;   // déjà tombé ce mois-ci
         const s = split(c, e.t === "up" && !e.net ? e.v : 0, e.t === "lin" && !e.net ? e.v : 0, m, e.t === "up" && e.net ? e.v : 0, e.t === "lin" && e.net ? e.v : 0);
         if (s.up + s.lin < 1) continue;   // miettes de linéaire
-        L.push({ c, m: e.retard ? TODAY : m, d: e.d, t: e.t, brut: s.up + s.lin, nn: s.nnUp + s.nnLin, retard: !!e.retard, src: e.src, note: e.note });
+        L.push({ c, m: e.retard ? TODAY : m, d: e.d, t: e.t, brut: s.up + s.lin, nn: s.nnUp + s.nnLin, retard: !!e.retard, att: !!e.att, src: e.src, note: e.note });
       }
     }
   }
@@ -790,12 +800,12 @@ function renderTreso() {
     <td><b>${esc(e.c.client)}</b><div class="small muted">${esc(e.c.produit)}${e.c.partenaire ? " · " + esc(e.c.partenaire) : ""}</div></td>
     <td><span class="pill ${e.t === "up" ? "up" : ""}">${e.t === "up" ? "upfront" : "linéaire"}</span>${e.src === "saisi" ? ` <span class="pill off" title="${esc(e.note || "")}">saisi</span>` : ""}</td>
     <td class="n">${eur(e.brut)}</td><td class="n"><b>${eur(e.nn)}</b></td>
-    <td>${e.retard ? `<span class="pill warn">en retard</span>` : `<span class="pill">à venir</span>`}</td></tr>`;
+    <td>${e.retard ? `<span class="pill warn">en retard</span>` : e.att ? `<span class="pill off" title="Date prévue dépassée, encore dans la tolérance de ${num(S.tolerance ?? 30)} jours">attendue · +${Math.round((now - new Date(e.d)) / 864e5)} j</span>` : `<span class="pill">à venir</span>`}</td></tr>`;
   $("#view-treso").innerHTML = `<div class="panel">
     <div><h2>Quand tombent tes commissions</h2><div class="hint">Dates probables, calculées avec les délais de paiement de chaque partenaire, ou à défaut du type de produit (Réglages). Les commissions saisies à la main gardent leur date. Montants en net-net, après réseau, partages et URSSAF.</div></div>
     <div class="kpis">
-      ${kpi("up", "En retard", eur(R0), `${ret.length} commission${ret.length > 1 ? "s" : ""} à relancer`)}
-      ${kpi("", "D'ici la fin du mois", eur(som(e => !e.retard && e.m === TODAY)), `${E.filter(e => !e.retard && e.m === TODAY).length} versement(s) attendu(s)`)}
+      ${kpi("up", "En retard", eur(R0), `${ret.length} commission${ret.length > 1 ? "s" : ""} à relancer · plus de ${num(S.tolerance ?? 30)} j après la date prévue`)}
+      ${kpi("", "D'ici la fin du mois", eur(som(e => !e.retard && e.m === TODAY)), `${E.filter(e => !e.retard && e.m === TODAY).length} versement(s) attendu(s)${E.some(e => e.att) ? `, dont ${E.filter(e => e.att).length} à date légèrement dépassée` : ""}`)}
       ${kpi("", MOIS[moisN % 12] + " " + Math.floor(moisN / 12), eur(som(e => !e.retard && e.m === moisN)), `${E.filter(e => !e.retard && e.m === moisN).length} versement(s) attendu(s)`)}
       ${kpi("lin", "3 prochains mois", eur(som(e => !e.retard && e.m > TODAY && e.m <= TODAY + 3)), `soit ${eur(som(e => !e.retard && e.m > TODAY && e.m <= TODAY + 3) / 3)}/mois en moyenne`)}
     </div>
@@ -1046,6 +1056,7 @@ function renderReglages() {
       <label class="f" for="sRes">Prélèvement réseau (%)<input id="sRes" inputmode="decimal" value="${S.tauxReseau}"></label>
       <label class="f" for="sUrs">Cotisations URSSAF (%)<input id="sUrs" inputmode="decimal" value="${S.urssaf}"></label>
       <label class="f" for="sHor">Horizon du prévisionnel (ans)<input id="sHor" inputmode="numeric" value="${S.horizon}"></label>
+      <label class="f" for="sTol">Tolérance avant de signaler un retard (jours)<input id="sTol" inputmode="numeric" value="${num(S.tolerance ?? 30)}"></label>
       <label class="f" for="sBase">Apporteurs et cabinets sont payés sur<select id="sBase"><option value="apres" ${S.baseApporteur === "apres" ? "selected" : ""}>la commission après réseau (s'il y en a un)</option><option value="brut" ${S.baseApporteur === "brut" ? "selected" : ""}>la commission brute</option></select></label>
     </div>
     <div class="hint">Micro-entreprise BNC : vérifie ton taux réel sur autoentrepreneur.urssaf.fr (il a augmenté chaque année depuis 2024). Ajoute 2,2 % si tu as opté pour le versement libératoire de l'impôt.</div>
@@ -1069,7 +1080,7 @@ function renderReglages() {
     <div class="hint" id="ioMsg"></div>
   </div></div>`;
   $("#sSave").onclick = async () => {
-    const n = { nomReseau: $("#sNom").value.trim() || "Réseau", tauxReseau: num($("#sRes").value), urssaf: num($("#sUrs").value), horizon: Math.min(15, Math.max(1, Math.round(num($("#sHor").value)) || 5)), baseApporteur: $("#sBase").value, revalo: $("#sRev").checked, rdtProduit: Object.fromEntries(REVALO_PRODUITS.map((p, i) => [p, num($("#sRp" + i).value)])), delais: Object.fromEntries(PRODUITS.map((p, i) => [p, { up: num($("#dU" + i).value), lin: num($("#dL" + i).value) }])) };
+    const n = { nomReseau: $("#sNom").value.trim() || "Réseau", tauxReseau: num($("#sRes").value), urssaf: num($("#sUrs").value), horizon: Math.min(15, Math.max(1, Math.round(num($("#sHor").value)) || 5)), baseApporteur: $("#sBase").value, tolerance: Math.max(0, Math.round(num($("#sTol").value))), revalo: $("#sRev").checked, rdtProduit: Object.fromEntries(REVALO_PRODUITS.map((p, i) => [p, num($("#sRp" + i).value)])), delais: Object.fromEntries(PRODUITS.map((p, i) => [p, { up: num($("#dU" + i).value), lin: num($("#dL" + i).value) }])) };
     S = { ...S, ...n }; render();
     try { await db.doc("config/reglages").set(S); toast("Hypothèses enregistrées"); } catch (e) { toast("Échec de l'enregistrement : " + (e.message || e.code)); }
   };
