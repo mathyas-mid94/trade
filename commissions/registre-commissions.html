@@ -196,6 +196,8 @@ const REVALO_PRODUITS = ["SCPI", "Assurance-vie", "PER", "Private Equity", "Autr
 // frais d'enveloppe : ta marge = frais facturés au client − part gardée par l'assureur
 const envOn = c => c.fraisEnveloppe !== "" && c.fraisEnveloppe != null && c.coutAssureur !== "" && c.coutAssureur != null;
 const margeEnv = (frais, cout) => Math.max(0, num(frais) - num(cout));
+// contrat qui verse du linéaire (taux, marge d'enveloppe, part des frais ou rétro de fonds)
+const remunLin = c => tauxLin(c) > 0 || num(c.partFrais) > 0 || tauxSupports(c) > 0;
 // taux linéaire retenu (en %) : marge d'enveloppe si renseignée, sinon taux saisi
 const tauxLin = c => envOn(c) ? margeEnv(c.fraisEnveloppe, c.coutAssureur) : num(c.tauxLineaire);
 // ce que la remise te coûte, en % de l'encours par an
@@ -404,7 +406,7 @@ function compute() {
   let minYear = Y0;
   for (const c of actifs()) {
     const sim = simulate(c, E);
-    const remun = tauxLin(c) > 0 || num(c.partFrais) > 0 || tauxSupports(c) > 0;
+    const remun = remunLin(c);
     const pc = { c, cumul: ZERO(), vers: 0, enc: 0, recur: ZERO(), up: 0, perte: ZERO(), retard: 0 };
     let rCalc = null;
     for (const [m, x] of sim) {
@@ -457,8 +459,8 @@ function renderBord(R) {
   if (!contrats.length) { $("#view-bord").innerHTML = emptyState(); return; }
   $("#view-bord").innerHTML = `
   <div class="kpis">
-    ${kpi("", "Collecte totale", eur(T.vers), `dont ${eur(T.versUp)} sur contrats upfront · ${eur(T.versLin)} sur contrats linéaires`)}
-    ${kpi("lin", "Encours global", eur(T.enc), `dont ${eur(T.encRem)} rémunéré en linéaire`)}
+    ${kpi("", "Collecte totale", eur(T.vers), `${eur(T.versLin)} placés en linéaire · ${eur(T.vers - T.versLin)} en upfront ou sans linéaire`)}
+    ${kpi("lin", "Encours rémunéré linéaire", eur(T.encRem), `${T.vers ? Math.round(T.encRem / T.vers * 100) + " %" : "—"} de ta collecte · valeur actuelle`)}
     ${kpi("lin", "Linéaire annualisé", eur(re.lin), `taux moyen pondéré ${pct(tauxMoy)} · net ${eur(re.nLin)}/an`)}
     ${kpi("up", "Upfront perçu", eur(cu.up), `net ${eur(cu.nUp)} · <b>${eur(nx.up)}</b> attendu sur 12 mois`)}
     ${kpi("", "Net-net à date", eur(cu.nnUp + cu.nnLin), `après URSSAF ${pct(S.urssaf)}`)}
@@ -481,7 +483,7 @@ function renderBord(R) {
     </div>
   <div class="grid2">
     <div class="panel">
-      <div><h2>Ce que ton encours te rapporte chaque année</h2><div class="hint">Rémunération récurrente si rien ne bouge, calculée sur l'encours de ${lblIdx(TODAY)}.</div></div>
+      <div><h2>Ce que ton encours rémunéré linéaire te rapporte chaque année</h2><div class="hint">Rémunération récurrente si rien ne bouge, calculée sur l'encours de ${lblIdx(TODAY)}.</div></div>
       <div class="waterfall">
         ${wfRow("", "Par an", "Par trimestre", "head")}
         ${wfRow("Linéaire brut", eur(re.lin), eur(re.lin / 4))}
@@ -511,7 +513,7 @@ function objPanel(R) {
   const M = moyennes(R), b = besoins(R, M, l); if (!b) return "";
   const barre = (v, c) => `<div style="height:8px;border-radius:4px;background:var(--line);overflow:hidden"><div style="height:100%;width:${Math.min(100, c ? v / c * 100 : 0).toFixed(1)}%;background:var(--accent)"></div></div>`;
   const items = [];
-  if (b.encVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Encours rémunéré aujourd'hui</span><b class="num">${eur(R.T.encRem)} / ${eur(b.encVise)}</b></div>${barre(R.T.encRem, b.encVise)}</div>`);
+  if (b.encVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Encours rémunéré linéaire aujourd'hui</span><b class="num">${eur(R.T.encRem)} / ${eur(b.encVise)}</b></div>${barre(R.T.encRem, b.encVise)}</div>`);
   if (b.linVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Linéaire net-net projeté ${b.Y}</span><b class="num">${eur(b.P.nnLin)} / ${eur(b.linVise)}</b></div>${barre(b.P.nnLin, b.linVise)}</div>`);
   if (b.upVise) items.push(`<div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span>Upfront net-net projeté ${b.Y}</span><b class="num">${eur(b.P.nnUp)} / ${eur(b.upVise)}</b></div>${barre(b.P.nnUp, b.upVise)}</div>`);
   return `<div class="panel"><div class="row" style="justify-content:space-between"><h2>Objectif à ${l.h} an${l.h > 1 ? "s" : ""} (fin ${b.Y})</h2><span class="hint">${b.encAjout > 0 ? `À ${fx(M.capLin, 0)} contrats/an : ticket de <b>${eur(b.encAjout / (M.capLin * l.h))}</b> par contrat linéaire` : ""}${b.manqueUp > 0 ? ` · <b>${eur(b.manqueUp / M.capUp)}</b> d'upfront net-net par contrat` : ""}</span></div>${items.join("")}</div>`;
@@ -524,7 +526,7 @@ function remisesPanel(R) {
   return `<div class="panel">
     <div><h2>Ce que tes remises te coûtent</h2><div class="hint">Linéaire perdu chaque année parce que le client paie moins que le tarif standard, sur l'encours d'aujourd'hui.</div></div>
     <div class="kpis">${kpi("up", "Perte brute par an", eur(R.T.perte.lin), `${L.length} contrat${L.length > 1 ? "s" : ""} remisé${L.length > 1 ? "s" : ""}`)}${kpi("up", "Perte net-net par an", eur(R.T.perte.nnLin), `soit ${eur(R.T.perte.nnLin * S.horizon)} sur ${S.horizon} ans à encours constant`)}</div>
-    <div class="scroll"><table><thead><tr><th>Client</th><th class="n">Encours</th><th class="n">Standard</th><th class="n">Facturé</th><th class="n">Part assureur</th><th class="n">Ta marge</th><th class="n">Perte /an brut</th><th class="n">Net-net</th></tr></thead><tbody>
+    <div class="scroll"><table><thead><tr><th>Client</th><th class="n">Valeur</th><th class="n">Standard</th><th class="n">Facturé</th><th class="n">Part assureur</th><th class="n">Ta marge</th><th class="n">Perte /an brut</th><th class="n">Net-net</th></tr></thead><tbody>
     ${L.map(p => `<tr class="click" data-id="${esc(p.c.id)}"><td><b>${esc(p.c.client)}</b><div class="small muted">${esc(p.c.produit)} ${esc(p.c.partenaire || "")}</div></td><td class="n">${eur(p.enc)}</td><td class="n">${pct(num(p.c.fraisEnvStandard))}</td><td class="n">${pct(num(p.c.fraisEnveloppe))}</td><td class="n">${pct(num(p.c.coutAssureur))}</td><td class="n">${pct(margeEnv(p.c.fraisEnveloppe, p.c.coutAssureur))} <span class="muted small">au lieu de ${pct(margeEnv(p.c.fraisEnvStandard, p.c.coutAssureur))}</span></td><td class="n" style="color:var(--bad)">${eur(-p.perte.lin)}</td><td class="n" style="color:var(--bad)">${eur(-p.perte.nnLin)}</td></tr>`).join("")}
     </tbody></table></div></div>`;
 }
@@ -534,11 +536,11 @@ function repartition(R, key, title) {
   for (const p of R.perC) {
     const k = p.c[key] || "Non renseigné";
     g[k] = g[k] || { n: 0, vers: 0, enc: 0, up: 0, lin: 0 };
-    g[k].n++; g[k].vers += p.vers; g[k].enc += p.enc; g[k].up += p.cumul.nUp; g[k].lin += p.recur.nLin;
+    g[k].n++; g[k].vers += p.vers; g[k].enc += remunLin(p.c) ? p.enc : 0; g[k].up += p.cumul.nUp; g[k].lin += p.recur.nLin;
   }
   const rows = Object.entries(g).sort((a, b) => (b[1].up + b[1].lin) - (a[1].up + a[1].lin));
   return `<div class="panel"><h2>${title}</h2><div class="scroll"><table>
-    <thead><tr><th>${key === "produit" ? "Produit" : "Partenaire"}</th><th class="n">Contrats</th><th class="n">Collecte</th><th class="n">Encours</th><th class="n">Upfront net</th><th class="n">Linéaire net/an</th></tr></thead>
+    <thead><tr><th>${key === "produit" ? "Produit" : "Partenaire"}</th><th class="n">Contrats</th><th class="n">Collecte</th><th class="n">Encours rémunéré linéaire</th><th class="n">Upfront net</th><th class="n">Linéaire net/an</th></tr></thead>
     <tbody>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${v.n}</td><td class="n">${eur(v.vers)}</td><td class="n">${eur(v.enc)}</td><td class="n">${eur(v.up)}</td><td class="n">${eur(v.lin)}</td></tr>`).join("")}</tbody>
   </table></div></div>`;
 }
@@ -587,7 +589,7 @@ function renderContrats(R) {
       <input id="q" type="search" placeholder="Chercher un client, produit, partenaire…" value="${esc(filtre)}" style="max-width:320px">
     </div>
     <div class="scroll"><table>
-      <thead><tr><th>Client</th><th>Produit</th><th>Souscrit</th><th class="n">Versé initial</th><th class="n">Prog.</th><th class="n">Encours</th><th class="n">Taux</th><th class="n">Upfront brut</th><th class="n">Upfront net</th><th class="n">Linéaire net/an</th><th></th></tr></thead>
+      <thead><tr><th>Client</th><th>Produit</th><th>Souscrit</th><th class="n">Versé initial</th><th class="n">Prog.</th><th class="n">Valeur</th><th class="n">Taux</th><th class="n">Upfront brut</th><th class="n">Upfront net</th><th class="n">Linéaire net/an</th><th></th></tr></thead>
       <tbody>${list.map(p => rowC(p)).join("")}</tbody>
       <tfoot><tr><td colspan="5">Total</td><td class="n">${eur(tot.enc)}</td><td></td><td class="n">${eur(tot.cu.up)}</td><td class="n">${eur(tot.cu.nUp)}</td><td class="n">${eur(tot.re.nLin)}</td><td></td></tr></tfoot>
     </table></div>
@@ -646,8 +648,8 @@ function renderPrev(R) {
         ${line("Collecte de l'année", y => y.vers)}
         ${line("dont versements programmés", y => y.vp, "muted")}
         ${line("Primes assurance (emprunteur…)", y => y.prime, "muted")}
-        ${line("Encours fin d'année", y => y.encFin)}
-        ${line("dont encours rémunéré", y => y.encRem, "muted")}
+        ${line("Collecte valorisée fin d'année", y => y.encFin)}
+        ${line("dont encours rémunéré linéaire", y => y.encRem, "muted")}
         ${line("Upfront brut", y => y.up)}
         ${line("Linéaire brut", y => y.lin)}
         ${line(`− Réseau (${esc(S.nomReseau)})`, y => -(y.rUp + y.rLin))}
@@ -693,7 +695,7 @@ function renderPrevLin(R) {
     <div class="scroll"><table>
       <thead><tr><th></th>${ys.map(y => `<th class="n">${y}${y === Y0 ? " · en cours" : ""}</th>`).join("")}</tr></thead>
       <tbody>
-        ${line("Encours rémunéré fin d'année", y => eur(y.encRem))}
+        ${line("Encours rémunéré linéaire fin d'année", y => eur(y.encRem))}
         ${line("dont versements programmés de l'année", y => eur(y.vp), "muted")}
         ${line("<b>Linéaire brut</b>", y => eur(y.lin))}
         ${line(`− Réseau (${esc(S.nomReseau)})`, y => eur(-y.rLin))}
@@ -866,8 +868,8 @@ function carteObj(l, b, M) {
   const commande = b.manqueRev > b.manqueEnc ? "rev" : "enc";
   const tauxRequis = b.encVise && b.linVise ? b.linVise / b.encVise : 0;
   const lin = !(b.encVise || b.linVise) ? `<div class="muted">Pas d'objectif linéaire.</div>` : b.encAjout <= 0 ? `<div><span class="pill">objectif atteint par ton portefeuille actuel</span></div>` : `
-    <div class="small muted">Projeté ${b.Y} : ${eur(b.P.encRem)} d'encours rémunéré · ${eur(b.P.nnLin)}/an net-net</div>
-    <div>Il faut <b>${eur(b.encAjout)}</b> d'encours rémunéré en plus.</div>
+    <div class="small muted">Projeté ${b.Y} : ${eur(b.P.encRem)} d'encours rémunéré linéaire · ${eur(b.P.nnLin)}/an net-net</div>
+    <div>Il faut <b>${eur(b.encAjout)}</b> d'encours rémunéré linéaire en plus.</div>
     ${b.encVise && b.linVise && Math.abs(tauxRequis - M.tauxNN) / Math.max(M.tauxNN, 1e-9) > 0.15 ? `<div class="hint" style="color:var(--warn)">Tes deux objectifs ne collent pas : ${eur(b.encVise)} à ${pct(M.tauxNN * 100)} net-net rapportent ${eur(b.encVise * M.tauxNN)}/an, pas ${eur(b.linVise)}. ${commande === "rev" ? `C'est ton objectif de revenu qui commande. L'autre voie : obtenir ${pct(tauxRequis * 100)} net-net sur ${eur(b.encVise)} (meilleures conditions, moins de remises, plus de rétro fonds).` : `C'est ton objectif d'encours qui commande.`}</div>` : ""}
     <div style="display:grid;gap:8px;padding:10px;border-radius:8px;background:var(--bg)">
       <div class="small muted">À ${fx(M.capLin, 0)} contrats par an, soit ${fx(C, 0)} contrats d'ici ${b.Y} :</div>
@@ -877,7 +879,7 @@ function carteObj(l, b, M) {
     </div>
     <div style="display:grid;gap:4px;padding:10px;border-radius:8px;border:1px dashed var(--accent)">
       <div class="small muted">Ce que tu atteins à ton rythme réaliste (${fx(M.capLin, 0)}/an à ${eur(M.ticketInit)} + ${eur(M.vpReal)}/mois) :</div>
-      <div><b>${eur(atteint)}</b> d'encours rémunéré et <b>${eur(revAtteint)}/an</b> net-net de linéaire en ${b.Y}${b.encVise ? ` <span class="muted small">(${fx(atteint / b.encVise * 100, 0)} % de ton objectif d'encours)</span>` : ""}</div>
+      <div><b>${eur(atteint)}</b> d'encours rémunéré linéaire et <b>${eur(revAtteint)}/an</b> net-net de linéaire en ${b.Y}${b.encVise ? ` <span class="muted small">(${fx(atteint / b.encVise * 100, 0)} % de ton objectif d'encours)</span>` : ""}</div>
     </div>`;
   // upfront : rythme à tenir dans l'année visée
   const parUp = M.capUp ? b.manqueUp / M.capUp : 0;
@@ -908,7 +910,7 @@ function renderObj(R) {
   $("#view-obj").innerHTML = `<div class="panel">
     <div><h2>Objectifs</h2><div class="hint">Fixe ce que tu vises à chaque horizon. L'outil compare avec ce que ton portefeuille actuel produira de lui-même (prévisionnel, versements programmés compris), puis traduit l'écart en ticket et en versement programmé à viser, à ton rythme de signature.</div></div>
     <div class="scroll"><table>
-      <thead><tr><th>Horizon</th><th class="n">Encours rémunéré visé</th><th class="n">Linéaire net-net visé /an</th><th class="n">Upfront net-net visé /an</th><th class="n">Rémunération totale visée /an</th></tr></thead>
+      <thead><tr><th>Horizon</th><th class="n">Encours rémunéré linéaire visé</th><th class="n">Linéaire net-net visé /an</th><th class="n">Upfront net-net visé /an</th><th class="n">Rémunération totale visée /an</th></tr></thead>
       <tbody>${rows.map(({ l, i }) => `<tr><td><b>${l.h} an${l.h > 1 ? "s" : ""}</b> <span class="muted small">fin ${Y0 + l.h}</span></td>${cell(i, "encRem", l.encRem)}${cell(i, "linNN", l.linNN)}${cell(i, "upNN", l.upNN)}<td class="n" id="o_tot_${i}">${num(l.linNN) + num(l.upNN) ? eur(num(l.linNN) + num(l.upNN)) : "—"}</td></tr>`).join("")}</tbody>
     </table></div>
     <div class="row"><button class="primary" id="oSave">Enregistrer les objectifs</button><span class="hint">Laisse vide ce que tu ne vises pas.</span></div>
@@ -1097,7 +1099,7 @@ function emptyState() {
 function render() {
   const R = compute();
   const enc = R.T.enc;
-  $("#subline").textContent = loaded ? `${contrats.length} contrats · encours ${eur(enc)} · situation au ${now.toLocaleDateString("fr-FR")}` : (db === null ? "Stockage indisponible dans cette vue" : "Chargement des contrats…");
+  $("#subline").textContent = loaded ? `${contrats.length} contrats · collecte ${eur(R.T.vers)} · encours rémunéré linéaire ${eur(R.T.encRem)} · situation au ${now.toLocaleDateString("fr-FR")}` : (db === null ? "Stockage indisponible dans cette vue" : "Chargement des contrats…");
   if (tab === "bord") renderBord(R);
   if (tab === "contrats") renderContrats(R);
   if (tab === "prev") renderPrev(R);
@@ -1273,7 +1275,7 @@ function openForm(c) {
       const ok = (k === "up" ? stUp : stLin) !== "a_percevoir";
       return `<span><button type="button" class="st ${ok ? "ok" : "wait"}" data-stk="${k}" aria-pressed="${ok}">${ok ? "✓ Perçue" : "Non perçue"}</button></span>`;
     };
-    $("#fMontantHint").textContent = isP ? "Pour l'emprunteur et la prévoyance, indique la prime annuelle : elle sert d'assiette et n'entre pas dans la collecte." : x.produit === "Girardin" ? "Le Girardin compte dans la collecte mais ne crée pas d'encours." : "";
+    $("#fMontantHint").textContent = isP ? "Pour l'emprunteur et la prévoyance, indique la prime annuelle : elle sert d'assiette et n'entre pas dans la collecte." : x.produit === "Girardin" ? "Le Girardin compte dans la collecte, sans encours rémunéré linéaire." : "";
     $("#fsVers").hidden = $("#fsSup").hidden = $("#fsVal").hidden = $("#fsEnv").hidden = isP;
     $("#fTl").disabled = envOn(x);
     if (envOn(x)) {
@@ -1286,7 +1288,7 @@ function openForm(c) {
     const s0 = idxOf(x.date);
     for (const [m, v] of sim) { if (m < s0 + 12) { addTo(up, split(x, v.up, 0, m, v.upN)); m12 += v.vers; } if (m >= s0 + 12 && m < s0 + 24) { linY += v.lin + v.fr; linYN += v.linN || 0; } if (m === s0 + 11) encN = v.enc; }
     const sl = split(x, 0, linY, s0 + 12, 0, linYN);
-    const html = `<div><span class="small muted">Versé la 1re année</span><b>${eur(m12)}</b></div><div><span class="small muted">Upfront 1re année brut → net</span><b>${eur(up.up)} → ${eur(up.nUp)}</b>${btnSt("up", x)}</div><div><span class="small muted">Linéaire sur 12 mois (an 2) brut → net</span><b>${eur(sl.lin)} → ${eur(sl.nLin)}</b>${btnSt("lin", x)}</div><div><span class="small muted">Encours après 12 mois</span><b>${isP ? "—" : eur(encN)}</b></div>`;
+    const html = `<div><span class="small muted">Versé la 1re année</span><b>${eur(m12)}</b></div><div><span class="small muted">Upfront 1re année brut → net</span><b>${eur(up.up)} → ${eur(up.nUp)}</b>${btnSt("up", x)}</div><div><span class="small muted">Linéaire sur 12 mois (an 2) brut → net</span><b>${eur(sl.lin)} → ${eur(sl.nLin)}</b>${btnSt("lin", x)}</div><div><span class="small muted">Valeur après 12 mois</span><b>${isP ? "—" : eur(encN)}</b></div>`;
     $("#fPrev").innerHTML = html;
     document.querySelectorAll("[data-stk]").forEach(b => b.onclick = () => {
       if (b.dataset.stk === "up") stUp = stUp === "a_percevoir" ? "" : "a_percevoir"; else stLin = stLin === "a_percevoir" ? "" : "a_percevoir";
@@ -1353,13 +1355,13 @@ const csvCell = v => { const s = typeof v === "number" ? v.toFixed(2).replace(".
 const toCsv = rows => "﻿" + rows.map(r => r.map(csvCell).join(";")).join("\r\n");
 function exportCsv() {
   const R = compute();
-  const head = ["Client", "Produit", "Partenaire", "Statut", "Date souscription", "Versement initial", "VP montant", "VP fréquence (mois)", "Upfront %", "Linéaire %", "Part frais %", "Frais gestion %", "Réseau %", "Apporteur", "Apporteur %", "Versé à date", "Encours", "Upfront brut à date", "Upfront net à date", "Linéaire brut/an", "Linéaire net/an", "Rétro supports %/an", "Notes"];
+  const head = ["Client", "Produit", "Partenaire", "Statut", "Date souscription", "Versement initial", "VP montant", "VP fréquence (mois)", "Upfront %", "Linéaire %", "Part frais %", "Frais gestion %", "Réseau %", "Apporteur", "Apporteur %", "Versé à date", "Valeur actuelle", "Upfront brut à date", "Upfront net à date", "Linéaire brut/an", "Linéaire net/an", "Rétro supports %/an", "Notes"];
   const rows = R.perC.map(p => { const c = p.c; return [c.client, c.produit, c.partenaire, c.statut, c.date, num(c.montant), num(c.vpMontant), num(c.vpFrequence), num(c.tauxUpfront), num(c.tauxLineaire), num(c.partFrais), num(c.fraisGestion), c.tauxReseau === "" || c.tauxReseau == null ? S.tauxReseau : num(c.tauxReseau), c.apporteurNom, num(c.tauxApporteur), p.vers, p.enc, p.cumul.up, p.cumul.nUp, p.recur.lin, p.recur.nLin, tauxSupports(c) * 100, c.notes]; });
   saveFile("contrats-commissions.csv", toCsv([head, ...rows]));
 }
 function exportPrev() {
   const R = compute(), ys = Object.keys(R.years).sort();
-  const L = [["Collecte", y => y.vers], ["dont versements programmés", y => y.vp], ["Encours fin d'année", y => y.encFin], ["Encours rémunéré", y => y.encRem], ["Upfront brut", y => y.up], ["Linéaire brut", y => y.lin], ["Réseau", y => y.rUp + y.rLin], ["Apporteurs", y => y.aUp + y.aLin], ["Commission nette", y => y.nUp + y.nLin], ["URSSAF", y => y.uUp + y.uLin], ["Net-net", y => y.nnUp + y.nnLin]];
+  const L = [["Collecte", y => y.vers], ["dont versements programmés", y => y.vp], ["Collecte valorisée fin d'année", y => y.encFin], ["Encours rémunéré linéaire", y => y.encRem], ["Upfront brut", y => y.up], ["Linéaire brut", y => y.lin], ["Réseau", y => y.rUp + y.rLin], ["Apporteurs", y => y.aUp + y.aLin], ["Commission nette", y => y.nUp + y.nLin], ["URSSAF", y => y.uUp + y.uLin], ["Net-net", y => y.nnUp + y.nnLin]];
   saveFile("previsionnel-commissions.csv", toCsv([["", ...ys], ...L.map(([l, f]) => [l, ...ys.map(y => f(R.years[y]))])]));
 }
 async function importJson(file) {
