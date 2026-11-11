@@ -148,6 +148,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
     <button role="tab" data-tab="bord" aria-selected="true">Tableau de bord</button>
     <button role="tab" data-tab="contrats" aria-selected="false">Contrats</button>
     <button role="tab" data-tab="prev" aria-selected="false">Prévisionnel</button>
+    <button role="tab" data-tab="treso" aria-selected="false">Trésorerie</button>
     <button role="tab" data-tab="obj" aria-selected="false">Objectifs</button>
     <button role="tab" data-tab="sim" aria-selected="false">Simulateur</button>
     <button role="tab" data-tab="part" aria-selected="false">Partenaires</button>
@@ -157,6 +158,7 @@ dialog form { display: grid; gap: 14px; padding: 18px }
   <section id="view-bord" data-view></section>
   <section id="view-contrats" data-view hidden></section>
   <section id="view-prev" data-view hidden></section>
+  <section id="view-treso" data-view hidden></section>
   <section id="view-obj" data-view hidden></section>
   <section id="view-sim" data-view hidden></section>
   <section id="view-part" data-view hidden></section>
@@ -173,7 +175,21 @@ const PRODUITS = ["SCPI", "Assurance-vie", "PER", "Girardin", "Private Equity", 
 const PRIME = new Set(["Emprunteur", "Prévoyance"]);   // assiette = prime annuelle, pas de collecte
 const SANS_ENCOURS = new Set(["Girardin"]);            // collecte one-shot, pas d'encours
 const DEFAULTS = { tauxReseau: 36, nomReseau: "Fyneo", urssaf: 26.1, horizon: 5, baseApporteur: "apres", revalo: false,
-  rdtProduit: { "SCPI": 0, "Assurance-vie": 3, "PER": 4, "Private Equity": 5, "Autre": 0 } };
+  rdtProduit: { "SCPI": 0, "Assurance-vie": 3, "PER": 4, "Private Equity": 5, "Autre": 0 },
+  // délais de paiement en jours : upfront après la souscription (ou le prélèvement), linéaire après la fin de période
+  delais: { "SCPI": { up: 50, lin: 30 }, "Assurance-vie": { up: 30, lin: 45 }, "PER": { up: 30, lin: 45 }, "Girardin": { up: 60, lin: 0 },
+    "Private Equity": { up: 60, lin: 60 }, "Emprunteur": { up: 45, lin: 45 }, "Prévoyance": { up: 45, lin: 45 }, "Autre": { up: 30, lin: 30 } } };
+const dateIdx = (m, jour) => new Date(Math.floor(m / 12), m % 12, Math.min(jour || 1, 28));
+const ajoutJours = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const idxD = d => d.getFullYear() * 12 + d.getMonth();
+const isoD = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+// délai du partenaire s'il est renseigné, sinon celui du produit
+function delais(c) {
+  const p = partenaires.find(p => p.nom && (p.nom || "").toLowerCase() === (c.partenaire || "").toLowerCase());
+  const def = (S.delais || {})[c.produit] || DEFAULTS.delais[c.produit] || DEFAULTS.delais.Autre;
+  const pick = (k, dk) => p && p[k] !== "" && p[k] != null ? num(p[k]) : num(def[dk]);
+  return { up: pick("delaiUp", "up"), lin: pick("delaiLin", "lin"), source: p && ((p.delaiUp !== "" && p.delaiUp != null) || (p.delaiLin !== "" && p.delaiLin != null)) ? p.nom : c.produit };
+}
 const REVALO_PRODUITS = ["SCPI", "Assurance-vie", "PER", "Private Equity", "Autre"];
 // frais d'enveloppe : ta marge = frais facturés au client − part gardée par l'assureur
 const envOn = c => c.fraisEnveloppe !== "" && c.fraisEnveloppe != null && c.coutAssureur !== "" && c.coutAssureur != null;
@@ -223,8 +239,9 @@ const statutEff = r => r.statut || (idxOf(r.date) <= TODAY ? "percue" : "a_perce
 // toutes les échéances des commissions saisies à la main (lignes répétées dépliées)
 function reelsOcc(c, endIdx) {
   // une commission « à percevoir » dont la date est passée est attendue le mois prochain
-  const decale = (r, m) => statutEff(r) === "a_percevoir" && m <= TODAY ? TODAY + 1 : m;
-  const marque = (r, m) => ({ ...r, m: decale(r, m), retard: decale(r, m) !== m });
+  const auj = isoD(now);
+  const decale = (r, m) => statutEff(r) === "a_percevoir" && isoD(dateIdx(m, +r.date.slice(8, 10))) < auj ? TODAY + 1 : m;
+  const marque = (r, m) => ({ ...r, m: decale(r, m), retard: decale(r, m) !== m, m0: m });
   // une ligne répétée (chaque mois, trimestre, année) devient une occurrence par échéance
   return (c.reels || []).filter(r => r.date && num(r.montant)).flatMap(r => {
     const d = idxOf(r.date), f = num(r.repet), fin = r.jusquau ? idxOf(r.jusquau) : endIdx;
@@ -244,17 +261,39 @@ function simulate(c, endIdx) {
   const out = simulateCalc(c, endIdx);
   const R = reelsOcc(c, endIdx);
   const vide = () => ({ vers: 0, prime: 0, up: 0, lin: 0, fr: 0, acc: 0, enc: 0 });
+  // chaque commission calculée tombe à sa date probable : délai du partenaire ou du produit
+  const D = delais(c), sub = idxOf(c.date), jour = c.date ? +c.date.slice(8, 10) : 1, jourVP = c.vpDebut ? +c.vpDebut.slice(8, 10) : jour;
+  const deplace = [];
+  for (const [m, x] of out) {
+    if (x.up) { const d = ajoutJours(dateIdx(m, m === sub ? jour : jourVP), D.up); deplace.push([idxD(d), "up", x.up, d]); x.up = 0; }
+    const l = x.lin + x.fr;
+    if (l) { const d = ajoutJours(new Date(Math.floor(m / 12), m % 12 + 1, 0), D.lin); deplace.push([idxD(d), "lin", l, d]); x.lin = x.fr = 0; }
+  }
+  for (const [tm, t, v, d] of deplace) {
+    if (tm > endIdx) continue;
+    if (!out.has(tm)) out.set(tm, vide());
+    const x = out.get(tm); x[t] += v; (x.ev = x.ev || []).push({ t, v, d: isoD(d), src: "calc" });
+  }
   const hasUp = R.some(r => r.type !== "lineaire");
   const lastLin = Math.max(-Infinity, ...R.filter(r => r.type === "lineaire").map(r => r.m));
-  for (const [m, x] of out) { if (hasUp) x.up = 0; if (m <= lastLin) x.lin = x.fr = 0; }
+  for (const [m, x] of out) {
+    if (hasUp) { x.up = 0; if (x.ev) x.ev = x.ev.filter(e => e.t !== "up"); }
+    if (m <= lastLin) { x.lin = x.fr = 0; if (x.ev) x.ev = x.ev.filter(e => e.t !== "lin"); }
+  }
   // commission calculée marquée « non perçue » : ce qui était dû est attendu le mois prochain
   const att = (k, champs) => {
     if (c[k] !== "a_percevoir") return;
-    let du = 0;
-    for (const [m, x] of out) if (m <= TODAY) for (const f of champs) { du += x[f] || 0; x[f] = 0; }
+    let du = 0; const evs = [], t = champs[0] === "up" ? "up" : "lin", auj = isoD(now);
+    // seules les échéances déjà passées sont en retard ; celles plus tard dans le mois restent attendues
+    for (const [m, x] of out) if (m <= TODAY && x.ev) {
+      const dues = x.ev.filter(e => e.t === t && e.d < auj);
+      for (const e of dues) { du += e.v; x[t] -= e.v; }
+      evs.push(...dues); x.ev = x.ev.filter(e => !dues.includes(e));
+    }
     if (!du) return;
     if (!out.has(TODAY + 1)) out.set(TODAY + 1, vide());
     const x = out.get(TODAY + 1); x[champs[0]] += du; x.retard = (x.retard || 0) + du;
+    (x.ev = x.ev || []).push(...evs.map(e => ({ ...e, retard: true })));
   };
   att("statutUpfront", ["up"]); att("statutLin", ["lin", "fr"]);
   if (!R.length) return out;
@@ -262,6 +301,7 @@ function simulate(c, endIdx) {
     const m = r.m; if (!out.has(m)) out.set(m, vide());
     const x = out.get(m), net = r.base === "net", lin = r.type === "lineaire";
     if (r.retard) x.retard = (x.retard || 0) + num(r.montant);
+    (x.ev = x.ev || []).push({ t: lin ? "lin" : "up", v: num(r.montant), net, d: isoD(dateIdx(r.m0, +r.date.slice(8, 10))), src: "saisi", retard: r.retard, note: r.note || "" });
     if (lin) { if (net) x.linN = (x.linN || 0) + num(r.montant); else x.lin += num(r.montant); }
     else if (net) x.upN = (x.upN || 0) + num(r.montant); else x.up += num(r.montant);
   }
@@ -359,13 +399,21 @@ function compute() {
     let rCalc = null;
     for (const [m, x] of sim) {
       const s = split(c, x.up, x.lin + x.fr, m, x.upN, x.linN);
+      // mois en cours : ce qui tombe après aujourd'hui est attendu, pas encore perçu
+      let sFut = null;
+      if (m === TODAY && x.ev) {
+        const f = x.ev.filter(e => e.d >= isoD(now) && !e.retard), g = (t, n) => f.filter(e => e.t === t && !!e.net === n).reduce((a, e) => a + e.v, 0);
+        if (f.length) sFut = split(c, g("up", false), g("lin", false), m, g("up", true), g("lin", true));
+      }
       const y = Math.floor(m / 12);
       if (y < minYear) minYear = y;
       if (!years[y]) years[y] = { ...ZERO(), vers: 0, prime: 0, encFin: 0, encRem: 0, vp: 0 };
       addTo(years[y], s); years[y].vers += x.vers; years[y].prime += x.prime; years[y].vp += x.vp || 0;
       if (m % 12 === 11 || m === E) { years[y].encFin += x.enc; if (remun) years[y].encRem += x.enc; }
       if (m <= TODAY) {
-        addTo(T.cumul, s); addTo(pc.cumul, s);
+        const sP = sFut ? Object.fromEntries(Object.keys(s).map(k => [k, s[k] - sFut[k]])) : s;
+        if (sFut) { addTo(T.next12, sFut); }
+        addTo(T.cumul, sP); addTo(pc.cumul, sP);
         T.vers += x.vers; pc.vers += x.vers; T.primes += x.prime;
         if (num(c.tauxUpfront) > 0 || num(c.tauxUpfrontVP) > 0) T.versUp += x.vers;
         if (remun) T.versLin += x.vers;
@@ -700,6 +748,71 @@ function croissance(R, ys) {
   return `<div class="hint" style="font-size:13px;color:var(--ink)">Ton linéaire ${chartMode === "brut" ? "brut" : chartMode === "net" ? "net" : "net-net"} passe de <b>${eur(a[k])}</b> en ${ys[1]} à <b>${eur(z[k])}</b> en ${ys[ys.length - 1]} (${g >= 0 ? "+" : ""}${Math.round(g)} %). L'encours rémunéré passe de ${eur(a.encRem)} à ${eur(z.encRem)}, porté par ${eur(vp)} de versements programmés par an${S.revalo ? " et la revalorisation" : ""}. Cumulé sur la période : <b>${eur(ys.slice(1).reduce((t, y) => t + R.years[y][k], 0))}</b> de linéaire.</div>`;
 }
 
+/* ---------- Trésorerie : quand tombent les commissions ---------- */
+function echeances() {
+  const auj = isoD(now), L = [];
+  for (const c of actifs()) {
+    for (const [m, x] of simulate(c, TODAY + 12)) {
+      if (m < TODAY || m > TODAY + 12) continue;
+      for (const e of x.ev || []) {
+        if (m === TODAY && e.d < auj && !e.retard) continue;   // déjà tombé ce mois-ci
+        const s = split(c, e.t === "up" && !e.net ? e.v : 0, e.t === "lin" && !e.net ? e.v : 0, m, e.t === "up" && e.net ? e.v : 0, e.t === "lin" && e.net ? e.v : 0);
+        if (s.up + s.lin < 1) continue;   // miettes de linéaire
+        L.push({ c, m: e.retard ? TODAY : m, d: e.d, t: e.t, brut: s.up + s.lin, nn: s.nnUp + s.nnLin, retard: !!e.retard, src: e.src, note: e.note });
+      }
+    }
+  }
+  return L.sort((a, b) => (b.retard - a.retard) || a.d.localeCompare(b.d));
+}
+function renderTreso() {
+  if (!contrats.length) { $("#view-treso").innerHTML = emptyState(); return; }
+  const E = echeances(), som = f => E.filter(f).reduce((t, e) => t + e.nn, 0);
+  const ret = E.filter(e => e.retard), moisN = TODAY + 1;
+  const mois = Array.from({ length: 13 }, (_, i) => TODAY + i);
+  const parMois = mois.map(m => ({ m, up: E.filter(e => !e.retard && e.m === m && e.t === "up").reduce((t, e) => t + e.nn, 0), lin: E.filter(e => !e.retard && e.m === m && e.t === "lin").reduce((t, e) => t + e.nn, 0) }));
+  const R0 = som(e => e.retard);
+  // barres : retard puis 13 mois, net-net empilé upfront / linéaire
+  const cols = [{ lbl: "Retard", up: R0, lin: 0, ret: true }, ...parMois.map(p => ({ lbl: MOIS[p.m % 12] + (p.m % 12 === 0 || p.m === TODAY ? " " + String(Math.floor(p.m / 12)).slice(2) : ""), up: p.up, lin: p.lin }))];
+  const max = Math.max(1, ...cols.map(c => c.up + c.lin)), step = niceStep(max / 4), top = Math.ceil(max / step) * step;
+  const W = 760, H = 260, Lm = 56, B = 30, Tp = 20, Rm = 8, bw = (W - Lm - Rm) / cols.length, y = v => H - B - v / top * (H - B - Tp);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Commissions attendues par mois">`;
+  for (let t = 0; t <= top + 1e-6; t += step) svg += `<line x1="${Lm}" x2="${W - Rm}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${Lm - 6}" y="${y(t) + 4}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="var(--mono)">${kfmt(t)}</text>`;
+  cols.forEach((c, i) => {
+    const x = Lm + i * bw + bw * 0.18, w = bw * 0.64;
+    svg += `<rect x="${x}" y="${y(c.up)}" width="${w}" height="${Math.max(0, y(0) - y(c.up))}" fill="${c.ret ? "var(--warn)" : "var(--upfront)"}"/>`;
+    svg += `<rect x="${x}" y="${y(c.up + c.lin)}" width="${w}" height="${Math.max(0, y(c.up) - y(c.up + c.lin))}" fill="var(--accent)"/>`;
+    if (c.up + c.lin >= 1) svg += `<text x="${x + w / 2}" y="${y(c.up + c.lin) - 5}" text-anchor="middle" font-size="10" fill="var(--ink)" font-family="var(--mono)">${Math.round(c.up + c.lin) >= 10000 ? kfmt(c.up + c.lin) : Math.round(c.up + c.lin)}</text>`;
+    svg += `<text x="${x + w / 2}" y="${H - 10}" text-anchor="middle" font-size="10" fill="${c.ret ? "var(--warn)" : "var(--muted)"}">${c.lbl}</text>`;
+  });
+  svg += `</svg>`;
+  const groupes = [["En retard", ret], ...mois.map(m => [MOIS[m % 12] + " " + Math.floor(m / 12) + (m === TODAY ? " (reste du mois)" : ""), E.filter(e => !e.retard && e.m === m)])].filter(([, l]) => l.length);
+  const ligne = e => `<tr class="click" data-id="${esc(e.c.id)}"><td class="num small">${e.retard ? `prévu ${new Date(e.d).toLocaleDateString("fr-FR")}` : `≈ ${new Date(e.d).toLocaleDateString("fr-FR")}`}</td>
+    <td><b>${esc(e.c.client)}</b><div class="small muted">${esc(e.c.produit)}${e.c.partenaire ? " · " + esc(e.c.partenaire) : ""}</div></td>
+    <td><span class="pill ${e.t === "up" ? "up" : ""}">${e.t === "up" ? "upfront" : "linéaire"}</span>${e.src === "saisi" ? ` <span class="pill off" title="${esc(e.note || "")}">saisi</span>` : ""}</td>
+    <td class="n">${eur(e.brut)}</td><td class="n"><b>${eur(e.nn)}</b></td>
+    <td>${e.retard ? `<span class="pill warn">en retard</span>` : `<span class="pill">à venir</span>`}</td></tr>`;
+  $("#view-treso").innerHTML = `<div class="panel">
+    <div><h2>Quand tombent tes commissions</h2><div class="hint">Dates probables, calculées avec les délais de paiement de chaque partenaire, ou à défaut du type de produit (Réglages). Les commissions saisies à la main gardent leur date. Montants en net-net, après réseau, partages et URSSAF.</div></div>
+    <div class="kpis">
+      ${kpi("up", "En retard", eur(R0), `${ret.length} commission${ret.length > 1 ? "s" : ""} à relancer`)}
+      ${kpi("", "D'ici la fin du mois", eur(som(e => !e.retard && e.m === TODAY)), `${E.filter(e => !e.retard && e.m === TODAY).length} versement(s) attendu(s)`)}
+      ${kpi("", MOIS[moisN % 12] + " " + Math.floor(moisN / 12), eur(som(e => !e.retard && e.m === moisN)), `${E.filter(e => !e.retard && e.m === moisN).length} versement(s) attendu(s)`)}
+      ${kpi("lin", "3 prochains mois", eur(som(e => !e.retard && e.m > TODAY && e.m <= TODAY + 3)), `soit ${eur(som(e => !e.retard && e.m > TODAY && e.m <= TODAY + 3) / 3)}/mois en moyenne`)}
+    </div>
+    <div class="chart">${svg}</div>
+    <div class="legend"><span><span class="sw" style="background:var(--warn)"></span>En retard</span><span><span class="sw" style="background:var(--upfront)"></span>Upfront</span><span><span class="sw" style="background:var(--accent)"></span>Linéaire</span><span class="muted">net-net, en euros</span></div>
+  </div>
+  <div class="panel">
+    <h2>Le détail, versement par versement</h2>
+    ${groupes.length ? `<div class="scroll"><table>
+      <thead><tr><th>Date</th><th>Client</th><th>Type</th><th class="n">Brut</th><th class="n">Net-net</th><th>Statut</th></tr></thead>
+      <tbody>${groupes.map(([titre, l]) => `<tr><td colspan="6" style="background:var(--bg);font-weight:600">${titre} <span class="muted small">· ${eur(l.reduce((t, e) => t + e.nn, 0))} net-net</span></td></tr>${l.map(ligne).join("")}`).join("")}</tbody>
+    </table></div>` : `<div class="empty">Aucune commission attendue sur les 12 prochains mois.</div>`}
+    <div class="hint">Une date ne colle pas ? Règle le délai du partenaire dans l'onglet Partenaires, ou saisis la vraie date dans « Commissions perçues / à venir » du contrat.</div>
+  </div>`;
+  document.querySelectorAll("#view-treso tr[data-id]").forEach(tr => tr.onclick = () => openForm(contrats.find(c => c.id === tr.dataset.id)));
+}
+
 /* ---------- Objectifs : combien de contrats signer ---------- */
 // moyennes tirées des contrats déjà saisis (surchargeables à la main)
 function moyennes(R) {
@@ -917,8 +1030,8 @@ function renderSim() {
 function renderPart() {
   $("#view-part").innerHTML = `<div class="panel">
     <div class="row" style="justify-content:space-between"><div><h2>Grille partenaires</h2><div class="hint">Les taux d'un partenaire pré-remplissent un nouveau contrat. Tu peux toujours les modifier contrat par contrat.</div></div><button id="addP">+ Partenaire</button></div>
-    ${partenaires.length ? `<div class="scroll"><table><thead><tr><th>Partenaire</th><th>Produit</th><th class="n">Upfront</th><th class="n">Linéaire /an</th><th class="n">Part des frais</th><th class="n">Enveloppe</th><th>Notes</th></tr></thead><tbody>
-    ${partenaires.slice().sort((a, b) => a.nom.localeCompare(b.nom, "fr")).map(p => `<tr class="click" data-pid="${esc(p.id)}"><td><b>${esc(p.nom)}</b></td><td>${esc(p.produit || "")}</td><td class="n">${num(p.tauxUpfront) ? pct(num(p.tauxUpfront)) : "—"}</td><td class="n">${num(p.tauxLineaire) ? pct(num(p.tauxLineaire)) : "—"}</td><td class="n">${num(p.partFrais) ? pct(num(p.partFrais)) + " de " + pct(num(p.fraisGestion)) : "—"}</td><td class="n">${num(p.fraisEnvStandard) ? pct(num(p.fraisEnvStandard)) + " − " + pct(num(p.coutAssureur)) + " = " + pct(margeEnv(p.fraisEnvStandard, p.coutAssureur)) : "—"}</td><td class="small muted">${esc(p.notes || "")}</td></tr>`).join("")}
+    ${partenaires.length ? `<div class="scroll"><table><thead><tr><th>Partenaire</th><th>Produit</th><th class="n">Upfront</th><th class="n">Linéaire /an</th><th class="n">Part des frais</th><th class="n">Enveloppe</th><th class="n">Délais UF / lin.</th><th>Notes</th></tr></thead><tbody>
+    ${partenaires.slice().sort((a, b) => a.nom.localeCompare(b.nom, "fr")).map(p => `<tr class="click" data-pid="${esc(p.id)}"><td><b>${esc(p.nom)}</b></td><td>${esc(p.produit || "")}</td><td class="n">${num(p.tauxUpfront) ? pct(num(p.tauxUpfront)) : "—"}</td><td class="n">${num(p.tauxLineaire) ? pct(num(p.tauxLineaire)) : "—"}</td><td class="n">${num(p.partFrais) ? pct(num(p.partFrais)) + " de " + pct(num(p.fraisGestion)) : "—"}</td><td class="n">${num(p.fraisEnvStandard) ? pct(num(p.fraisEnvStandard)) + " − " + pct(num(p.coutAssureur)) + " = " + pct(margeEnv(p.fraisEnvStandard, p.coutAssureur)) : "—"}</td><td class="n small">${p.delaiUp !== "" && p.delaiUp != null ? p.delaiUp + " j" : "—"} / ${p.delaiLin !== "" && p.delaiLin != null ? p.delaiLin + " j" : "—"}</td><td class="small muted">${esc(p.notes || "")}</td></tr>`).join("")}
     </tbody></table></div>` : `<div class="empty">Aucun partenaire pour l'instant.</div>`}
   </div>`;
   $("#addP").onclick = () => openPart({});
@@ -936,6 +1049,12 @@ function renderReglages() {
       <label class="f" for="sBase">Apporteurs et cabinets sont payés sur<select id="sBase"><option value="apres" ${S.baseApporteur === "apres" ? "selected" : ""}>la commission après réseau (s'il y en a un)</option><option value="brut" ${S.baseApporteur === "brut" ? "selected" : ""}>la commission brute</option></select></label>
     </div>
     <div class="hint">Micro-entreprise BNC : vérifie ton taux réel sur autoentrepreneur.urssaf.fr (il a augmenté chaque année depuis 2024). Ajoute 2,2 % si tu as opté pour le versement libératoire de l'impôt.</div>
+    <fieldset><legend>Délais de paiement par produit (jours)</legend>
+      <div class="scroll"><table><thead><tr><th>Produit</th><th class="n">Upfront, après souscription / prélèvement</th><th class="n">Linéaire, après fin de période</th></tr></thead><tbody>
+      ${PRODUITS.map((p, i) => { const d = (S.delais || {})[p] || DEFAULTS.delais[p] || DEFAULTS.delais.Autre; return `<tr><td>${esc(p)}</td><td class="n"><input id="dU${i}" inputmode="numeric" aria-label="Délai upfront ${esc(p)}" value="${num(d.up)}" style="max-width:90px;text-align:right"></td><td class="n"><input id="dL${i}" inputmode="numeric" aria-label="Délai linéaire ${esc(p)}" value="${num(d.lin)}" style="max-width:90px;text-align:right"></td></tr>`; }).join("")}
+      </tbody></table></div>
+      <div class="hint">Valeurs par défaut quand le partenaire n'a pas ses propres délais (onglet Partenaires). Ex. SCPI : upfront environ 50 jours après souscription, linéaire environ 30 jours après la fin du trimestre.</div>
+    </fieldset>
     <fieldset><legend>Revalorisation de l'encours</legend>
       <label class="row small" for="sRev"><input type="checkbox" id="sRev" ${S.revalo ? "checked" : ""}> Faire évoluer l'encours selon un rendement annuel par produit</label>
       <div class="fgrid">${REVALO_PRODUITS.map((p, i) => `<label class="f" for="sRp${i}">${esc(p)} (% par an)<input id="sRp${i}" inputmode="decimal" value="${num((S.rdtProduit || {})[p])}"></label>`).join("")}</div>
@@ -950,7 +1069,7 @@ function renderReglages() {
     <div class="hint" id="ioMsg"></div>
   </div></div>`;
   $("#sSave").onclick = async () => {
-    const n = { nomReseau: $("#sNom").value.trim() || "Réseau", tauxReseau: num($("#sRes").value), urssaf: num($("#sUrs").value), horizon: Math.min(15, Math.max(1, Math.round(num($("#sHor").value)) || 5)), baseApporteur: $("#sBase").value, revalo: $("#sRev").checked, rdtProduit: Object.fromEntries(REVALO_PRODUITS.map((p, i) => [p, num($("#sRp" + i).value)])) };
+    const n = { nomReseau: $("#sNom").value.trim() || "Réseau", tauxReseau: num($("#sRes").value), urssaf: num($("#sUrs").value), horizon: Math.min(15, Math.max(1, Math.round(num($("#sHor").value)) || 5)), baseApporteur: $("#sBase").value, revalo: $("#sRev").checked, rdtProduit: Object.fromEntries(REVALO_PRODUITS.map((p, i) => [p, num($("#sRp" + i).value)])), delais: Object.fromEntries(PRODUITS.map((p, i) => [p, { up: num($("#dU" + i).value), lin: num($("#dL" + i).value) }])) };
     S = { ...S, ...n }; render();
     try { await db.doc("config/reglages").set(S); toast("Hypothèses enregistrées"); } catch (e) { toast("Échec de l'enregistrement : " + (e.message || e.code)); }
   };
@@ -971,6 +1090,7 @@ function render() {
   if (tab === "bord") renderBord(R);
   if (tab === "contrats") renderContrats(R);
   if (tab === "prev") renderPrev(R);
+  if (tab === "treso") renderTreso();
   if (tab === "obj") renderObj(R);
   if (tab === "sim") renderSim();
   if (tab === "part") renderPart();
@@ -1194,14 +1314,15 @@ function openPart(p) {
   ${field("pTu", "Upfront (%)", p.tauxUpfront, 'inputmode="decimal"')}${field("pTl", "Linéaire (% par an)", p.tauxLineaire, 'inputmode="decimal"')}
   ${sel("pLd", "Le linéaire démarre", p.lineaireDebut || "immediat", [["immediat", "Dès la souscription"], ["n1", "À N+1"], ["n2", "À N+2"]])}
   ${field("pPf", "Part des frais de gestion (%)", p.partFrais, 'inputmode="decimal"')}${field("pFg", "Frais de gestion (% par an)", p.fraisGestion, 'inputmode="decimal"')}
-  ${field("pEs", "Frais d'enveloppe standard (%)", p.fraisEnvStandard, 'inputmode="decimal"')}${field("pEc", "Part gardée par l'assureur (%)", p.coutAssureur, 'inputmode="decimal"')}</div>
+  ${field("pEs", "Frais d'enveloppe standard (%)", p.fraisEnvStandard, 'inputmode="decimal"')}${field("pEc", "Part gardée par l'assureur (%)", p.coutAssureur, 'inputmode="decimal"')}
+  ${field("pDu", "Paie l'upfront après (jours)", p.delaiUp, 'inputmode="numeric" placeholder="délai du produit"')}${field("pDl", "Paie le linéaire après la fin de période (jours)", p.delaiLin, 'inputmode="numeric" placeholder="délai du produit"')}</div>
   <label class="f" for="pNotes">Notes<textarea id="pNotes" rows="2">${esc(p.notes || "")}</textarea></label>
   <div class="row" style="justify-content:space-between"><div>${isNew ? "" : `<button type="button" class="danger" id="pDel">Supprimer</button>`}</div><div class="row"><button type="button" id="pCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></div>`;
   $("#pClose").onclick = $("#pCancel").onclick = () => $("#dlgP").close();
   if (!isNew) $("#pDel").onclick = async () => { await db.doc("partenaires/" + p.id).delete(); $("#dlgP").close(); toast("Partenaire supprimé"); };
   f.onsubmit = async ev => {
     ev.preventDefault();
-    const x = { ...p, nom: $("#pNom").value.trim(), produit: $("#pProd").value, tauxUpfront: num($("#pTu").value), tauxLineaire: num($("#pTl").value), lineaireDebut: $("#pLd").value, partFrais: num($("#pPf").value), fraisGestion: num($("#pFg").value), fraisEnvStandard: $("#pEs").value === "" ? "" : num($("#pEs").value), coutAssureur: $("#pEc").value === "" ? "" : num($("#pEc").value), notes: $("#pNotes").value };
+    const x = { ...p, nom: $("#pNom").value.trim(), produit: $("#pProd").value, tauxUpfront: num($("#pTu").value), tauxLineaire: num($("#pTl").value), lineaireDebut: $("#pLd").value, partFrais: num($("#pPf").value), fraisGestion: num($("#pFg").value), fraisEnvStandard: $("#pEs").value === "" ? "" : num($("#pEs").value), coutAssureur: $("#pEc").value === "" ? "" : num($("#pEc").value), delaiUp: $("#pDu").value === "" ? "" : num($("#pDu").value), delaiLin: $("#pDl").value === "" ? "" : num($("#pDl").value), notes: $("#pNotes").value };
     if (!x.nom) return;
     x.id = x.id || db.collection("partenaires").doc().id;
     try { await db.doc("partenaires/" + x.id).set(x); $("#dlgP").close(); toast("Partenaire enregistré"); } catch (e) { toast("Enregistrement impossible : " + (e.message || e.code)); }
